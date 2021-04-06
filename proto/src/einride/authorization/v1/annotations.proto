@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package einride.authorization.v1;
+
+option csharp_namespace = "Authorization.V1Beta1";
+option go_package = "go.einride.tech/protoc-gen-go-authorization-policy/proto/gen//einride/authorization/v1;authorizationv1";
+option java_multiple_files = true;
+option java_outer_classname = "AnnotationsProto";
+option java_package = "tech.einride.authorization.v1";
+option objc_class_prefix = "AXX";
+option php_namespace = "Authorization\\V1";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MethodOptions {
+  Policy policy = 11000;
+}
+
+message Policy {
+  PolicyType type = 1;
+  string expression = 2;
+}
+
+enum PolicyType {
+  POLICY_TYPE_UNSPECIFIED = 0;
+  CUSTOM_MIDDLEWARE = 1;
+  REQUEST = 2;
+  RESPONSE = 3;
+}
