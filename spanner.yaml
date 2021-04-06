@@ -1,0 +1,7 @@
+databases:
+  - name: iam
+    schema:
+      - ./iamspanner/schema.sql
+    package:
+      name: iamspannerdb
+      path: ./iamspanner/iamspannerdb
