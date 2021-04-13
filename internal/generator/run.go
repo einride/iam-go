@@ -16,14 +16,12 @@ func Run(gen *protogen.Plugin) error {
 		f.Skip()
 		FileHeader{File: file}.Generate(f)
 		for _, service := range file.Services {
+			f.Unskip()
+			Middleware{Service: service}.Generate(f)
 			for _, method := range service.Methods {
 				policy := proto.GetExtension(method.Desc.Options(), authorizationv1.E_Policy).(*authorizationv1.Policy)
-				if policy == nil {
-					continue
-				}
-				f.Unskip()
+				MiddlewareMethod{Method: method, Policy: policy}.Generate(f)
 			}
-			// TODO: Generate middleware.
 		}
 	}
 	return nil

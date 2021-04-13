@@ -1,15 +1,24 @@
 package generator
 
 import (
-	authorizationv1 "go.einride.tech/protoc-gen-go-authorization-policy/proto/gen/einride/authorization/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
 type Middleware struct {
-	Method *protogen.Method
-	Policy *authorizationv1.Policy
+	Service *protogen.Service
+}
+
+func (g Middleware) GoName() string {
+	return g.Service.GoName + "AuthorizationMiddleware"
 }
 
 func (g Middleware) Generate(f *protogen.GeneratedFile) {
-	// TODO: Implement me.
+	f.P()
+	f.P("type ", g.Service.GoName, "AuthorizationMiddleware struct {")
+	f.P("next ", g.Service.GoName, "Server")
+	f.P("}")
+	f.P("")
+	f.P("var _ ", g.Service.GoName, "Server = &", g.GoName(), "{}")
+	f.P()
+	f.P("func (*", g.GoName(), ") mustEmbedUnimplemented", g.Service.GoName, "Server() {}")
 }

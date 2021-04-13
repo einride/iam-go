@@ -3,3 +3,151 @@
 // source: einride/authorization/example/v1/freight_service.proto
 
 package authorizationexamplev1
+
+import (
+	context "context"
+)
+
+type FreightServiceAuthorizationMiddleware struct {
+	next FreightServiceServer
+}
+
+var _ FreightServiceServer = &FreightServiceAuthorizationMiddleware{}
+
+func (*FreightServiceAuthorizationMiddleware) mustEmbedUnimplementedFreightServiceServer() {}
+
+func (m *FreightServiceAuthorizationMiddleware) GetShipper(
+	ctx context.Context,
+	request *GetShipperRequest,
+) (
+	*Shipper, error,
+) {
+	// TODO: Run the following policy: has_role(user, request.name, 'shippers/reader')
+	return nil, nil
+}
+
+func (m *FreightServiceAuthorizationMiddleware) ListShippers(
+	ctx context.Context,
+	request *ListShippersRequest,
+) (
+	*ListShippersResponse, error,
+) {
+	return m.next.ListShippers(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) CreateShipper(
+	ctx context.Context,
+	request *CreateShipperRequest,
+) (
+	*Shipper, error,
+) {
+	return m.next.CreateShipper(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) UpdateShipper(
+	ctx context.Context,
+	request *UpdateShipperRequest,
+) (
+	*Shipper, error,
+) {
+	return m.next.UpdateShipper(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) DeleteShipper(
+	ctx context.Context,
+	request *DeleteShipperRequest,
+) (
+	*Shipper, error,
+) {
+	return m.next.DeleteShipper(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) GetSite(
+	ctx context.Context,
+	request *GetSiteRequest,
+) (
+	*Site, error,
+) {
+	return m.next.GetSite(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) ListSites(
+	ctx context.Context,
+	request *ListSitesRequest,
+) (
+	*ListSitesResponse, error,
+) {
+	return m.next.ListSites(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) CreateSite(
+	ctx context.Context,
+	request *CreateSiteRequest,
+) (
+	*Site, error,
+) {
+	return m.next.CreateSite(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) UpdateSite(
+	ctx context.Context,
+	request *UpdateSiteRequest,
+) (
+	*Site, error,
+) {
+	return m.next.UpdateSite(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) DeleteSite(
+	ctx context.Context,
+	request *DeleteSiteRequest,
+) (
+	*Site, error,
+) {
+	return m.next.DeleteSite(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) GetShipment(
+	ctx context.Context,
+	request *GetShipmentRequest,
+) (
+	*Shipment, error,
+) {
+	return m.next.GetShipment(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) ListShipments(
+	ctx context.Context,
+	request *ListShipmentsRequest,
+) (
+	*ListShipmentsResponse, error,
+) {
+	return m.next.ListShipments(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) CreateShipment(
+	ctx context.Context,
+	request *CreateShipmentRequest,
+) (
+	*Shipment, error,
+) {
+	return m.next.CreateShipment(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) UpdateShipment(
+	ctx context.Context,
+	request *UpdateShipmentRequest,
+) (
+	*Shipment, error,
+) {
+	return m.next.UpdateShipment(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) DeleteShipment(
+	ctx context.Context,
+	request *DeleteShipmentRequest,
+) (
+	*Shipment, error,
+) {
+	return m.next.DeleteShipment(ctx, request)
+}
