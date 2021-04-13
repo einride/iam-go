@@ -15,6 +15,8 @@ import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "google/iam/v1/iam_policy.proto";
+import "google/iam/v1/policy.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -33,6 +35,65 @@ import "google/protobuf/timestamp.proto";
 service FreightService {
   option (google.api.default_host) = "authorization-example.einride.tech";
 
+  // Sets the access control policy on the specified shipper, site or shipment.
+  rpc SetIamPolicy(google.iam.v1.SetIamPolicyRequest) returns (google.iam.v1.Policy) {
+    option (google.api.http) = {
+      post: "/v1/{resource=shippers/*}:setIamPolicy"
+      body: "*"
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/sites/*}:setIamPolicy"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/shipments/*}:setIamPolicy"
+        body: "*"
+      }
+    };
+    option (google.api.method_signature) = "resource,policy";
+  }
+
+  // Gets the access control policy for a shipper, site or shipment resource.
+  //
+  // Returns an empty policy if the resource exists and does not have a policy
+  // set.
+  rpc GetIamPolicy(google.iam.v1.GetIamPolicyRequest) returns (google.iam.v1.Policy) {
+    option (google.api.http) = {
+      post: "/v1/{resource=shippers/*}:getIamPolicy"
+      body: "*"
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/sites/*}:getIamPolicy"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/shipments/*}:getIamPolicy"
+        body: "*"
+      }
+    };
+    option (google.api.method_signature) = "resource";
+  }
+
+  // Returns the permissions that a caller has on the specified shipper or
+  // site or shipment.
+  //
+  // Note: This operation is designed to be used for building permission-aware
+  // UIs and command-line tools, not for authorization checking. This operation
+  // may "fail open" without warning.
+  rpc TestIamPermissions(google.iam.v1.TestIamPermissionsRequest) returns (google.iam.v1.TestIamPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{resource=shippers/*}:testIamPermissions"
+      body: "*"
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/sites/*}:testIamPermissions"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/shipments/*}:testIamPermissions"
+        body: "*"
+      }
+    };
+    option (google.api.method_signature) = "resource,permissions";
+  }
+
   // Get a shipper.
   // See: https://google.aip.dev/131 (Standard methods: Get).
   rpc GetShipper(GetShipperRequest) returns (Shipper) {
@@ -41,8 +102,9 @@ service FreightService {
     };
     option (google.api.method_signature) = "name";
     option (einride.authorization.v1.policy) = {
-      type: REQUEST
-      expression: "has_role(user, request.name, 'shippers/reader')"
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.name, 'freight.shippers.get')"
+      description: "The caller has permission to get the shipper."
     };
   }
 
@@ -51,6 +113,11 @@ service FreightService {
   rpc ListShippers(ListShippersRequest) returns (ListShippersResponse) {
     option (google.api.http) = {
       get: "/v1/shippers"
+    };
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, '*', 'freight.shippers.list')"
+      description: "The caller has permission to list all shippers."
     };
   }
 
@@ -62,6 +129,11 @@ service FreightService {
       body: "shipper"
     };
     option (google.api.method_signature) = "shipper";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, '*', 'freight.shippers.create')"
+      description: "The caller has permission to create new shippers."
+    };
   }
 
   // Update a shipper.
@@ -72,6 +144,11 @@ service FreightService {
       body: "shipper"
     };
     option (google.api.method_signature) = "shipper,update_mask";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.shipper.name, 'freight.shippers.update')"
+      description: "The caller has permission to update the shipper."
+    };
   }
 
   // Delete a shipper.
@@ -82,6 +159,11 @@ service FreightService {
       delete: "/v1/{name=shippers/*}"
     };
     option (google.api.method_signature) = "name";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, '*', 'freight.shippers.delete')"
+      description: "The caller has permission to delete the shipper."
+    };
   }
 
   // Get a site.
@@ -91,6 +173,11 @@ service FreightService {
       get: "/v1/{name=shippers/*/sites/*}"
     };
     option (google.api.method_signature) = "name";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.name, 'freight.sites.get')"
+      description: "The caller has permission to get the site."
+    };
   }
 
   // List sites for a shipper.
@@ -100,6 +187,11 @@ service FreightService {
       get: "/v1/{parent=shippers/*}/sites"
     };
     option (google.api.method_signature) = "parent";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.parent, 'freight.sites.list')"
+      description: "The caller has permission to list all sites under a shipper."
+    };
   }
 
   // Create a site.
@@ -110,6 +202,11 @@ service FreightService {
       body: "site"
     };
     option (google.api.method_signature) = "parent,site";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.parent, 'freight.sites.create')"
+      description: "The caller has permission to create new sites under a shipper."
+    };
   }
 
   // Update a site.
@@ -120,6 +217,11 @@ service FreightService {
       body: "site"
     };
     option (google.api.method_signature) = "site,update_mask";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.site.name, 'freight.sites.update')"
+      description: "The caller has permission to update the site."
+    };
   }
 
   // Delete a site.
@@ -130,6 +232,11 @@ service FreightService {
       delete: "/v1/{name=shippers/*/sites/*}"
     };
     option (google.api.method_signature) = "name";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.name, 'freight.sites.delete')"
+      description: "The caller has permission to delete the site."
+    };
   }
 
   // Get a shipment.
@@ -139,6 +246,17 @@ service FreightService {
       get: "/v1/{name=shippers/*/shipments/*}"
     };
     option (google.api.method_signature) = "name";
+    option (einride.authorization.v1.policy) = {
+      decision_point: AFTER
+      expression:
+        "has_permission(caller, request.name, 'freight.shipments.get')"
+        "|| has_permission(caller, response.origin_site, 'freight.shipments.get')"
+        "|| has_permission(caller, response.destination_site, 'freight.shipments.get')"
+      description:
+        "The caller has permission to get the shipment"
+        ", or the caller has permission to get all shipments from the shipment's origin site"
+        ", or the caller has permission to get all shipments from the shipment's destination site."
+    };
   }
 
   // List shipments for a shipper.
@@ -148,6 +266,11 @@ service FreightService {
       get: "/v1/{parent=shippers/*}/shipments"
     };
     option (google.api.method_signature) = "parent";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression: "has_permission(caller, request.parent, 'freight.shipments.list')"
+      description: "The caller has permission to list all shipments under a shipper."
+    };
   }
 
   // Create a shipment.
@@ -158,6 +281,17 @@ service FreightService {
       body: "shipment"
     };
     option (google.api.method_signature) = "parent,shipment";
+    option (einride.authorization.v1.policy) = {
+      decision_point: BEFORE
+      expression:
+        "has_permission(caller, request.parent, 'freight.shipments.create')"
+        "|| has_permission(caller, request.shipment.origin_site, 'freight.shipments.create')"
+        "|| has_permission(caller, request.shipment.destination_site, 'freight.shipments.create')"
+      description:
+        "The caller has permission to create shipments under the parent shipper"
+        ", or the caller has permission to create shipments from the shipment's origin site"
+        ", or the caller has permission to create shipments from the shipment's destination site."
+    };
   }
 
   // Update a shipment.
@@ -168,6 +302,13 @@ service FreightService {
       body: "shipment"
     };
     option (google.api.method_signature) = "shipment,update_mask";
+    option (einride.authorization.v1.policy) = {
+      decision_point: CUSTOM
+      description:
+        "The caller has permission to update the shipment,"
+        ", or the caller has permission to update shipments from the previous shipment's origin site"
+        ", or the caller has permission to update shipments from the previous shipment's destination site."
+    };
   }
 
   // Delete a shipment.
@@ -178,6 +319,11 @@ service FreightService {
       delete: "/v1/{name=shippers/*/shipments/*}"
     };
     option (google.api.method_signature) = "name";
+    option (einride.authorization.v1.policy) = {
+      decision_point: AFTER
+      expression: "has_permission(caller, request.shipment.name, 'freight.shipments.delete')"
+      description: "The caller has permission to delete the shipment."
+    };
   }
 }
 

@@ -4,6 +4,7 @@ package authorizationexamplev1
 
 import (
 	context "context"
+	v1 "google.golang.org/genproto/googleapis/iam/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -18,6 +19,20 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FreightServiceClient interface {
+	// Sets the access control policy on the specified shipper, site or shipment.
+	SetIamPolicy(ctx context.Context, in *v1.SetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error)
+	// Gets the access control policy for a shipper, site or shipment resource.
+	//
+	// Returns an empty policy if the resource exists and does not have a policy
+	// set.
+	GetIamPolicy(ctx context.Context, in *v1.GetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error)
+	// Returns the permissions that a caller has on the specified shipper or
+	// site or shipment.
+	//
+	// Note: This operation is designed to be used for building permission-aware
+	// UIs and command-line tools, not for authorization checking. This operation
+	// may "fail open" without warning.
+	TestIamPermissions(ctx context.Context, in *v1.TestIamPermissionsRequest, opts ...grpc.CallOption) (*v1.TestIamPermissionsResponse, error)
 	// Get a shipper.
 	// See: https://google.aip.dev/131 (Standard methods: Get).
 	GetShipper(ctx context.Context, in *GetShipperRequest, opts ...grpc.CallOption) (*Shipper, error)
@@ -74,6 +89,33 @@ type freightServiceClient struct {
 
 func NewFreightServiceClient(cc grpc.ClientConnInterface) FreightServiceClient {
 	return &freightServiceClient{cc}
+}
+
+func (c *freightServiceClient) SetIamPolicy(ctx context.Context, in *v1.SetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error) {
+	out := new(v1.Policy)
+	err := c.cc.Invoke(ctx, "/einride.authorization.example.v1.FreightService/SetIamPolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *freightServiceClient) GetIamPolicy(ctx context.Context, in *v1.GetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error) {
+	out := new(v1.Policy)
+	err := c.cc.Invoke(ctx, "/einride.authorization.example.v1.FreightService/GetIamPolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *freightServiceClient) TestIamPermissions(ctx context.Context, in *v1.TestIamPermissionsRequest, opts ...grpc.CallOption) (*v1.TestIamPermissionsResponse, error) {
+	out := new(v1.TestIamPermissionsResponse)
+	err := c.cc.Invoke(ctx, "/einride.authorization.example.v1.FreightService/TestIamPermissions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *freightServiceClient) GetShipper(ctx context.Context, in *GetShipperRequest, opts ...grpc.CallOption) (*Shipper, error) {
@@ -215,6 +257,20 @@ func (c *freightServiceClient) DeleteShipment(ctx context.Context, in *DeleteShi
 // All implementations must embed UnimplementedFreightServiceServer
 // for forward compatibility
 type FreightServiceServer interface {
+	// Sets the access control policy on the specified shipper, site or shipment.
+	SetIamPolicy(context.Context, *v1.SetIamPolicyRequest) (*v1.Policy, error)
+	// Gets the access control policy for a shipper, site or shipment resource.
+	//
+	// Returns an empty policy if the resource exists and does not have a policy
+	// set.
+	GetIamPolicy(context.Context, *v1.GetIamPolicyRequest) (*v1.Policy, error)
+	// Returns the permissions that a caller has on the specified shipper or
+	// site or shipment.
+	//
+	// Note: This operation is designed to be used for building permission-aware
+	// UIs and command-line tools, not for authorization checking. This operation
+	// may "fail open" without warning.
+	TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error)
 	// Get a shipper.
 	// See: https://google.aip.dev/131 (Standard methods: Get).
 	GetShipper(context.Context, *GetShipperRequest) (*Shipper, error)
@@ -270,6 +326,15 @@ type FreightServiceServer interface {
 type UnimplementedFreightServiceServer struct {
 }
 
+func (UnimplementedFreightServiceServer) SetIamPolicy(context.Context, *v1.SetIamPolicyRequest) (*v1.Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetIamPolicy not implemented")
+}
+func (UnimplementedFreightServiceServer) GetIamPolicy(context.Context, *v1.GetIamPolicyRequest) (*v1.Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIamPolicy not implemented")
+}
+func (UnimplementedFreightServiceServer) TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TestIamPermissions not implemented")
+}
 func (UnimplementedFreightServiceServer) GetShipper(context.Context, *GetShipperRequest) (*Shipper, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetShipper not implemented")
 }
@@ -326,6 +391,60 @@ type UnsafeFreightServiceServer interface {
 
 func RegisterFreightServiceServer(s grpc.ServiceRegistrar, srv FreightServiceServer) {
 	s.RegisterService(&FreightService_ServiceDesc, srv)
+}
+
+func _FreightService_SetIamPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.SetIamPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FreightServiceServer).SetIamPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/einride.authorization.example.v1.FreightService/SetIamPolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FreightServiceServer).SetIamPolicy(ctx, req.(*v1.SetIamPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FreightService_GetIamPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetIamPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FreightServiceServer).GetIamPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/einride.authorization.example.v1.FreightService/GetIamPolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FreightServiceServer).GetIamPolicy(ctx, req.(*v1.GetIamPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FreightService_TestIamPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.TestIamPermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FreightServiceServer).TestIamPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/einride.authorization.example.v1.FreightService/TestIamPermissions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FreightServiceServer).TestIamPermissions(ctx, req.(*v1.TestIamPermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _FreightService_GetShipper_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -605,6 +724,18 @@ var FreightService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "einride.authorization.example.v1.FreightService",
 	HandlerType: (*FreightServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SetIamPolicy",
+			Handler:    _FreightService_SetIamPolicy_Handler,
+		},
+		{
+			MethodName: "GetIamPolicy",
+			Handler:    _FreightService_GetIamPolicy_Handler,
+		},
+		{
+			MethodName: "TestIamPermissions",
+			Handler:    _FreightService_TestIamPermissions_Handler,
+		},
 		{
 			MethodName: "GetShipper",
 			Handler:    _FreightService_GetShipper_Handler,

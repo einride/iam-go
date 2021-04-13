@@ -17,13 +17,14 @@ extend google.protobuf.MethodOptions {
 }
 
 message Policy {
-  PolicyType type = 1;
+  PolicyDecisionPoint decision_point = 1;
   string expression = 2;
+  string description = 3;
 }
 
-enum PolicyType {
+enum PolicyDecisionPoint {
   POLICY_TYPE_UNSPECIFIED = 0;
-  CUSTOM_MIDDLEWARE = 1;
-  REQUEST = 2;
-  RESPONSE = 3;
+  BEFORE = 1;
+  AFTER = 2;
+  CUSTOM = 3;
 }

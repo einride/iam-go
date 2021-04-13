@@ -6,15 +6,536 @@ package authorizationexamplev1
 
 import (
 	context "context"
+	fmt "fmt"
+	cel "github.com/google/cel-go/cel"
+	decls "github.com/google/cel-go/checker/decls"
+	interpreter "github.com/google/cel-go/interpreter"
+	v1 "google.golang.org/genproto/googleapis/iam/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
 type FreightServiceAuthorizationMiddleware struct {
-	next FreightServiceServer
+	next                  FreightServiceServer
+	plugin                FreightServiceAuthorizationMiddlewarePlugin
+	programGetShipper     cel.Program
+	programListShippers   cel.Program
+	programCreateShipper  cel.Program
+	programUpdateShipper  cel.Program
+	programDeleteShipper  cel.Program
+	programGetSite        cel.Program
+	programListSites      cel.Program
+	programCreateSite     cel.Program
+	programUpdateSite     cel.Program
+	programDeleteSite     cel.Program
+	programGetShipment    cel.Program
+	programListShipments  cel.Program
+	programCreateShipment cel.Program
+	programDeleteShipment cel.Program
 }
 
 var _ FreightServiceServer = &FreightServiceAuthorizationMiddleware{}
 
-func (*FreightServiceAuthorizationMiddleware) mustEmbedUnimplementedFreightServiceServer() {}
+type FreightServiceAuthorizationMiddlewarePlugin interface {
+	EnvOptions() []cel.EnvOption
+	ProgramOptions() []cel.ProgramOption
+	ActivationForContext(context.Context) (interpreter.Activation, error)
+}
+
+func NewFreightServiceAuthorizationMiddleware(
+	next FreightServiceServer,
+	plugin FreightServiceAuthorizationMiddlewarePlugin,
+) (
+	_ *FreightServiceAuthorizationMiddleware, err error,
+) {
+	m := FreightServiceAuthorizationMiddleware{
+		next:   next,
+		plugin: plugin,
+	}
+	m.programGetShipper, err = m.newProgramGetShipper()
+	if err != nil {
+		return nil, err
+	}
+	m.programListShippers, err = m.newProgramListShippers()
+	if err != nil {
+		return nil, err
+	}
+	m.programCreateShipper, err = m.newProgramCreateShipper()
+	if err != nil {
+		return nil, err
+	}
+	m.programUpdateShipper, err = m.newProgramUpdateShipper()
+	if err != nil {
+		return nil, err
+	}
+	m.programDeleteShipper, err = m.newProgramDeleteShipper()
+	if err != nil {
+		return nil, err
+	}
+	m.programGetSite, err = m.newProgramGetSite()
+	if err != nil {
+		return nil, err
+	}
+	m.programListSites, err = m.newProgramListSites()
+	if err != nil {
+		return nil, err
+	}
+	m.programCreateSite, err = m.newProgramCreateSite()
+	if err != nil {
+		return nil, err
+	}
+	m.programUpdateSite, err = m.newProgramUpdateSite()
+	if err != nil {
+		return nil, err
+	}
+	m.programDeleteSite, err = m.newProgramDeleteSite()
+	if err != nil {
+		return nil, err
+	}
+	m.programGetShipment, err = m.newProgramGetShipment()
+	if err != nil {
+		return nil, err
+	}
+	m.programListShipments, err = m.newProgramListShipments()
+	if err != nil {
+		return nil, err
+	}
+	m.programCreateShipment, err = m.newProgramCreateShipment()
+	if err != nil {
+		return nil, err
+	}
+	m.programDeleteShipment, err = m.newProgramDeleteShipment()
+	if err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (m *FreightServiceAuthorizationMiddleware) mustEmbedUnimplementedFreightServiceServer() {}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramGetShipper() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.GetShipper: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.name, 'freight.shippers.get')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&GetShipperRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.GetShipperRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramListShippers() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.ListShippers: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, '*', 'freight.shippers.list')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&ListShippersRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.ListShippersRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramCreateShipper() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.CreateShipper: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, '*', 'freight.shippers.create')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&CreateShipperRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.CreateShipperRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramUpdateShipper() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.UpdateShipper: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.shipper.name, 'freight.shippers.update')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&UpdateShipperRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.UpdateShipperRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramDeleteShipper() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.DeleteShipper: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, '*', 'freight.shippers.delete')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&DeleteShipperRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.DeleteShipperRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramGetSite() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.GetSite: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.name, 'freight.sites.get')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&GetSiteRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.GetSiteRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramListSites() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.ListSites: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.parent, 'freight.sites.list')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&ListSitesRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.ListSitesRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramCreateSite() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.CreateSite: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.parent, 'freight.sites.create')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&CreateSiteRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.CreateSiteRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramUpdateSite() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.UpdateSite: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.site.name, 'freight.sites.update')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&UpdateSiteRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.UpdateSiteRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramDeleteSite() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.DeleteSite: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.name, 'freight.sites.delete')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&DeleteSiteRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.DeleteSiteRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramGetShipment() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.GetShipment: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.name, 'freight.shipments.get')|| has_permission(caller, response.origin_site, 'freight.shipments.get')|| has_permission(caller, response.destination_site, 'freight.shipments.get')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&GetShipmentRequest{},
+			&Shipment{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.GetShipmentRequest")),
+			decls.NewVar("response", decls.NewObjectType("einride.authorization.example.v1.Shipment")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramListShipments() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.ListShipments: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.parent, 'freight.shipments.list')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&ListShipmentsRequest{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.ListShipmentsRequest")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramCreateShipment() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.CreateShipment: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.parent, 'freight.shipments.create')|| has_permission(caller, request.shipment.origin_site, 'freight.shipments.create')|| has_permission(caller, request.shipment.destination_site, 'freight.shipments.create')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&CreateShipmentRequest{},
+			&Shipment{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.CreateShipmentRequest")),
+			decls.NewVar("response", decls.NewObjectType("einride.authorization.example.v1.Shipment")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) newProgramDeleteShipment() (_ cel.Program, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("authorization policy on einride.authorization.example.v1.FreightService.DeleteShipment: %w", err)
+		}
+	}()
+	const expression = `has_permission(caller, request.shipment.name, 'freight.shipments.delete')`
+	env, err := cel.NewEnv(append(m.plugin.EnvOptions(),
+		cel.Types(
+			&DeleteShipmentRequest{},
+			&Shipment{},
+		),
+		cel.Declarations(
+			decls.NewVar("request", decls.NewObjectType("einride.authorization.example.v1.DeleteShipmentRequest")),
+			decls.NewVar("response", decls.NewObjectType("einride.authorization.example.v1.Shipment")),
+		),
+	)...)
+	if err != nil {
+		return nil, err
+	}
+	ast, issues := env.Compile(expression)
+	if err := issues.Err(); err != nil {
+		return nil, err
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	}
+	return env.Program(ast, m.plugin.ProgramOptions()...)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) SetIamPolicy(
+	ctx context.Context,
+	request *v1.SetIamPolicyRequest,
+) (
+	*v1.Policy, error,
+) {
+	return m.next.SetIamPolicy(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) GetIamPolicy(
+	ctx context.Context,
+	request *v1.GetIamPolicyRequest,
+) (
+	*v1.Policy, error,
+) {
+	return m.next.GetIamPolicy(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) TestIamPermissions(
+	ctx context.Context,
+	request *v1.TestIamPermissionsRequest,
+) (
+	*v1.TestIamPermissionsResponse, error,
+) {
+	return m.next.TestIamPermissions(ctx, request)
+}
 
 func (m *FreightServiceAuthorizationMiddleware) GetShipper(
 	ctx context.Context,
@@ -22,8 +543,30 @@ func (m *FreightServiceAuthorizationMiddleware) GetShipper(
 ) (
 	*Shipper, error,
 ) {
-	// TODO: Run the following policy: has_role(user, request.name, 'shippers/reader')
-	return nil, nil
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programGetShipper.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
+	return m.next.GetShipper(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) ListShippers(
@@ -32,6 +575,29 @@ func (m *FreightServiceAuthorizationMiddleware) ListShippers(
 ) (
 	*ListShippersResponse, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programListShippers.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.ListShippers(ctx, request)
 }
 
@@ -41,6 +607,29 @@ func (m *FreightServiceAuthorizationMiddleware) CreateShipper(
 ) (
 	*Shipper, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programCreateShipper.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.CreateShipper(ctx, request)
 }
 
@@ -50,6 +639,29 @@ func (m *FreightServiceAuthorizationMiddleware) UpdateShipper(
 ) (
 	*Shipper, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programUpdateShipper.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.UpdateShipper(ctx, request)
 }
 
@@ -59,6 +671,29 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteShipper(
 ) (
 	*Shipper, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programDeleteShipper.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.DeleteShipper(ctx, request)
 }
 
@@ -68,6 +703,29 @@ func (m *FreightServiceAuthorizationMiddleware) GetSite(
 ) (
 	*Site, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programGetSite.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.GetSite(ctx, request)
 }
 
@@ -77,6 +735,29 @@ func (m *FreightServiceAuthorizationMiddleware) ListSites(
 ) (
 	*ListSitesResponse, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programListSites.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.ListSites(ctx, request)
 }
 
@@ -86,6 +767,29 @@ func (m *FreightServiceAuthorizationMiddleware) CreateSite(
 ) (
 	*Site, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programCreateSite.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.CreateSite(ctx, request)
 }
 
@@ -95,6 +799,29 @@ func (m *FreightServiceAuthorizationMiddleware) UpdateSite(
 ) (
 	*Site, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programUpdateSite.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.UpdateSite(ctx, request)
 }
 
@@ -104,6 +831,29 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteSite(
 ) (
 	*Site, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programDeleteSite.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.DeleteSite(ctx, request)
 }
 
@@ -113,7 +863,34 @@ func (m *FreightServiceAuthorizationMiddleware) GetShipment(
 ) (
 	*Shipment, error,
 ) {
-	return m.next.GetShipment(ctx, request)
+	response, err := m.next.GetShipment(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responseActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request":  request,
+		"response": response,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, responseActivation)
+	val, _, err := m.programGetShipment.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+	return response, nil
 }
 
 func (m *FreightServiceAuthorizationMiddleware) ListShipments(
@@ -122,6 +899,29 @@ func (m *FreightServiceAuthorizationMiddleware) ListShipments(
 ) (
 	*ListShipmentsResponse, error,
 ) {
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	requestActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, requestActivation)
+	val, _, err := m.programListShipments.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.ListShipments(ctx, request)
 }
 
@@ -131,7 +931,34 @@ func (m *FreightServiceAuthorizationMiddleware) CreateShipment(
 ) (
 	*Shipment, error,
 ) {
-	return m.next.CreateShipment(ctx, request)
+	response, err := m.next.CreateShipment(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responseActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request":  request,
+		"response": response,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, responseActivation)
+	val, _, err := m.programCreateShipment.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+	return response, nil
 }
 
 func (m *FreightServiceAuthorizationMiddleware) UpdateShipment(
@@ -149,5 +976,32 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteShipment(
 ) (
 	*Shipment, error,
 ) {
-	return m.next.DeleteShipment(ctx, request)
+	response, err := m.next.DeleteShipment(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	contextActivation, err := m.plugin.ActivationForContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responseActivation, err := interpreter.NewActivation(map[string]interface{}{
+		"request":  request,
+		"response": response,
+	})
+	if err != nil {
+		return nil, err
+	}
+	activation := interpreter.NewHierarchicalActivation(contextActivation, responseActivation)
+	val, _, err := m.programDeleteShipment.Eval(activation)
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+	return response, nil
 }
