@@ -2,6 +2,9 @@ version: v1beta1
 
 name: buf.build/einride/protoc-gen-authorization-policy
 
+deps:
+  - buf.build/beta/googleapis
+
 build:
   roots:
     - proto/src
