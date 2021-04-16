@@ -3,13 +3,14 @@ version: v1beta1
 plugins:
   - name: go
     out: proto/gen
-    opt: module=go.einride.tech/protoc-gen-go-authorization-policy/proto/gen
+    opt: module=go.einride.tech/authorization-aip/proto/gen
+    path: ./build/protoc-gen-go
 
   - name: go-grpc
     out: proto/gen
-    opt: module=go.einride.tech/protoc-gen-go-authorization-policy/proto/gen
+    opt: module=go.einride.tech/authorization-aip/proto/gen
 
-  - name: go-authorization-policy
+  - name: go-authorization
     out: proto/gen
-    opt: module=go.einride.tech/protoc-gen-go-authorization-policy/proto/gen
-    path: build/protoc-gen-go-authorization-policy
+    opt: module=go.einride.tech/authorization-aip/proto/gen
+    path: build/protoc-gen-go-authorization

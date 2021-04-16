@@ -1,7 +1,7 @@
 package generator
 
 import (
-	authorizationv1 "go.einride.tech/protoc-gen-go-authorization-policy/proto/gen/einride/authorization/v1"
+	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
@@ -16,14 +16,6 @@ func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
 		GoImportPath: "context",
 		GoName:       "Context",
 	})
-	interpreterNewActivation := f.QualifiedGoIdent(protogen.GoIdent{
-		GoImportPath: "github.com/google/cel-go/interpreter",
-		GoName:       "NewActivation",
-	})
-	interpreterNewHierarchicalActivation := f.QualifiedGoIdent(protogen.GoIdent{
-		GoImportPath: "github.com/google/cel-go/interpreter",
-		GoName:       "NewHierarchicalActivation",
-	})
 	f.P()
 	f.P("func (m *", middleware.GoName(), ") ", g.Method.GoName, "(")
 	f.P("ctx ", contextContext, ",")
@@ -33,18 +25,14 @@ func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
 	f.P(") {")
 	switch g.Policy.GetDecisionPoint() {
 	case authorizationv1.PolicyDecisionPoint_BEFORE:
-		f.P("contextActivation, err := m.plugin.ActivationForContext(ctx)")
+		f.P("caller, err := m.callerFn(ctx)")
 		f.P("if err != nil {")
 		f.P("return nil, err")
 		f.P("}")
-		f.P("requestActivation, err := ", interpreterNewActivation, "(map[string]interface{}{")
+		f.P("val, _, err := m.program", g.Method.GoName, ".Eval(map[string]interface{}{")
+		f.P(`"caller": caller,`)
 		f.P(`"request": request,`)
 		f.P("})")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("activation := ", interpreterNewHierarchicalActivation, "(contextActivation, requestActivation)")
-		f.P("val, _, err := m.program", g.Method.GoName, ".Eval(activation)")
 		f.P("if err != nil {")
 		f.P("return nil, err")
 		f.P("}")
@@ -58,23 +46,19 @@ func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
 		f.P("")
 		f.P("return m.next.", g.Method.GoName, "(ctx, request)")
 	case authorizationv1.PolicyDecisionPoint_AFTER:
+		f.P("caller, err := m.callerFn(ctx)")
+		f.P("if err != nil {")
+		f.P("return nil, err")
+		f.P("}")
 		f.P("response, err := m.next.", g.Method.GoName, "(ctx, request)")
 		f.P("if err != nil {")
 		f.P("return nil, err")
 		f.P("}")
-		f.P("contextActivation, err := m.plugin.ActivationForContext(ctx)")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("responseActivation, err := ", interpreterNewActivation, "(map[string]interface{}{")
+		f.P("val, _, err := m.program", g.Method.GoName, ".Eval(map[string]interface{}{")
+		f.P(`"caller": caller,`)
 		f.P(`"request": request,`)
 		f.P(`"response": response,`)
 		f.P("})")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("activation := ", interpreterNewHierarchicalActivation, "(contextActivation, responseActivation)")
-		f.P("val, _, err := m.program", g.Method.GoName, ".Eval(activation)")
 		f.P("if err != nil {")
 		f.P("return nil, err")
 		f.P("}")

@@ -1,6 +1,6 @@
 version: v1beta1
 
-name: buf.build/einride/protoc-gen-authorization-policy
+name: buf.build/einride/authorization-aip-go
 
 deps:
   - buf.build/beta/googleapis

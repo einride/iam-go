@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package einride.authorization.v1;
+
+option csharp_namespace = "Authorization.V1Beta1";
+option go_package = "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1;authorizationv1";
+option java_multiple_files = true;
+option java_outer_classname = "CallerProto";
+option java_package = "tech.einride.authorization.v1";
+option objc_class_prefix = "AXX";
+option php_namespace = "Authorization\\V1";
+
+import "google/protobuf/timestamp.proto";
+
+// Caller identity.
+message Caller {
+  // base64url encoded JWT ID token.
+  string id_token = 1;
+}

@@ -1,7 +1,7 @@
 package generator
 
 import (
-	authorizationv1 "go.einride.tech/protoc-gen-go-authorization-policy/proto/gen/einride/authorization/v1"
+	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 )

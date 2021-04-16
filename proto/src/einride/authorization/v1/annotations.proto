@@ -3,7 +3,7 @@ syntax = "proto3";
 package einride.authorization.v1;
 
 option csharp_namespace = "Authorization.V1Beta1";
-option go_package = "go.einride.tech/protoc-gen-go-authorization-policy/proto/gen/einride/authorization/v1;authorizationv1";
+option go_package = "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1;authorizationv1";
 option java_multiple_files = true;
 option java_outer_classname = "AnnotationsProto";
 option java_package = "tech.einride.authorization.v1";
@@ -17,9 +17,10 @@ extend google.protobuf.MethodOptions {
 }
 
 message Policy {
-  PolicyDecisionPoint decision_point = 1;
-  string expression = 2;
+  string permission = 1;
+  PolicyDecisionPoint decision_point = 2;
   string description = 3;
+  string expression = 4;
 }
 
 enum PolicyDecisionPoint {

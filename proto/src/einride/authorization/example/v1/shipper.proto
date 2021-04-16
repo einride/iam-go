@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package einride.authorization.example.v1;
 
-option go_package = "go.einride.tech/protoc-gen-go-authorization-policy/proto/gen/einride/authorization/example/v1;authorizationexamplev1";
+option go_package = "go.einride.tech/authorization-aip/proto/gen/einride/authorization/example/v1;authorizationexamplev1";
 option java_multiple_files = true;
 option java_outer_classname = "ShipperProto";
 option java_package = "tech.einride.authorization.example.v1";
