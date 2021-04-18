@@ -16,6 +16,10 @@ extend google.protobuf.MethodOptions {
   Policy policy = 11000;
 }
 
+extend google.protobuf.ServiceOptions {
+  Roles roles = 11001;
+}
+
 message Policy {
   string permission = 1;
   PolicyDecisionPoint decision_point = 2;
@@ -28,4 +32,16 @@ enum PolicyDecisionPoint {
   BEFORE = 1;
   AFTER = 2;
   CUSTOM = 3;
+}
+
+// Built-in roles for a service.
+message Roles {
+  repeated Role role = 1;
+}
+
+message Role {
+  string name = 1;
+  string title = 2;
+  string description = 3;
+  repeated string permission = 4;
 }

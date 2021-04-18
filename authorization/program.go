@@ -2,7 +2,6 @@ package authorization
 
 import (
 	"fmt"
-
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
 	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
@@ -11,6 +10,16 @@ import (
 	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
+)
+
+const (
+	testFunction         = "test"
+	testFunctionOverload = "test_caller_string_bool"
+	testAllFunction = "test_all"
+	testAllFunctionOverload = "test_all_caller_strings_bool"
+	testAnyFunction = "test_any"
+	testAnyFunctionOverload = "test_any_caller_strings_bool"
 )
 
 func NewPolicyEnv(
@@ -26,8 +35,9 @@ func NewPolicyEnv(
 	if policy.GetDecisionPoint() == authorizationv1.PolicyDecisionPoint_AFTER {
 		variables = append(variables, decls.NewVar("response", decls.NewObjectType(string(output.FullName()))))
 	}
+	reg := collectFileDescriptorSet(input.ParentFile(), output.ParentFile())
 	return cel.NewEnv(
-		cel.TypeDescs(input.ParentFile(), output.ParentFile()),
+		cel.TypeDescs(reg),
 		cel.Declarations(variables...),
 		cel.Declarations(
 			decls.NewFunction(
@@ -41,8 +51,61 @@ func NewPolicyEnv(
 					decls.Bool,
 				),
 			),
+			decls.NewFunction(
+				testAllFunction,
+				decls.NewOverload(
+					testAllFunctionOverload,
+					[]*exprpb.Type{
+						decls.NewObjectType(string((&authorizationv1.Caller{}).ProtoReflect().Descriptor().FullName())),
+						decls.NewListType(decls.String), // [resource]
+					},
+					decls.Bool,
+				),
+			),
+			decls.NewFunction(
+				testAnyFunction,
+				decls.NewOverload(
+					testAnyFunctionOverload,
+					[]*exprpb.Type{
+						decls.NewObjectType(string((&authorizationv1.Caller{}).ProtoReflect().Descriptor().FullName())),
+						decls.NewListType(decls.String), // [resource]
+					},
+					decls.Bool,
+				),
+			),
 		),
 	)
+}
+
+
+func collectFileDescriptorSet(files ...protoreflect.FileDescriptor) *protoregistry.Files {
+	fdMap := map[string]protoreflect.FileDescriptor{}
+	for _, parentFile := range files {
+		fdMap[parentFile.Path()] = parentFile
+		// Initialize list of dependencies
+		deps := make([]protoreflect.FileImport, parentFile.Imports().Len())
+		for i := 0; i < parentFile.Imports().Len(); i++ {
+			deps[i] = parentFile.Imports().Get(i)
+		}
+		// Expand list for new dependencies
+		for i := 0; i < len(deps); i++ {
+			dep := deps[i]
+			if _, found := fdMap[dep.Path()]; found {
+				continue
+			}
+			fdMap[dep.Path()] = dep.FileDescriptor
+			for j := 0; j < dep.FileDescriptor.Imports().Len(); j++ {
+				deps = append(deps, dep.FileDescriptor.Imports().Get(j))
+			}
+		}
+	}
+	var registry protoregistry.Files
+	for _, fd := range fdMap {
+		if err := registry.RegisterFile(fd); err != nil {
+			panic(err)
+		}
+	}
+	return &registry
 }
 
 func NewPolicyProgram(

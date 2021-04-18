@@ -13,11 +13,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-const (
-	testFunction         = "test"
-	testFunctionOverload = "test_string_bool"
-)
-
 type PermissionTester struct {
 	permission      string
 	iamPolicyServer iam.IAMPolicyServer

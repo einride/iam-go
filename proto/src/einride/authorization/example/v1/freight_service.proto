@@ -35,65 +35,6 @@ import "google/protobuf/timestamp.proto";
 service FreightService {
   option (google.api.default_host) = "authorization-example.einride.tech";
 
-  // Sets the access control policy on the specified shipper, site or shipment.
-  rpc SetIamPolicy(google.iam.v1.SetIamPolicyRequest) returns (google.iam.v1.Policy) {
-    option (google.api.http) = {
-      post: "/v1/{resource=shippers/*}:setIamPolicy"
-      body: "*"
-      additional_bindings {
-        post: "/v1/{resource=shippers/*/sites/*}:setIamPolicy"
-        body: "*"
-      }
-      additional_bindings {
-        post: "/v1/{resource=shippers/*/shipments/*}:setIamPolicy"
-        body: "*"
-      }
-    };
-    option (google.api.method_signature) = "resource,policy";
-  }
-
-  // Gets the access control policy for a shipper, site or shipment resource.
-  //
-  // Returns an empty policy if the resource exists and does not have a policy
-  // set.
-  rpc GetIamPolicy(google.iam.v1.GetIamPolicyRequest) returns (google.iam.v1.Policy) {
-    option (google.api.http) = {
-      post: "/v1/{resource=shippers/*}:getIamPolicy"
-      body: "*"
-      additional_bindings {
-        post: "/v1/{resource=shippers/*/sites/*}:getIamPolicy"
-        body: "*"
-      }
-      additional_bindings {
-        post: "/v1/{resource=shippers/*/shipments/*}:getIamPolicy"
-        body: "*"
-      }
-    };
-    option (google.api.method_signature) = "resource";
-  }
-
-  // Returns the permissions that a caller has on the specified shipper or
-  // site or shipment.
-  //
-  // Note: This operation is designed to be used for building permission-aware
-  // UIs and command-line tools, not for authorization checking. This operation
-  // may "fail open" without warning.
-  rpc TestIamPermissions(google.iam.v1.TestIamPermissionsRequest) returns (google.iam.v1.TestIamPermissionsResponse) {
-    option (google.api.http) = {
-      post: "/v1/{resource=shippers/*}:testIamPermissions"
-      body: "*"
-      additional_bindings {
-        post: "/v1/{resource=shippers/*/sites/*}:testIamPermissions"
-        body: "*"
-      }
-      additional_bindings {
-        post: "/v1/{resource=shippers/*/shipments/*}:testIamPermissions"
-        body: "*"
-      }
-    };
-    option (google.api.method_signature) = "resource,permissions";
-  }
-
   // Get a shipper.
   // See: https://google.aip.dev/131 (Standard methods: Get).
   rpc GetShipper(GetShipperRequest) returns (Shipper) {
@@ -263,10 +204,7 @@ service FreightService {
         "The caller must have permission to get the shipment"
         ", or the caller must have permission to get shipments from the shipment's origin site"
         ", or the caller must have permission to get shipments to the shipment's destination site."
-      expression:
-        "test(caller, request.name)"
-        " || test(caller, response.origin_site)"
-        " || test(caller, response.destination_site)"
+      expression: "test_any(caller, [request.name, response.origin_site, response.destination_site])"
     };
   }
 
@@ -300,10 +238,7 @@ service FreightService {
         "The caller must have permission to create shipments under the parent shipper"
         ", or the caller must have permission to create shipments from the shipment's origin site"
         ", or the caller must have permission to create shipments to the shipment's destination site."
-      expression:
-        "test(caller, request.parent)"
-        " || test(caller, request.shipment.origin_site)"
-        " || test(caller, request.shipment.destination_site)"
+      expression: "test_any(caller, [request.parent, request.shipment.origin_site, request.shipment.destination_site])"
     };
   }
 
@@ -319,7 +254,7 @@ service FreightService {
       permission: "freight.shipments.update"
       decision_point: CUSTOM
       description:
-        "The caller must have permission to update the shipment,"
+        "The caller must have permission to update the shipment"
         ", or the caller must have permission to update shipments from the shipment's original origin site"
         ", or the caller must have permission to update shipments to the shipment's original destination site."
     };
@@ -338,6 +273,138 @@ service FreightService {
       decision_point: AFTER
       description: "The caller must have permission to delete the shipment."
       expression: "test(caller, request.name)"
+    };
+  }
+
+  // Batch get shipments.
+  // See: https://google.aip.dev/231 (Batch methods: Get).
+  rpc BatchGetShipments(BatchGetShipmentsRequest) returns (BatchGetShipmentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=shippers/*}/shipments:batchGet"
+    };
+    option (einride.authorization.v1.policy) = {
+      permission: "freight.shipments.get"
+      decision_point: AFTER
+      description:
+        "The caller must have permission to get all shipments under the parent shipper"
+        ", or the caller must have permission to get each of the requested shipments."
+      expression:
+        "test(caller, request.parent)"
+        " || response.shipments.all(s, test_any(caller, [s.name, s.origin_site, s.destination_site]))"
+    };
+  }
+
+  option (einride.authorization.v1.roles) = {
+    role {
+      name: "roles/freight.admin"
+      title: "Freight Admin"
+      description: "Full admin permissions to freight."
+      permission: "freight.shipments.get"
+      permission: "freight.shipments.list"
+      permission: "freight.shipments.create"
+      permission: "freight.shipments.update"
+      permission: "freight.shipments.delete"
+      permission: "freight.sites.get"
+      permission: "freight.sites.list"
+      permission: "freight.sites.create"
+      permission: "freight.sites.update"
+      permission: "freight.sites.delete"
+      permission: "freight.shipments.get"
+      permission: "freight.shipments.list"
+      permission: "freight.shipments.create"
+      permission: "freight.shipments.update"
+      permission: "freight.shipments.delete"
+      permission: "freight.setIamPolicy"
+      permission: "freight.getIamPolicy"
+      permission: "freight.testIamPermissions"
+    }
+    role {
+      name: "roles/freight.viewer"
+      title: "Freight Viewer"
+      description: "View permissions to freight."
+      permission: "freight.shipments.get"
+      permission: "freight.shipments.list"
+      permission: "freight.sites.get"
+      permission: "freight.sites.list"
+      permission: "freight.shipments.get"
+      permission: "freight.shipments.list"
+    }
+  };
+
+  // Sets the access control policy on the specified shipper, site or shipment.
+  rpc SetIamPolicy(google.iam.v1.SetIamPolicyRequest) returns (google.iam.v1.Policy) {
+    option (google.api.http) = {
+      post: "/v1/{resource=shippers/*}:setIamPolicy"
+      body: "*"
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/sites/*}:setIamPolicy"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/shipments/*}:setIamPolicy"
+        body: "*"
+      }
+    };
+    option (google.api.method_signature) = "resource,policy";
+    option (einride.authorization.v1.policy) = {
+      permission: "freight.setIamPolicy"
+      decision_point: BEFORE
+      description: "The caller must have permission to set the resource's IAM policy."
+      expression: "test(caller, request.resource)"
+    };
+  }
+
+  // Gets the access control policy for a shipper, site or shipment resource.
+  //
+  // Returns an empty policy if the resource exists and does not have a policy
+  // set.
+  rpc GetIamPolicy(google.iam.v1.GetIamPolicyRequest) returns (google.iam.v1.Policy) {
+    option (google.api.http) = {
+      post: "/v1/{resource=shippers/*}:getIamPolicy"
+      body: "*"
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/sites/*}:getIamPolicy"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/shipments/*}:getIamPolicy"
+        body: "*"
+      }
+    };
+    option (google.api.method_signature) = "resource";
+    option (einride.authorization.v1.policy) = {
+      permission: "freight.getIamPolicy"
+      decision_point: BEFORE
+      description: "The caller must have permission to get the resource's IAM policy."
+      expression: "test(caller, request.resource)"
+    };
+  }
+
+  // Returns the permissions that a caller has on the specified shipper or
+  // site or shipment.
+  //
+  // Note: This operation is designed to be used for building permission-aware
+  // UIs and command-line tools, not for authorization checking. This operation
+  // may "fail open" without warning.
+  rpc TestIamPermissions(google.iam.v1.TestIamPermissionsRequest) returns (google.iam.v1.TestIamPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{resource=shippers/*}:testIamPermissions"
+      body: "*"
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/sites/*}:testIamPermissions"
+        body: "*"
+      }
+      additional_bindings {
+        post: "/v1/{resource=shippers/*/shipments/*}:testIamPermissions"
+        body: "*"
+      }
+    };
+    option (google.api.method_signature) = "resource,permissions";
+    option (einride.authorization.v1.policy) = {
+      permission: "freight.testIamPermissions"
+      decision_point: BEFORE
+      description: "The caller must have permission to test IAM permissions on the resource."
+      expression: "test(caller, request.resource)"
     };
   }
 }
@@ -560,4 +627,33 @@ message DeleteShipmentRequest {
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "authorization-example.einride.tech/Shipment"
   ];
+}
+
+// Request message for FreightService.BatchGetShipments.
+message BatchGetShipmentsRequest {
+  // The parent resource shared by all shipments being retrieved.
+  // If this is set, the parent of all of the shipments specified in `names`
+  // must match this field.
+  // Format: `shippers/{shipper}`
+  string parent = 1 [
+    (google.api.resource_reference) = {
+      type: "authorization-example.einride.tech/Shipper"
+    }
+  ];
+
+  // The names of the shipments to retrieve.
+  // A maximum of 1000 shipments can be retrieved in a batch.
+  // Format: `shippers/{shipper}/shipments/{shipment}`
+  repeated string names = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "authorization-example.einride.tech/Shipment"
+    }
+  ];
+}
+
+// Response message for FreightService.BatchGetShipments.
+message BatchGetShipmentsResponse {
+  // Shipments requested.
+  repeated Shipment shipments = 1;
 }

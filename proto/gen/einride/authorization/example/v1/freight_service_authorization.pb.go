@@ -7,272 +7,55 @@ package authorizationexamplev1
 import (
 	context "context"
 	cel "github.com/google/cel-go/cel"
-	authorization "go.einride.tech/authorization-aip/authorization"
-	v11 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
-	v1 "google.golang.org/genproto/googleapis/iam/v1"
+	v1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
+	v11 "google.golang.org/genproto/googleapis/iam/v1"
 )
 
 type FreightServiceAuthorizationMiddleware struct {
-	next                  FreightServiceServer
-	callerFn              func(context.Context) (v11.Caller, error)
-	programGetShipper     cel.Program
-	programListShippers   cel.Program
-	programCreateShipper  cel.Program
-	programUpdateShipper  cel.Program
-	programDeleteShipper  cel.Program
-	programGetSite        cel.Program
-	programListSites      cel.Program
-	programCreateSite     cel.Program
-	programUpdateSite     cel.Program
-	programDeleteSite     cel.Program
-	programGetShipment    cel.Program
-	programListShipments  cel.Program
-	programCreateShipment cel.Program
-	programDeleteShipment cel.Program
+	next                     FreightServiceServer
+	callerFn                 func(context.Context) (v1.Caller, error)
+	permissionTester         PermissionTester
+	programGetShipper        cel.Program
+	programListShippers      cel.Program
+	programCreateShipper     cel.Program
+	programUpdateShipper     cel.Program
+	programDeleteShipper     cel.Program
+	programGetSite           cel.Program
+	programListSites         cel.Program
+	programCreateSite        cel.Program
+	programUpdateSite        cel.Program
+	programDeleteSite        cel.Program
+	programGetShipment       cel.Program
+	programListShipments     cel.Program
+	programCreateShipment    cel.Program
+	programDeleteShipment    cel.Program
+	programBatchGetShipments cel.Program
 }
 
-var (
-	_ FreightServiceServer = &FreightServiceAuthorizationMiddleware{}
-	_ v1.IAMPolicyServer   = &FreightServiceAuthorizationMiddleware{}
-)
+var _ FreightServiceServer = &FreightServiceAuthorizationMiddleware{}
+
+type PermissionTester interface {
+	Test(ctx context.Context, permission string, caller *v1.Caller, resource string) (bool, error)
+	TestAll(ctx context.Context, permission string, caller *v1.Caller, resources []string) (bool, error)
+	TestAny(ctx context.Context, permission string, caller *v1.Caller, resources []string) (bool, error)
+}
 
 func NewFreightServiceAuthorizationMiddleware(
 	next FreightServiceServer,
-	callerFn func(context.Context) (v11.Caller, error),
+	callerFn func(context.Context) (v1.Caller, error),
+	permissionTester PermissionTester,
 ) (
 	_ *FreightServiceAuthorizationMiddleware, err error,
 ) {
 	m := FreightServiceAuthorizationMiddleware{
-		next:     next,
-		callerFn: callerFn,
-	}
-	m.programGetShipper, err = authorization.NewPolicyProgram(
-		(&GetShipperRequest{}).ProtoReflect().Descriptor(),
-		(&Shipper{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to get the shipper.`,
-			Expression:    `test(caller, request.name)`,
-			DecisionPoint: 1,
-			Permission:    `freight.shippers.get`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programListShippers, err = authorization.NewPolicyProgram(
-		(&ListShippersRequest{}).ProtoReflect().Descriptor(),
-		(&ListShippersResponse{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to list all shippers.`,
-			Expression:    `test(caller, '*')`,
-			DecisionPoint: 1,
-			Permission:    `freight.shippers.list`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programCreateShipper, err = authorization.NewPolicyProgram(
-		(&CreateShipperRequest{}).ProtoReflect().Descriptor(),
-		(&Shipper{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to create new shippers.`,
-			Expression:    `test(caller, '*')`,
-			DecisionPoint: 1,
-			Permission:    `freight.shippers.create`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programUpdateShipper, err = authorization.NewPolicyProgram(
-		(&UpdateShipperRequest{}).ProtoReflect().Descriptor(),
-		(&Shipper{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to update the shipper.`,
-			Expression:    `test(caller, request.shipper.name)`,
-			DecisionPoint: 1,
-			Permission:    `freight.shippers.update`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programDeleteShipper, err = authorization.NewPolicyProgram(
-		(&DeleteShipperRequest{}).ProtoReflect().Descriptor(),
-		(&Shipper{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to delete the shipper.`,
-			Expression:    `test(caller, request.name)`,
-			DecisionPoint: 1,
-			Permission:    `freight.shippers.delete`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programGetSite, err = authorization.NewPolicyProgram(
-		(&GetSiteRequest{}).ProtoReflect().Descriptor(),
-		(&Site{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to get the site.`,
-			Expression:    `test(caller, request.name)`,
-			DecisionPoint: 1,
-			Permission:    `freight.sites.get`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programListSites, err = authorization.NewPolicyProgram(
-		(&ListSitesRequest{}).ProtoReflect().Descriptor(),
-		(&ListSitesResponse{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to list all sites under the parent shipper.`,
-			Expression:    `test(caller, request.parent)`,
-			DecisionPoint: 1,
-			Permission:    `freight.sites.list`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programCreateSite, err = authorization.NewPolicyProgram(
-		(&CreateSiteRequest{}).ProtoReflect().Descriptor(),
-		(&Site{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to create new sites under the parent shipper.`,
-			Expression:    `test(caller, request.parent)`,
-			DecisionPoint: 1,
-			Permission:    `freight.sites.create`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programUpdateSite, err = authorization.NewPolicyProgram(
-		(&UpdateSiteRequest{}).ProtoReflect().Descriptor(),
-		(&Site{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to update the site.`,
-			Expression:    `test(caller, request.site.name)`,
-			DecisionPoint: 1,
-			Permission:    `freight.sites.update`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programDeleteSite, err = authorization.NewPolicyProgram(
-		(&DeleteSiteRequest{}).ProtoReflect().Descriptor(),
-		(&Site{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to delete the site.`,
-			Expression:    `test(caller, request.name)`,
-			DecisionPoint: 1,
-			Permission:    `freight.sites.delete`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programGetShipment, err = authorization.NewPolicyProgram(
-		(&GetShipmentRequest{}).ProtoReflect().Descriptor(),
-		(&Shipment{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to get the shipment, or the caller must have permission to get shipments from the shipment's origin site, or the caller must have permission to get shipments to the shipment's destination site.`,
-			Expression:    `test(caller, request.name) || test(caller, response.origin_site) || test(caller, response.destination_site)`,
-			DecisionPoint: 2,
-			Permission:    `freight.shipments.get`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programListShipments, err = authorization.NewPolicyProgram(
-		(&ListShipmentsRequest{}).ProtoReflect().Descriptor(),
-		(&ListShipmentsResponse{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to list all shipments under the parent shipper.`,
-			Expression:    `test(caller, request.parent)`,
-			DecisionPoint: 1,
-			Permission:    `freight.shipments.list`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programCreateShipment, err = authorization.NewPolicyProgram(
-		(&CreateShipmentRequest{}).ProtoReflect().Descriptor(),
-		(&Shipment{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to create shipments under the parent shipper, or the caller must have permission to create shipments from the shipment's origin site, or the caller must have permission to create shipments to the shipment's destination site.`,
-			Expression:    `test(caller, request.parent) || test(caller, request.shipment.origin_site) || test(caller, request.shipment.destination_site)`,
-			DecisionPoint: 1,
-			Permission:    `freight.shipments.create`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
-	}
-	m.programDeleteShipment, err = authorization.NewPolicyProgram(
-		(&DeleteShipmentRequest{}).ProtoReflect().Descriptor(),
-		(&Shipment{}).ProtoReflect().Descriptor(),
-		&v11.Policy{
-			Description:   `The caller must have permission to delete the shipment.`,
-			Expression:    `test(caller, request.name)`,
-			DecisionPoint: 2,
-			Permission:    `freight.shipments.delete`,
-		},
-		next,
-	)
-	if err != nil {
-		return nil, err
+		next:             next,
+		callerFn:         callerFn,
+		permissionTester: permissionTester,
 	}
 	return &m, nil
 }
 
 func (m *FreightServiceAuthorizationMiddleware) mustEmbedUnimplementedFreightServiceServer() {}
-
-func (m *FreightServiceAuthorizationMiddleware) SetIamPolicy(
-	ctx context.Context,
-	request *v1.SetIamPolicyRequest,
-) (
-	*v1.Policy, error,
-) {
-	return m.next.SetIamPolicy(ctx, request)
-}
-
-func (m *FreightServiceAuthorizationMiddleware) GetIamPolicy(
-	ctx context.Context,
-	request *v1.GetIamPolicyRequest,
-) (
-	*v1.Policy, error,
-) {
-	return m.next.GetIamPolicy(ctx, request)
-}
-
-func (m *FreightServiceAuthorizationMiddleware) TestIamPermissions(
-	ctx context.Context,
-	request *v1.TestIamPermissionsRequest,
-) (
-	*v1.TestIamPermissionsResponse, error,
-) {
-	return m.next.TestIamPermissions(ctx, request)
-}
 
 func (m *FreightServiceAuthorizationMiddleware) GetShipper(
 	ctx context.Context,
@@ -681,4 +464,63 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteShipment(
 		return nil, nil // TODO: Return error.
 	}
 	return response, nil
+}
+
+func (m *FreightServiceAuthorizationMiddleware) BatchGetShipments(
+	ctx context.Context,
+	request *BatchGetShipmentsRequest,
+) (
+	*BatchGetShipmentsResponse, error,
+) {
+	caller, err := m.callerFn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	response, err := m.next.BatchGetShipments(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	val, _, err := m.programBatchGetShipments.Eval(map[string]interface{}{
+		"caller":   caller,
+		"request":  request,
+		"response": response,
+	})
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+	return response, nil
+}
+
+func (m *FreightServiceAuthorizationMiddleware) SetIamPolicy(
+	ctx context.Context,
+	request *v11.SetIamPolicyRequest,
+) (
+	*v11.Policy, error,
+) {
+	return m.next.SetIamPolicy(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) GetIamPolicy(
+	ctx context.Context,
+	request *v11.GetIamPolicyRequest,
+) (
+	*v11.Policy, error,
+) {
+	return m.next.GetIamPolicy(ctx, request)
+}
+
+func (m *FreightServiceAuthorizationMiddleware) TestIamPermissions(
+	ctx context.Context,
+	request *v11.TestIamPermissionsRequest,
+) (
+	*v11.TestIamPermissionsResponse, error,
+) {
+	return m.next.TestIamPermissions(ctx, request)
 }
