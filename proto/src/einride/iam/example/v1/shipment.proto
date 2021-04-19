@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package einride.authorization.example.v1;
+package einride.iam.example.v1;
 
-option go_package = "go.einride.tech/authorization-aip/proto/gen/einride/authorization/example/v1;authorizationexamplev1";
+option go_package = "go.einride.tech/iam/proto/gen/einride/iam/example/v1;iamexamplev1";
 option java_multiple_files = true;
 option java_outer_classname = "ShipmentProto";
-option java_package = "tech.einride.authorization.example.v1";
+option java_package = "tech.einride.iam.example.v1";
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -17,7 +17,7 @@ import "google/protobuf/timestamp.proto";
 // [site][einride.example.freight.v1.Site].
 message Shipment {
   option (google.api.resource) = {
-    type: "authorization-example.einride.tech/Shipment"
+    type: "iam-example.einride.tech/Shipment"
     pattern: "shippers/{shipper}/shipments/{shipment}"
     singular: "shipment"
     plural: "shipments"
@@ -41,14 +41,14 @@ message Shipment {
   // Format: shippers/{shipper}/sites/{site}
   string origin_site = 5 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "authorization-example.einride.tech/Site"
+    (google.api.resource_reference).type = "iam-example.einride.tech/Site"
   ];
 
   // The resource name of the destination site of the shipment.
   // Format: shippers/{shipper}/sites/{site}
   string destination_site = 6 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "authorization-example.einride.tech/Site"
+    (google.api.resource_reference).type = "iam-example.einride.tech/Site"
   ];
 
   // The earliest pickup time of the shipment at the origin site.

@@ -7,7 +7,7 @@ import (
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
 	"github.com/google/cel-go/interpreter/functions"
-	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/grpc/metadata"
@@ -32,7 +32,7 @@ func (t *PermissionTester) Declarations() []*exprpb.Decl {
 			decls.NewOverload(
 				testFunctionOverload,
 				[]*exprpb.Type{
-					decls.NewObjectType(string((&authorizationv1.Caller{}).ProtoReflect().Descriptor().FullName())),
+					decls.NewObjectType(string((&iamv1.Caller{}).ProtoReflect().Descriptor().FullName())),
 					decls.String, // resource
 				},
 				decls.Bool,
@@ -54,7 +54,7 @@ func (t *PermissionTester) test(args ...ref.Val) ref.Val {
 	if len(args) != 2 {
 		return types.NewErr("no such overload")
 	}
-	caller, ok := args[0].Value().(*authorizationv1.Caller)
+	caller, ok := args[0].Value().(*iamv1.Caller)
 	if !ok {
 		return types.NewErr("unexpected type of arg 1")
 	}

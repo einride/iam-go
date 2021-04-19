@@ -3,8 +3,8 @@ package generator
 import (
 	"fmt"
 
-	"go.einride.tech/authorization-aip/authorization"
-	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
+	"go.einride.tech/iam/authorization"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 )
@@ -35,7 +35,7 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 		GoName:       "Program",
 	})
 	authorizationV1Caller := f.QualifiedGoIdent(protogen.GoIdent{
-		GoImportPath: "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1",
+		GoImportPath: "go.einride.tech/iam/proto/gen/einride/iam/v1",
 		GoName:       "Caller",
 	})
 	f.P()
@@ -45,7 +45,7 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 	f.P("permissionTester ", g.PermissionTesterGoName())
 	for _, method := range g.Service.Methods {
 		switch getPolicy(method).GetDecisionPoint() {
-		case authorizationv1.PolicyDecisionPoint_BEFORE, authorizationv1.PolicyDecisionPoint_AFTER:
+		case iamv1.PolicyDecisionPoint_BEFORE, iamv1.PolicyDecisionPoint_AFTER:
 			f.P("program", method.GoName, " ", celProgram)
 		}
 	}
@@ -73,7 +73,7 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 	f.P("}")
 	for _, method := range g.Service.Methods {
 		switch policy := getPolicy(method); policy.GetDecisionPoint() {
-		case authorizationv1.PolicyDecisionPoint_BEFORE, authorizationv1.PolicyDecisionPoint_AFTER:
+		case iamv1.PolicyDecisionPoint_BEFORE, iamv1.PolicyDecisionPoint_AFTER:
 			env, err := authorization.NewPolicyEnv(method.Input.Desc, method.Output.Desc, policy)
 			if err != nil {
 				panic(fmt.Errorf("%s: %v", method.Desc.FullName(), err))
@@ -103,6 +103,6 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 	f.P("func (m *", g.GoName(), ") mustEmbedUnimplemented", g.Service.GoName, "Server() {}")
 }
 
-func getPolicy(method *protogen.Method) *authorizationv1.Policy {
-	return proto.GetExtension(method.Desc.Options(), authorizationv1.E_Policy).(*authorizationv1.Policy)
+func getPolicy(method *protogen.Method) *iamv1.Policy {
+	return proto.GetExtension(method.Desc.Options(), iamv1.E_Policy).(*iamv1.Policy)
 }

@@ -2,9 +2,10 @@ package authorization
 
 import (
 	"fmt"
+
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
-	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"google.golang.org/genproto/googleapis/iam/v1"
@@ -14,25 +15,25 @@ import (
 )
 
 const (
-	testFunction         = "test"
-	testFunctionOverload = "test_caller_string_bool"
-	testAllFunction = "test_all"
+	testFunction            = "test"
+	testFunctionOverload    = "test_caller_string_bool"
+	testAllFunction         = "test_all"
 	testAllFunctionOverload = "test_all_caller_strings_bool"
-	testAnyFunction = "test_any"
+	testAnyFunction         = "test_any"
 	testAnyFunctionOverload = "test_any_caller_strings_bool"
 )
 
 func NewPolicyEnv(
 	input protoreflect.MessageDescriptor,
 	output protoreflect.MessageDescriptor,
-	policy *authorizationv1.Policy,
+	policy *iamv1.Policy,
 ) (*cel.Env, error) {
-	caller := &authorizationv1.Caller{}
+	caller := &iamv1.Caller{}
 	variables := []*expr.Decl{
 		decls.NewVar("caller", decls.NewObjectType(string(caller.ProtoReflect().Descriptor().FullName()))),
 		decls.NewVar("request", decls.NewObjectType(string(input.FullName()))),
 	}
-	if policy.GetDecisionPoint() == authorizationv1.PolicyDecisionPoint_AFTER {
+	if policy.GetDecisionPoint() == iamv1.PolicyDecisionPoint_AFTER {
 		variables = append(variables, decls.NewVar("response", decls.NewObjectType(string(output.FullName()))))
 	}
 	reg := collectFileDescriptorSet(input.ParentFile(), output.ParentFile())
@@ -45,7 +46,7 @@ func NewPolicyEnv(
 				decls.NewOverload(
 					testFunctionOverload,
 					[]*exprpb.Type{
-						decls.NewObjectType(string((&authorizationv1.Caller{}).ProtoReflect().Descriptor().FullName())),
+						decls.NewObjectType(string((&iamv1.Caller{}).ProtoReflect().Descriptor().FullName())),
 						decls.String, // resource
 					},
 					decls.Bool,
@@ -56,7 +57,7 @@ func NewPolicyEnv(
 				decls.NewOverload(
 					testAllFunctionOverload,
 					[]*exprpb.Type{
-						decls.NewObjectType(string((&authorizationv1.Caller{}).ProtoReflect().Descriptor().FullName())),
+						decls.NewObjectType(string((&iamv1.Caller{}).ProtoReflect().Descriptor().FullName())),
 						decls.NewListType(decls.String), // [resource]
 					},
 					decls.Bool,
@@ -67,7 +68,7 @@ func NewPolicyEnv(
 				decls.NewOverload(
 					testAnyFunctionOverload,
 					[]*exprpb.Type{
-						decls.NewObjectType(string((&authorizationv1.Caller{}).ProtoReflect().Descriptor().FullName())),
+						decls.NewObjectType(string((&iamv1.Caller{}).ProtoReflect().Descriptor().FullName())),
 						decls.NewListType(decls.String), // [resource]
 					},
 					decls.Bool,
@@ -76,7 +77,6 @@ func NewPolicyEnv(
 		),
 	)
 }
-
 
 func collectFileDescriptorSet(files ...protoreflect.FileDescriptor) *protoregistry.Files {
 	fdMap := map[string]protoreflect.FileDescriptor{}
@@ -111,7 +111,7 @@ func collectFileDescriptorSet(files ...protoreflect.FileDescriptor) *protoregist
 func NewPolicyProgram(
 	input protoreflect.MessageDescriptor,
 	output protoreflect.MessageDescriptor,
-	policy *authorizationv1.Policy,
+	policy *iamv1.Policy,
 	iamPolicyServer iam.IAMPolicyServer,
 ) (cel.Program, error) {
 	permissionTester := NewPermissionTester(policy.GetPermission(), iamPolicyServer)

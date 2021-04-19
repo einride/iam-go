@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go.einride.tech/authorization-aip/internal/generator"
+	"go.einride.tech/iam/internal/generator"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 

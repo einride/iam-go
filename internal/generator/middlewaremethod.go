@@ -1,13 +1,13 @@
 package generator
 
 import (
-	authorizationv1 "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
 type MiddlewareMethod struct {
 	Method *protogen.Method
-	Policy *authorizationv1.Policy
+	Policy *iamv1.Policy
 }
 
 func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
@@ -24,7 +24,7 @@ func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
 	f.P("*", g.Method.Output.GoIdent, ", error,")
 	f.P(") {")
 	switch g.Policy.GetDecisionPoint() {
-	case authorizationv1.PolicyDecisionPoint_BEFORE:
+	case iamv1.PolicyDecisionPoint_BEFORE:
 		f.P("caller, err := m.callerFn(ctx)")
 		f.P("if err != nil {")
 		f.P("return nil, err")
@@ -45,7 +45,7 @@ func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
 		f.P("}")
 		f.P("")
 		f.P("return m.next.", g.Method.GoName, "(ctx, request)")
-	case authorizationv1.PolicyDecisionPoint_AFTER:
+	case iamv1.PolicyDecisionPoint_AFTER:
 		f.P("caller, err := m.callerFn(ctx)")
 		f.P("if err != nil {")
 		f.P("return nil, err")

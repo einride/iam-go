@@ -3,5 +3,5 @@ version: v1beta1
 plugins:
   - name: go
     out: proto/gen
-    opt: module=go.einride.tech/authorization-aip/proto/gen
+    opt: module=go.einride.tech/iam/proto/gen
     path: ./build/protoc-gen-go

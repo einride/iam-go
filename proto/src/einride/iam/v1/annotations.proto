@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package einride.authorization.v1;
+package einride.iam.v1;
 
-option csharp_namespace = "Authorization.V1Beta1";
-option go_package = "go.einride.tech/authorization-aip/proto/gen/einride/authorization/v1;authorizationv1";
+option csharp_namespace = "Iam.V1";
+option go_package = "go.einride.tech/iam/proto/gen/einride/iam/v1;iamv1";
 option java_multiple_files = true;
 option java_outer_classname = "AnnotationsProto";
-option java_package = "tech.einride.authorization.v1";
-option objc_class_prefix = "AXX";
-option php_namespace = "Authorization\\V1";
+option java_package = "tech.einride.iam.v1";
+option objc_class_prefix = "IXX";
+option php_namespace = "Iam\\V1";
 
 import "google/iam/admin/v1/iam.proto";
 import "google/protobuf/descriptor.proto";

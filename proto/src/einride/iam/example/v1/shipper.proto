@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package einride.authorization.example.v1;
+package einride.iam.example.v1;
 
-option go_package = "go.einride.tech/authorization-aip/proto/gen/einride/authorization/example/v1;authorizationexamplev1";
+option go_package = "go.einride.tech/iam/proto/gen/einride/iam/example/v1;iamexamplev1";
 option java_multiple_files = true;
 option java_outer_classname = "ShipperProto";
-option java_package = "tech.einride.authorization.example.v1";
+option java_package = "tech.einride.iam.example.v1";
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -15,7 +15,7 @@ import "google/protobuf/timestamp.proto";
 // A shipper is a supplier or owner of goods to be transported.
 message Shipper {
   option (google.api.resource) = {
-    type: "authorization-example.einride.tech/Shipper"
+    type: "iam-example.einride.tech/Shipper"
     pattern: "shippers/{shipper}"
     singular: "shipper"
     plural: "shippers"
