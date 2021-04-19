@@ -294,40 +294,57 @@ service FreightService {
     };
   }
 
-  option (einride.authorization.v1.roles) = {
+  option (einride.authorization.v1.predefined_roles) = {
     role {
       name: "roles/freight.admin"
       title: "Freight Admin"
       description: "Full admin permissions to freight."
-      permission: "freight.shipments.get"
-      permission: "freight.shipments.list"
-      permission: "freight.shipments.create"
-      permission: "freight.shipments.update"
-      permission: "freight.shipments.delete"
-      permission: "freight.sites.get"
-      permission: "freight.sites.list"
-      permission: "freight.sites.create"
-      permission: "freight.sites.update"
-      permission: "freight.sites.delete"
-      permission: "freight.shipments.get"
-      permission: "freight.shipments.list"
-      permission: "freight.shipments.create"
-      permission: "freight.shipments.update"
-      permission: "freight.shipments.delete"
-      permission: "freight.setIamPolicy"
-      permission: "freight.getIamPolicy"
-      permission: "freight.testIamPermissions"
+      included_permissions: "freight.shippers.get"
+      included_permissions: "freight.shippers.list"
+      included_permissions: "freight.shippers.create"
+      included_permissions: "freight.shippers.update"
+      included_permissions: "freight.shippers.delete"
+      included_permissions: "freight.sites.get"
+      included_permissions: "freight.sites.list"
+      included_permissions: "freight.sites.create"
+      included_permissions: "freight.sites.update"
+      included_permissions: "freight.sites.delete"
+      included_permissions: "freight.shipments.get"
+      included_permissions: "freight.shipments.list"
+      included_permissions: "freight.shipments.create"
+      included_permissions: "freight.shipments.update"
+      included_permissions: "freight.shipments.delete"
+      included_permissions: "freight.setIamPolicy"
+      included_permissions: "freight.getIamPolicy"
+      included_permissions: "freight.testIamPermissions"
+    }
+    role {
+      name: "roles/freight.editor"
+      title: "Freight Editor"
+      description: "Edit permissions to freight."
+      included_permissions: "freight.shippers.get"
+      included_permissions: "freight.shippers.update"
+      included_permissions: "freight.sites.get"
+      included_permissions: "freight.sites.list"
+      included_permissions: "freight.sites.create"
+      included_permissions: "freight.sites.update"
+      included_permissions: "freight.sites.delete"
+      included_permissions: "freight.shipments.get"
+      included_permissions: "freight.shipments.list"
+      included_permissions: "freight.shipments.create"
+      included_permissions: "freight.shipments.update"
+      included_permissions: "freight.shipments.delete"
     }
     role {
       name: "roles/freight.viewer"
       title: "Freight Viewer"
       description: "View permissions to freight."
-      permission: "freight.shipments.get"
-      permission: "freight.shipments.list"
-      permission: "freight.sites.get"
-      permission: "freight.sites.list"
-      permission: "freight.shipments.get"
-      permission: "freight.shipments.list"
+      included_permissions: "freight.shippers.get"
+      included_permissions: "freight.shippers.list"
+      included_permissions: "freight.sites.get"
+      included_permissions: "freight.sites.list"
+      included_permissions: "freight.shipments.get"
+      included_permissions: "freight.shipments.list"
     }
   };
 
@@ -400,12 +417,6 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource,permissions";
-    option (einride.authorization.v1.policy) = {
-      permission: "freight.testIamPermissions"
-      decision_point: BEFORE
-      description: "The caller must have permission to test IAM permissions on the resource."
-      expression: "test(caller, request.resource)"
-    };
   }
 }
 

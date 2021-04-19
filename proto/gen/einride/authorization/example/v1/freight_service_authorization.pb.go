@@ -30,6 +30,8 @@ type FreightServiceAuthorizationMiddleware struct {
 	programCreateShipment    cel.Program
 	programDeleteShipment    cel.Program
 	programBatchGetShipments cel.Program
+	programSetIamPolicy      cel.Program
+	programGetIamPolicy      cel.Program
 }
 
 var _ FreightServiceServer = &FreightServiceAuthorizationMiddleware{}
@@ -504,6 +506,25 @@ func (m *FreightServiceAuthorizationMiddleware) SetIamPolicy(
 ) (
 	*v11.Policy, error,
 ) {
+	caller, err := m.callerFn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	val, _, err := m.programSetIamPolicy.Eval(map[string]interface{}{
+		"caller":  caller,
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.SetIamPolicy(ctx, request)
 }
 
@@ -513,6 +534,25 @@ func (m *FreightServiceAuthorizationMiddleware) GetIamPolicy(
 ) (
 	*v11.Policy, error,
 ) {
+	caller, err := m.callerFn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	val, _, err := m.programGetIamPolicy.Eval(map[string]interface{}{
+		"caller":  caller,
+		"request": request,
+	})
+	if err != nil {
+		return nil, err
+	}
+	boolVal, ok := val.Value().(bool)
+	if !ok {
+		return nil, nil // TODO: Return error.
+	}
+	if !boolVal {
+		return nil, nil // TODO: Return error.
+	}
+
 	return m.next.GetIamPolicy(ctx, request)
 }
 

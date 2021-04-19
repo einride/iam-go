@@ -10,6 +10,7 @@ option java_package = "tech.einride.authorization.v1";
 option objc_class_prefix = "AXX";
 option php_namespace = "Authorization\\V1";
 
+import "google/iam/admin/v1/iam.proto";
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.MethodOptions {
@@ -17,7 +18,7 @@ extend google.protobuf.MethodOptions {
 }
 
 extend google.protobuf.ServiceOptions {
-  Roles roles = 11001;
+  PredefinedRoles predefined_roles = 11001;
 }
 
 message Policy {
@@ -34,14 +35,7 @@ enum PolicyDecisionPoint {
   CUSTOM = 3;
 }
 
-// Built-in roles for a service.
-message Roles {
-  repeated Role role = 1;
-}
-
-message Role {
-  string name = 1;
-  string title = 2;
-  string description = 3;
-  repeated string permission = 4;
+// Predefined roles for a service.
+message PredefinedRoles {
+  repeated google.iam.admin.v1.Role role = 1;
 }
