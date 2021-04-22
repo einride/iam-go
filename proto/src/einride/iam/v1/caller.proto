@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package einride.iam.v1;
+
+option csharp_namespace = "Iam.V1";
+option go_package = "go.einride.tech/iam/proto/gen/einride/iam/v1;iamv1";
+option java_multiple_files = true;
+option java_outer_classname = "CallerProto";
+option java_package = "tech.einride.iam.v1";
+option objc_class_prefix = "IXX";
+option php_namespace = "Iam\\V1";
+
+import "google/protobuf/timestamp.proto";
+
+// Caller identity.
+message Caller {
+  // The caller's IAM policy member identity.
+  string member = 1;
+}

@@ -1,0 +1,23 @@
+version: v1beta1
+
+name: buf.build/einride/iam-go
+
+deps:
+  - buf.build/beta/googleapis
+
+build:
+  roots:
+    - proto/src
+
+lint:
+  use:
+    - DEFAULT
+  except:
+    # Google API Design guide dictates some standard methods to return resources.
+    - RPC_RESPONSE_STANDARD_NAME
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    # AIP api-linter is authoritative on this.
+    - ENUM_VALUE_PREFIX
+  service_suffix: Service
+  ignore:
+    - google
