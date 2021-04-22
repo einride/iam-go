@@ -42,11 +42,12 @@ service FreightService {
       get: "/v1/{name=shippers/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shippers.get"
-      decision_point: BEFORE
-      description: "The caller must have permission to get the shipper."
-      expression: "test(caller, request.name)"
+      before {
+        expression: "test(caller, request.name)"
+        description: "The caller must have permission to get the shipper."
+      }
     };
   }
 
@@ -56,11 +57,12 @@ service FreightService {
     option (google.api.http) = {
       get: "/v1/shippers"
     };
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shippers.list"
-      decision_point: BEFORE
-      description: "The caller must have permission to list all shippers."
-      expression: "test(caller, '*')"
+      before {
+        expression: "test(caller, '*')"
+        description: "The caller must have permission to list all shippers."
+      }
     };
   }
 
@@ -72,11 +74,12 @@ service FreightService {
       body: "shipper"
     };
     option (google.api.method_signature) = "shipper";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shippers.create"
-      decision_point: BEFORE
-      description: "The caller must have permission to create new shippers."
-      expression: "test(caller, '*')"
+      before: {
+        expression: "test(caller, '*')"
+        description: "The caller must have permission to create new shippers."
+      }
     };
   }
 
@@ -88,11 +91,12 @@ service FreightService {
       body: "shipper"
     };
     option (google.api.method_signature) = "shipper,update_mask";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shippers.update"
-      decision_point: BEFORE
-      description: "The caller must have permission to update the shipper."
-      expression: "test(caller, request.shipper.name)"
+      before: {
+        expression: "test(caller, request.shipper.name)"
+        description: "The caller must have permission to update the shipper."
+      }
     };
   }
 
@@ -104,11 +108,12 @@ service FreightService {
       delete: "/v1/{name=shippers/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shippers.delete"
-      decision_point: BEFORE
-      description: "The caller must have permission to delete the shipper."
-      expression: "test(caller, request.name)"
+      before: {
+        expression: "test(caller, request.name)"
+        description: "The caller must have permission to delete the shipper."
+      }
     };
   }
 
@@ -119,11 +124,12 @@ service FreightService {
       get: "/v1/{name=shippers/*/sites/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.policy) = {
-      decision_point: BEFORE
+    option (einride.iam.v1.authorization) = {
       permission: "freight.sites.get"
-      description: "The caller must have permission to get the site."
-      expression: "test(caller, request.name)"
+      before: {
+        expression: "test(caller, request.name)"
+        description: "The caller must have permission to get the site."
+      }
     };
   }
 
@@ -134,11 +140,12 @@ service FreightService {
       get: "/v1/{parent=shippers/*}/sites"
     };
     option (google.api.method_signature) = "parent";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.sites.list"
-      decision_point: BEFORE
-      description: "The caller must have permission to list all sites under the parent shipper."
-      expression: "test(caller, request.parent)"
+      before: {
+        expression: "test(caller, request.parent)"
+        description: "The caller must have permission to list all sites under the parent shipper."
+      }
     };
   }
 
@@ -150,11 +157,12 @@ service FreightService {
       body: "site"
     };
     option (google.api.method_signature) = "parent,site";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.sites.create"
-      decision_point: BEFORE
-      description: "The caller must have permission to create new sites under the parent shipper."
-      expression: "test(caller, request.parent)"
+      before: {
+        expression: "test(caller, request.parent)"
+        description: "The caller must have permission to create new sites under the parent shipper."
+      }
     };
   }
 
@@ -166,11 +174,12 @@ service FreightService {
       body: "site"
     };
     option (google.api.method_signature) = "site,update_mask";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.sites.update"
-      decision_point: BEFORE
-      description: "The caller must have permission to update the site."
-      expression: "test(caller, request.site.name)"
+      before: {
+        expression: "test(caller, request.site.name)"
+        description: "The caller must have permission to update the site."
+      }
     };
   }
 
@@ -182,11 +191,12 @@ service FreightService {
       delete: "/v1/{name=shippers/*/sites/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.sites.delete"
-      decision_point: BEFORE
-      description: "The caller must have permission to delete the site."
-      expression: "test(caller, request.name)"
+      before: {
+        expression: "test(caller, request.name)"
+        description: "The caller must have permission to delete the site."
+      }
     };
   }
 
@@ -197,14 +207,15 @@ service FreightService {
       get: "/v1/{name=shippers/*/shipments/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shipments.get"
-      decision_point: AFTER
-      description:
-        "The caller must have permission to get the shipment"
-        ", or the caller must have permission to get shipments from the shipment's origin site"
-        ", or the caller must have permission to get shipments to the shipment's destination site."
-      expression: "test_any(caller, [request.name, response.origin_site, response.destination_site])"
+      after {
+        expression: "test_any(caller, [request.name, response.origin_site, response.destination_site])"
+        description:
+          "The caller must have permission to get the shipment"
+          ", or the caller must have permission to get shipments from the shipment's origin site"
+          ", or the caller must have permission to get shipments to the shipment's destination site."
+      }
     };
   }
 
@@ -215,11 +226,12 @@ service FreightService {
       get: "/v1/{parent=shippers/*}/shipments"
     };
     option (google.api.method_signature) = "parent";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shipments.list"
-      decision_point: BEFORE
-      description: "The caller must have permission to list all shipments under the parent shipper."
-      expression: "test(caller, request.parent)"
+      before: {
+        expression: "test(caller, request.parent)"
+        description: "The caller must have permission to list all shipments under the parent shipper."
+      }
     };
   }
 
@@ -231,14 +243,15 @@ service FreightService {
       body: "shipment"
     };
     option (google.api.method_signature) = "parent,shipment";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shipments.create"
-      decision_point: BEFORE
-      description:
-        "The caller must have permission to create shipments under the parent shipper"
-        ", or the caller must have permission to create shipments from the shipment's origin site"
-        ", or the caller must have permission to create shipments to the shipment's destination site."
-      expression: "test_any(caller, [request.parent, request.shipment.origin_site, request.shipment.destination_site])"
+      before {
+        expression: "test_any(caller, [request.parent, request.shipment.origin_site, request.shipment.destination_site])"
+        description:
+          "The caller must have permission to create shipments under the parent shipper"
+          ", or the caller must have permission to create shipments from the shipment's origin site"
+          ", or the caller must have permission to create shipments to the shipment's destination site."
+      }
     };
   }
 
@@ -250,10 +263,9 @@ service FreightService {
       body: "shipment"
     };
     option (google.api.method_signature) = "shipment,update_mask";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shipments.update"
-      decision_point: CUSTOM
-      description:
+      custom:
         "The caller must have permission to update the shipment"
         ", or the caller must have permission to update shipments from the shipment's original origin site"
         ", or the caller must have permission to update shipments to the shipment's original destination site."
@@ -268,11 +280,12 @@ service FreightService {
       delete: "/v1/{name=shippers/*/shipments/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shipments.delete"
-      decision_point: AFTER
-      description: "The caller must have permission to delete the shipment."
-      expression: "test(caller, request.name)"
+      before {
+        expression: "test(caller, request.name)"
+        description: "The caller must have permission to delete the shipment."
+      }
     };
   }
 
@@ -282,15 +295,16 @@ service FreightService {
     option (google.api.http) = {
       get: "/v1/{parent=shippers/*}/shipments:batchGet"
     };
-    option (einride.iam.v1.policy) = {
+    option (einride.iam.v1.authorization) = {
       permission: "freight.shipments.get"
-      decision_point: AFTER
-      description:
-        "The caller must have permission to get all shipments under the parent shipper"
-        ", or the caller must have permission to get each of the requested shipments."
-      expression:
-        "test(caller, request.parent)"
-        " || response.shipments.all(s, test_any(caller, [s.name, s.origin_site, s.destination_site]))"
+      after: {
+        expression:
+          "test(caller, request.parent)"
+          " || response.shipments.all(s, test_any(caller, [s.name, s.origin_site, s.destination_site]))"
+        description:
+          "The caller must have permission to get all shipments under the parent shipper"
+          ", or the caller must have permission to get each of the requested shipments."
+      }
     };
   }
 
@@ -299,24 +313,7 @@ service FreightService {
       name: "roles/freight.admin"
       title: "Freight Admin"
       description: "Full admin permissions to freight."
-      included_permissions: "freight.shippers.get"
-      included_permissions: "freight.shippers.list"
-      included_permissions: "freight.shippers.create"
-      included_permissions: "freight.shippers.update"
-      included_permissions: "freight.shippers.delete"
-      included_permissions: "freight.sites.get"
-      included_permissions: "freight.sites.list"
-      included_permissions: "freight.sites.create"
-      included_permissions: "freight.sites.update"
-      included_permissions: "freight.sites.delete"
-      included_permissions: "freight.shipments.get"
-      included_permissions: "freight.shipments.list"
-      included_permissions: "freight.shipments.create"
-      included_permissions: "freight.shipments.update"
-      included_permissions: "freight.shipments.delete"
-      included_permissions: "freight.setIamPolicy"
-      included_permissions: "freight.getIamPolicy"
-      included_permissions: "freight.testIamPermissions"
+      included_permissions: "freight.*"
     }
     role {
       name: "roles/freight.editor"
@@ -363,11 +360,25 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource,policy";
-    option (einride.iam.v1.policy) = {
-      permission: "freight.setIamPolicy"
-      decision_point: BEFORE
-      description: "The caller must have permission to set the resource's IAM policy."
-      expression: "test(caller, request.resource)"
+    option (einride.iam.v1.authorization) = {
+      resource_permissions {
+        resource {
+          type: "iam-example.einride.tech/Shipper"
+          permission: "freight.shippers.setIamPolicy"
+        }
+        resource {
+          type: "iam-example.einride.tech/Site"
+          permission: "freight.sites.setIamPolicy"
+        }
+        resource {
+          type: "iam-example.einride.tech/Shipment"
+          permission: "freight.shipments.setIamPolicy"
+        }
+      }
+      before {
+        expression: "test(caller, request.resource)"
+        description: "The caller must have permission to get the resource's IAM policy."
+      }
     };
   }
 
@@ -389,11 +400,25 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource";
-    option (einride.iam.v1.policy) = {
-      permission: "freight.getIamPolicy"
-      decision_point: BEFORE
-      description: "The caller must have permission to get the resource's IAM policy."
-      expression: "test(caller, request.resource)"
+    option (einride.iam.v1.authorization) = {
+      resource_permissions {
+        resource {
+          type: "iam-example.einride.tech/Shipper"
+          permission: "freight.shippers.getIamPolicy"
+        }
+        resource {
+          type: "iam-example.einride.tech/Site"
+          permission: "freight.sites.getIamPolicy"
+        }
+        resource {
+          type: "iam-example.einride.tech/Shipment"
+          permission: "freight.shipments.getIamPolicy"
+        }
+      }
+      before {
+        expression: "test(caller, request.resource)"
+        description: "The caller must have permission to get the resource's IAM policy."
+      }
     };
   }
 
@@ -417,6 +442,7 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource,permissions";
+    option (einride.iam.v1.authorization).open = true;
   }
 }
 

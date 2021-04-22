@@ -1,4 +1,4 @@
-package spaniam
+package iamspanner
 
 import (
 	"bytes"
@@ -7,6 +7,9 @@ import (
 	"hash/crc32"
 
 	"cloud.google.com/go/spanner"
+	"go.einride.tech/aip/resourcename"
+	"go.einride.tech/iam/iampolicy"
+	"go.einride.tech/iam/iamregistry"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -17,11 +20,10 @@ import (
 
 // Server is a Spanner implementation of the iam.IAMPolicyServer interface.
 type Server struct {
-	client            *spanner.Client
-	config            ServerConfig
-	roles             map[string]*admin.Role
-	roleToPermissions map[string]map[string]struct{}
-	permissionToRoles map[string]map[string]struct{}
+	client         *spanner.Client
+	roles          *iamregistry.Roles
+	memberResolver MemberResolver
+	config         ServerConfig
 }
 
 var _ iam.IAMPolicyServer = &Server{}
@@ -34,42 +36,26 @@ type ReadTransaction interface {
 
 // ServerConfig configures a Spanner IAM policy server.
 type ServerConfig struct {
-	BuiltInRoles []*admin.Role
-	MemberFn     func(context.Context) (string, error)
-	ErrorHook    func(context.Context, error)
+	ErrorHook func(context.Context, error)
+}
+
+// MemberResolver resolves the policy member identity from a caller context.
+type MemberResolver interface {
+	ResolveMember(context.Context) (string, error)
 }
 
 // NewServer creates a new Spanner IAM policy server.
 func NewServer(
 	client *spanner.Client,
+	roles *iamregistry.Roles,
+	memberResolver MemberResolver,
 	config ServerConfig,
 ) (*Server, error) {
-	if config.MemberFn == nil {
-		return nil, fmt.Errorf("new spaniam.Server: MemberFn is nil")
-	}
 	s := &Server{
-		client:            client,
-		config:            config,
-		roles:             make(map[string]*admin.Role, len(config.BuiltInRoles)),
-		roleToPermissions: map[string]map[string]struct{}{},
-		permissionToRoles: map[string]map[string]struct{}{},
-	}
-	for _, role := range config.BuiltInRoles {
-		s.roles[role.Name] = role
-		permissions := s.roleToPermissions[role.Name]
-		if permissions == nil {
-			permissions = map[string]struct{}{}
-			s.roleToPermissions[role.Name] = permissions
-		}
-		for _, permission := range role.IncludedPermissions {
-			permissions[permission] = struct{}{}
-			roles := s.permissionToRoles[permission]
-			if roles == nil {
-				roles = map[string]struct{}{}
-				s.permissionToRoles[permission] = roles
-			}
-			roles[role.Name] = struct{}{}
-		}
+		client:         client,
+		config:         config,
+		roles:          roles,
+		memberResolver: memberResolver,
 	}
 	return s, nil
 }
@@ -92,8 +78,8 @@ func (s *Server) SetIamPolicy(
 			unfresh = true
 			return nil
 		}
-		mutations := []*spanner.Mutation{IamPolicyDeleteMutation(request.Resource)}
-		mutations = append(mutations, IamPolicyInsertMutations(request.Resource, request.Policy)...)
+		mutations := []*spanner.Mutation{DeleteIamPolicyMutation(request.Resource)}
+		mutations = append(mutations, InsertIamPolicyMutations(request.Resource, request.Policy)...)
 		return tx.BufferWrite(mutations)
 	}); err != nil {
 		return nil, s.handleStorageError(ctx, err)
@@ -108,39 +94,6 @@ func (s *Server) SetIamPolicy(
 	}
 	request.Policy.Etag = etag
 	return request.Policy, nil
-}
-
-func IamPolicyDeleteMutation(resource string) *spanner.Mutation {
-	return spanner.Delete("iam_policy_bindings", spanner.Key{resource}.AsPrefix())
-}
-
-func IamPolicyInsertMutations(resource string, policy *iam.Policy) []*spanner.Mutation {
-	var mutations []*spanner.Mutation
-	for i, binding := range policy.GetBindings() {
-		for j, member := range binding.GetMembers() {
-			mutations = append(
-				mutations,
-				spanner.Insert(
-					"iam_policy_bindings",
-					[]string{
-						"resource",
-						"binding_index",
-						"role",
-						"member_index",
-						"member",
-					},
-					[]interface{}{
-						resource,
-						int64(i),
-						binding.Role,
-						int64(j),
-						member,
-					},
-				),
-			)
-		}
-	}
-	return mutations
 }
 
 // GetIamPolicy implements iam.IAMPolicyServer.
@@ -158,7 +111,7 @@ func (s *Server) TestIamPermissions(
 	ctx context.Context,
 	request *iam.TestIamPermissionsRequest,
 ) (*iam.TestIamPermissionsResponse, error) {
-	member, err := s.config.MemberFn(ctx)
+	member, err := s.memberResolver.ResolveMember(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +125,7 @@ func (s *Server) TestIamPermissions(
 		[]string{request.Resource},
 		func(ctx context.Context, _ string, role *admin.Role) error {
 			for _, permission := range request.Permissions {
-				if s.roleHasPermission(role.Name, permission) {
+				if s.roles.RoleHasPermission(role.Name, permission) {
 					permissions[permission] = struct{}{}
 				}
 			}
@@ -206,6 +159,7 @@ func (s *Server) ReadRolesBoundToMemberAndResources(
 
 // ReadRolesBoundToMemberAndResourcesInTransaction reads all roles bound to the member and resources
 // within the provided Spanner transaction.
+// Also considers roles bound to parent resources.
 func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
@@ -216,6 +170,10 @@ func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 	memberResourceKeySets := make([]spanner.KeySet, 0, len(resources))
 	for _, resource := range resources {
 		memberResourceKeySets = append(memberResourceKeySets, spanner.Key{member, resource}.AsPrefix())
+		resourcename.RangeParents(resource, func(parent string) bool {
+			memberResourceKeySets = append(memberResourceKeySets, spanner.Key{member, parent}.AsPrefix())
+			return true
+		})
 	}
 	return tx.ReadUsingIndex(
 		ctx,
@@ -232,7 +190,7 @@ func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 		if err := r.Column(1, &roleName); err != nil {
 			return err
 		}
-		role, ok := s.roles[roleName]
+		role, ok := s.roles.FindRoleByName(roleName)
 		if !ok {
 			return status.Errorf(codes.Internal, "missing built-in role: %s", roleName)
 		}
@@ -259,11 +217,11 @@ func (s *Server) QueryResourcesBoundToMemberAndPermissionInTransaction(
 	member string,
 	permission string,
 ) ([]string, error) {
-	roles := s.permissionToRoles[permission]
-	memberRoleKeySets := make([]spanner.KeySet, 0, len(roles))
-	for _, role := range roles {
+	memberRoleKeySets := make([]spanner.KeySet, 0, s.roles.Count())
+	s.roles.RangeRolesByPermission(permission, func(role *admin.Role) bool {
 		memberRoleKeySets = append(memberRoleKeySets, spanner.Key{member, role}.AsPrefix())
-	}
+		return true
+	})
 	var resources []string
 	if err := tx.ReadUsingIndex(
 		ctx,
@@ -345,6 +303,39 @@ func (s *Server) ValidateIamPolicyFreshnessInTransaction(
 	return bytes.Equal(existingPolicy.Etag, etag), nil
 }
 
+func DeleteIamPolicyMutation(resource string) *spanner.Mutation {
+	return spanner.Delete("iam_policy_bindings", spanner.Key{resource}.AsPrefix())
+}
+
+func InsertIamPolicyMutations(resource string, policy *iam.Policy) []*spanner.Mutation {
+	var mutations []*spanner.Mutation
+	for i, binding := range policy.GetBindings() {
+		for j, member := range binding.GetMembers() {
+			mutations = append(
+				mutations,
+				spanner.Insert(
+					"iam_policy_bindings",
+					[]string{
+						"resource",
+						"binding_index",
+						"role",
+						"member_index",
+						"member",
+					},
+					[]interface{}{
+						resource,
+						int64(i),
+						binding.Role,
+						int64(j),
+						member,
+					},
+				),
+			)
+		}
+	}
+	return mutations
+}
+
 func (s *Server) validateSetIamPolicyRequest(ctx context.Context, request *iam.SetIamPolicyRequest) error {
 	var fieldViolations []*errdetails.BadRequest_FieldViolation
 	if len(request.Resource) == 0 {
@@ -353,33 +344,9 @@ func (s *Server) validateSetIamPolicyRequest(ctx context.Context, request *iam.S
 			Description: "missing required field",
 		})
 	}
-	if len(request.GetPolicy().GetBindings()) == 0 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "policy.bindings",
-			Description: "missing required field",
-		})
-	}
-	for i, binding := range request.GetPolicy().GetBindings() {
-		if len(binding.Role) == 0 {
-			fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-				Field:       fmt.Sprintf("policy.bindings[%d].role", i),
-				Description: "missing required field",
-			})
-		}
-		if len(binding.Members) == 0 {
-			fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-				Field:       fmt.Sprintf("policy.bindings[%d].members", i),
-				Description: "missing required field",
-			})
-		}
-		for j, member := range binding.Members {
-			if len(member) == 0 {
-				fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-					Field:       fmt.Sprintf("policy.bindings[%d].members[%d]", i, j),
-					Description: "missing required field",
-				})
-			}
-		}
+	for _, fieldViolation := range iampolicy.Validate(request.GetPolicy()).GetFieldViolations() {
+		fieldViolation.Field = fmt.Sprintf("policy.%s", fieldViolation.Field)
+		fieldViolations = append(fieldViolations, fieldViolation)
 	}
 	if len(fieldViolations) > 0 {
 		result, err := status.New(codes.InvalidArgument, "bad request").WithDetails(&errdetails.BadRequest{
@@ -408,15 +375,6 @@ func (s *Server) handleStorageError(ctx context.Context, err error) error {
 	default:
 		return status.Error(codes.Internal, "storage error")
 	}
-}
-
-func (s *Server) roleHasPermission(role, permission string) bool {
-	permissions, ok := s.roleToPermissions[role]
-	if !ok {
-		return false
-	}
-	_, ok = permissions[permission]
-	return ok
 }
 
 func computeETag(policy *iam.Policy) ([]byte, error) {

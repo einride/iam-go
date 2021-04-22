@@ -1,15 +1,12 @@
 package authorization
 
 import (
-	"fmt"
-
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"google.golang.org/genproto/googleapis/iam/v1"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
@@ -23,17 +20,18 @@ const (
 	testAnyFunctionOverload = "test_any_caller_strings_bool"
 )
 
-func NewPolicyEnv(
+func NewEnv(
 	input protoreflect.MessageDescriptor,
 	output protoreflect.MessageDescriptor,
-	policy *iamv1.Policy,
+	authorization *iamv1.Authorization,
 ) (*cel.Env, error) {
 	caller := &iamv1.Caller{}
 	variables := []*expr.Decl{
 		decls.NewVar("caller", decls.NewObjectType(string(caller.ProtoReflect().Descriptor().FullName()))),
 		decls.NewVar("request", decls.NewObjectType(string(input.FullName()))),
 	}
-	if policy.GetDecisionPoint() == iamv1.PolicyDecisionPoint_AFTER {
+	switch authorization.Strategy.(type) {
+	case *iamv1.Authorization_After:
 		variables = append(variables, decls.NewVar("response", decls.NewObjectType(string(output.FullName()))))
 	}
 	reg := collectFileDescriptorSet(input.ParentFile(), output.ParentFile())
@@ -108,27 +106,27 @@ func collectFileDescriptorSet(files ...protoreflect.FileDescriptor) *protoregist
 	return &registry
 }
 
-func NewPolicyProgram(
+func NewProgram(
 	input protoreflect.MessageDescriptor,
 	output protoreflect.MessageDescriptor,
-	policy *iamv1.Policy,
+	authorization *iamv1.Authorization,
 	iamPolicyServer iam.IAMPolicyServer,
 ) (cel.Program, error) {
-	permissionTester := NewPermissionTester(policy.GetPermission(), iamPolicyServer)
-	env, err := NewPolicyEnv(input, output, policy)
-	if err != nil {
-		return nil, err
-	}
-	ast, issues := env.Compile(policy.GetExpression())
-	if err := issues.Err(); err != nil {
-		return nil, err
-	}
-	if !proto.Equal(ast.ResultType(), decls.Bool) {
-		return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
-	}
-	program, err := env.Program(ast, cel.Functions(permissionTester.Overloads()...))
-	if err != nil {
-		return nil, err
-	}
-	return program, nil
+	//permissionTester := NewPermissionTester(authorization.GetPermission(), iamPolicyServer)
+	//env, err := NewEnv(input, output, authorization)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//ast, issues := env.Compile(policy.GetExpression())
+	//if err := issues.Err(); err != nil {
+	//	return nil, err
+	//}
+	//if !proto.Equal(ast.ResultType(), decls.Bool) {
+	//	return nil, fmt.Errorf("non-bool result type: %v", ast.ResultType())
+	//}
+	//program, err := env.Program(ast, cel.Functions(permissionTester.Overloads()...))
+	//if err != nil {
+	//	return nil, err
+	//}
+	return nil, nil
 }

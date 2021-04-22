@@ -3,6 +3,7 @@ all: \
 	buf-lint \
 	buf-generate-iam \
 	buf-generate-example \
+	go-test \
 	go-mod-tidy
 
 include tools/buf/rules.mk
@@ -35,7 +36,17 @@ buf-generate-example: $(buf) build/protoc-gen-go build/protoc-gen-go-iam $(proto
 	@rm -rf proto/gen/einride/iam/example/v1
 	@$(buf) generate --path proto/src/einride/iam/example/v1 --template buf.gen.example.yaml
 
+.PHONY: spanner-aip-go-generate
+spanner-aip-go-generate:
+	$(info [$@] generating Spanner database APIs...)
+	@go run go.einride.tech/spanner-aip/cmd/spanner-aip-go generate
+
 .PHONY: go-mod-tidy
 go-mod-tidy:
 	$(info [$@] tidying Go module files...)
 	@go mod tidy
+
+.PHONY: go-test
+go-test:
+	$(info [$@] running Go test suites...)
+	go test -count=1 -race ./...

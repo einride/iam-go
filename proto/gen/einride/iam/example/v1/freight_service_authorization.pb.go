@@ -65,26 +65,6 @@ func (m *FreightServiceAuthorizationMiddleware) GetShipper(
 ) (
 	*Shipper, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programGetShipper.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.GetShipper(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) ListShippers(
@@ -93,26 +73,6 @@ func (m *FreightServiceAuthorizationMiddleware) ListShippers(
 ) (
 	*ListShippersResponse, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programListShippers.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.ListShippers(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) CreateShipper(
@@ -121,26 +81,6 @@ func (m *FreightServiceAuthorizationMiddleware) CreateShipper(
 ) (
 	*Shipper, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programCreateShipper.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.CreateShipper(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) UpdateShipper(
@@ -149,26 +89,6 @@ func (m *FreightServiceAuthorizationMiddleware) UpdateShipper(
 ) (
 	*Shipper, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programUpdateShipper.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.UpdateShipper(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) DeleteShipper(
@@ -177,26 +97,6 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteShipper(
 ) (
 	*Shipper, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programDeleteShipper.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.DeleteShipper(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) GetSite(
@@ -205,26 +105,6 @@ func (m *FreightServiceAuthorizationMiddleware) GetSite(
 ) (
 	*Site, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programGetSite.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.GetSite(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) ListSites(
@@ -233,26 +113,6 @@ func (m *FreightServiceAuthorizationMiddleware) ListSites(
 ) (
 	*ListSitesResponse, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programListSites.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.ListSites(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) CreateSite(
@@ -261,26 +121,6 @@ func (m *FreightServiceAuthorizationMiddleware) CreateSite(
 ) (
 	*Site, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programCreateSite.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.CreateSite(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) UpdateSite(
@@ -289,26 +129,6 @@ func (m *FreightServiceAuthorizationMiddleware) UpdateSite(
 ) (
 	*Site, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programUpdateSite.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.UpdateSite(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) DeleteSite(
@@ -317,26 +137,6 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteSite(
 ) (
 	*Site, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programDeleteSite.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.DeleteSite(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) GetShipment(
@@ -345,30 +145,6 @@ func (m *FreightServiceAuthorizationMiddleware) GetShipment(
 ) (
 	*Shipment, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	response, err := m.next.GetShipment(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programGetShipment.Eval(map[string]interface{}{
-		"caller":   caller,
-		"request":  request,
-		"response": response,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-	return response, nil
 }
 
 func (m *FreightServiceAuthorizationMiddleware) ListShipments(
@@ -377,26 +153,6 @@ func (m *FreightServiceAuthorizationMiddleware) ListShipments(
 ) (
 	*ListShipmentsResponse, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programListShipments.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.ListShipments(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) CreateShipment(
@@ -405,26 +161,6 @@ func (m *FreightServiceAuthorizationMiddleware) CreateShipment(
 ) (
 	*Shipment, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programCreateShipment.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.CreateShipment(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) UpdateShipment(
@@ -433,7 +169,6 @@ func (m *FreightServiceAuthorizationMiddleware) UpdateShipment(
 ) (
 	*Shipment, error,
 ) {
-	return m.next.UpdateShipment(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) DeleteShipment(
@@ -442,30 +177,6 @@ func (m *FreightServiceAuthorizationMiddleware) DeleteShipment(
 ) (
 	*Shipment, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	response, err := m.next.DeleteShipment(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programDeleteShipment.Eval(map[string]interface{}{
-		"caller":   caller,
-		"request":  request,
-		"response": response,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-	return response, nil
 }
 
 func (m *FreightServiceAuthorizationMiddleware) BatchGetShipments(
@@ -474,30 +185,6 @@ func (m *FreightServiceAuthorizationMiddleware) BatchGetShipments(
 ) (
 	*BatchGetShipmentsResponse, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	response, err := m.next.BatchGetShipments(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programBatchGetShipments.Eval(map[string]interface{}{
-		"caller":   caller,
-		"request":  request,
-		"response": response,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-	return response, nil
 }
 
 func (m *FreightServiceAuthorizationMiddleware) SetIamPolicy(
@@ -506,26 +193,6 @@ func (m *FreightServiceAuthorizationMiddleware) SetIamPolicy(
 ) (
 	*v11.Policy, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programSetIamPolicy.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.SetIamPolicy(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) GetIamPolicy(
@@ -534,26 +201,6 @@ func (m *FreightServiceAuthorizationMiddleware) GetIamPolicy(
 ) (
 	*v11.Policy, error,
 ) {
-	caller, err := m.callerFn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	val, _, err := m.programGetIamPolicy.Eval(map[string]interface{}{
-		"caller":  caller,
-		"request": request,
-	})
-	if err != nil {
-		return nil, err
-	}
-	boolVal, ok := val.Value().(bool)
-	if !ok {
-		return nil, nil // TODO: Return error.
-	}
-	if !boolVal {
-		return nil, nil // TODO: Return error.
-	}
-
-	return m.next.GetIamPolicy(ctx, request)
 }
 
 func (m *FreightServiceAuthorizationMiddleware) TestIamPermissions(
@@ -562,5 +209,4 @@ func (m *FreightServiceAuthorizationMiddleware) TestIamPermissions(
 ) (
 	*v11.TestIamPermissionsResponse, error,
 ) {
-	return m.next.TestIamPermissions(ctx, request)
 }

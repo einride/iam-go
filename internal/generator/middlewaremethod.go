@@ -6,8 +6,8 @@ import (
 )
 
 type MiddlewareMethod struct {
-	Method *protogen.Method
-	Policy *iamv1.Policy
+	Method        *protogen.Method
+	Authorization *iamv1.Authorization
 }
 
 func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
@@ -23,56 +23,56 @@ func (g MiddlewareMethod) Generate(f *protogen.GeneratedFile) {
 	f.P(") ( ")
 	f.P("*", g.Method.Output.GoIdent, ", error,")
 	f.P(") {")
-	switch g.Policy.GetDecisionPoint() {
-	case iamv1.PolicyDecisionPoint_BEFORE:
-		f.P("caller, err := m.callerFn(ctx)")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("val, _, err := m.program", g.Method.GoName, ".Eval(map[string]interface{}{")
-		f.P(`"caller": caller,`)
-		f.P(`"request": request,`)
-		f.P("})")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("boolVal, ok := val.Value().(bool)")
-		f.P("if !ok {")
-		f.P("return nil, nil // TODO: Return error.")
-		f.P("}")
-		f.P("if !boolVal {")
-		f.P("return nil, nil // TODO: Return error.")
-		f.P("}")
-		f.P("")
-		f.P("return m.next.", g.Method.GoName, "(ctx, request)")
-	case iamv1.PolicyDecisionPoint_AFTER:
-		f.P("caller, err := m.callerFn(ctx)")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("response, err := m.next.", g.Method.GoName, "(ctx, request)")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("val, _, err := m.program", g.Method.GoName, ".Eval(map[string]interface{}{")
-		f.P(`"caller": caller,`)
-		f.P(`"request": request,`)
-		f.P(`"response": response,`)
-		f.P("})")
-		f.P("if err != nil {")
-		f.P("return nil, err")
-		f.P("}")
-		f.P("boolVal, ok := val.Value().(bool)")
-		f.P("if !ok {")
-		f.P("return nil, nil // TODO: Return error.")
-		f.P("}")
-		f.P("if !boolVal {")
-		f.P("return nil, nil // TODO: Return error.")
-		f.P("}")
-		f.P("return response, nil")
-	// TODO: Implement CUSTOM.
-	default:
-		f.P("return m.next.", g.Method.GoName, "(ctx, request)")
-	}
+	//switch g.Policy.GetDecisionPoint() {
+	//case iamv1.PolicyDecisionPoint_BEFORE:
+	//	f.P("caller, err := m.callerFn(ctx)")
+	//	f.P("if err != nil {")
+	//	f.P("return nil, err")
+	//	f.P("}")
+	//	f.P("val, _, err := m.program", g.Method.GoName, ".Eval(map[string]interface{}{")
+	//	f.P(`"caller": caller,`)
+	//	f.P(`"request": request,`)
+	//	f.P("})")
+	//	f.P("if err != nil {")
+	//	f.P("return nil, err")
+	//	f.P("}")
+	//	f.P("boolVal, ok := val.Value().(bool)")
+	//	f.P("if !ok {")
+	//	f.P("return nil, nil // TODO: Return error.")
+	//	f.P("}")
+	//	f.P("if !boolVal {")
+	//	f.P("return nil, nil // TODO: Return error.")
+	//	f.P("}")
+	//	f.P("")
+	//	f.P("return m.next.", g.Method.GoName, "(ctx, request)")
+	//case iamv1.PolicyDecisionPoint_AFTER:
+	//	f.P("caller, err := m.callerFn(ctx)")
+	//	f.P("if err != nil {")
+	//	f.P("return nil, err")
+	//	f.P("}")
+	//	f.P("response, err := m.next.", g.Method.GoName, "(ctx, request)")
+	//	f.P("if err != nil {")
+	//	f.P("return nil, err")
+	//	f.P("}")
+	//	f.P("val, _, err := m.program", g.Method.GoName, ".Eval(map[string]interface{}{")
+	//	f.P(`"caller": caller,`)
+	//	f.P(`"request": request,`)
+	//	f.P(`"response": response,`)
+	//	f.P("})")
+	//	f.P("if err != nil {")
+	//	f.P("return nil, err")
+	//	f.P("}")
+	//	f.P("boolVal, ok := val.Value().(bool)")
+	//	f.P("if !ok {")
+	//	f.P("return nil, nil // TODO: Return error.")
+	//	f.P("}")
+	//	f.P("if !boolVal {")
+	//	f.P("return nil, nil // TODO: Return error.")
+	//	f.P("}")
+	//	f.P("return response, nil")
+	//// TODO: Implement CUSTOM.
+	//default:
+	//	f.P("return m.next.", g.Method.GoName, "(ctx, request)")
+	//}
 	f.P("}")
 }

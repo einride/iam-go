@@ -12,30 +12,55 @@ option php_namespace = "Iam\\V1";
 
 import "google/iam/admin/v1/iam.proto";
 import "google/protobuf/descriptor.proto";
+import "google/type/expr.proto";
 
 extend google.protobuf.MethodOptions {
-  Policy policy = 11000;
+  // Authorization for the method.
+  Authorization authorization = 11000;
 }
 
 extend google.protobuf.ServiceOptions {
-  PredefinedRoles predefined_roles = 11001;
+  // Predefined roles for the service.
+  Roles predefined_roles = 11001;
 }
 
-message Policy {
-  string permission = 1;
-  PolicyDecisionPoint decision_point = 2;
-  string description = 3;
-  string expression = 4;
+// Authorization options for a gRPC method.
+message Authorization {
+  // Permission to use for authorization.
+  oneof permissions {
+    // A single permission used by the method.
+    string permission = 1;
+    // Resource permissions used by the method.
+    ResourcePermissions resource_permissions = 2;
+  }
+  // Strategy that decides if the request is authorized.
+  oneof strategy {
+    // Expression that decides before the request if the caller is authorized.
+    google.type.Expr before = 3;
+    // Expression that decides after the request if the caller is authorized.
+    google.type.Expr after = 4;
+    // A comment explaining a custom way of determining if the caller is authorized.
+    string custom = 5;
+    // A flag indicating if the method is open.
+    bool open = 6;
+  }
+
+  // Resource permissions.
+  message ResourcePermissions {
+    // The resource permissions.
+    repeated ResourcePermission resource = 1;
+  }
+
+  // A resource type and a permission.
+  message ResourcePermission {
+    // The resource type.
+    string type = 1;
+    // The permission.
+    string permission = 2;
+  }
 }
 
-enum PolicyDecisionPoint {
-  POLICY_TYPE_UNSPECIFIED = 0;
-  BEFORE = 1;
-  AFTER = 2;
-  CUSTOM = 3;
-}
-
-// Predefined roles for a service.
-message PredefinedRoles {
+// A list of roles.
+message Roles {
   repeated google.iam.admin.v1.Role role = 1;
 }

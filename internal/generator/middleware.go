@@ -44,8 +44,8 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 	f.P("callerFn func(", contextContext, ") (", authorizationV1Caller, ", error)")
 	f.P("permissionTester ", g.PermissionTesterGoName())
 	for _, method := range g.Service.Methods {
-		switch getPolicy(method).GetDecisionPoint() {
-		case iamv1.PolicyDecisionPoint_BEFORE, iamv1.PolicyDecisionPoint_AFTER:
+		switch getAuthorization(method).GetStrategy().(type) {
+		case *iamv1.Authorization_After, *iamv1.Authorization_Before:
 			f.P("program", method.GoName, " ", celProgram)
 		}
 	}
@@ -72,13 +72,21 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 	f.P("permissionTester: permissionTester,")
 	f.P("}")
 	for _, method := range g.Service.Methods {
-		switch policy := getPolicy(method); policy.GetDecisionPoint() {
-		case iamv1.PolicyDecisionPoint_BEFORE, iamv1.PolicyDecisionPoint_AFTER:
-			env, err := authorization.NewPolicyEnv(method.Input.Desc, method.Output.Desc, policy)
+		switch annotation := getAuthorization(method); annotation.GetStrategy().(type) {
+		case *iamv1.Authorization_After:
+			env, err := authorization.NewEnv(method.Input.Desc, method.Output.Desc, annotation)
 			if err != nil {
 				panic(fmt.Errorf("%s: %v", method.Desc.FullName(), err))
 			}
-			if _, issues := env.Compile(policy.Expression); issues.Err() != nil {
+			if _, issues := env.Compile(annotation.GetAfter().GetExpression()); issues.Err() != nil {
+				panic(fmt.Errorf("%s: %v", method.Desc.FullName(), issues.Err()))
+			}
+		case *iamv1.Authorization_Before:
+			env, err := authorization.NewEnv(method.Input.Desc, method.Output.Desc, annotation)
+			if err != nil {
+				panic(fmt.Errorf("%s: %v", method.Desc.FullName(), err))
+			}
+			if _, issues := env.Compile(annotation.GetBefore().GetExpression()); issues.Err() != nil {
 				panic(fmt.Errorf("%s: %v", method.Desc.FullName(), issues.Err()))
 			}
 			// f.P("m.program", method.GoName, ", err = ", newPolicyProgram, "(")
@@ -103,6 +111,6 @@ func (g Middleware) Generate(f *protogen.GeneratedFile) {
 	f.P("func (m *", g.GoName(), ") mustEmbedUnimplemented", g.Service.GoName, "Server() {}")
 }
 
-func getPolicy(method *protogen.Method) *iamv1.Policy {
-	return proto.GetExtension(method.Desc.Options(), iamv1.E_Policy).(*iamv1.Policy)
+func getAuthorization(method *protogen.Method) *iamv1.Authorization {
+	return proto.GetExtension(method.Desc.Options(), iamv1.E_Authorization).(*iamv1.Authorization)
 }

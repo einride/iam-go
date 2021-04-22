@@ -1,10 +1,12 @@
-package spaniam
+package iamspanner
 
 import (
 	"context"
 	"testing"
 
 	"cloud.google.com/go/spanner"
+	"go.einride.tech/iam/iamregistry"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"go.einride.tech/spanner-aip/spantest"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
@@ -27,37 +29,49 @@ func TestServer(t *testing.T) {
 	newDatabase := func() *spanner.Client {
 		return fx.NewDatabaseFromDDLFiles(t, "./schema.sql")
 	}
-
 	const (
 		user1 = "email:user1@example.com"
 		user2 = "email:user2@example.com"
 		user3 = "email:user3@example.com"
 	)
-	roles := []*admin.Role{
-		{
-			Name:                "roles/admin",
-			Title:               "Admin",
-			Description:         "Test admin",
-			IncludedPermissions: []string{"test.create", "test.get", "test.update", "test.delete"},
+	roles, err := iamregistry.NewRoles(&iamv1.Roles{
+		Role: []*admin.Role{
+			{
+				Name:        "roles/admin",
+				Title:       "Admin",
+				Description: "Test admin",
+				IncludedPermissions: []string{
+					"test.resources.create",
+					"test.resources.get",
+					"test.resources.update",
+					"test.resources.delete",
+				},
+			},
+			{
+				Name:        "roles/user",
+				Title:       "User",
+				Description: "Test user",
+				IncludedPermissions: []string{
+					"test.resources.create",
+					"test.resources.get",
+					"test.resources.update",
+				},
+			},
+			{
+				Name:        "roles/viewer",
+				Title:       "User",
+				Description: "Test user",
+				IncludedPermissions: []string{
+					"test.resources.get",
+				},
+			},
 		},
-		{
-			Name:                "roles/user",
-			Title:               "User",
-			Description:         "Test user",
-			IncludedPermissions: []string{"test.create", "test.get", "test.update"},
-		},
-		{
-			Name:                "roles/viewer",
-			Title:               "User",
-			Description:         "Test user",
-			IncludedPermissions: []string{"test.get"},
-		},
-	}
+	})
+	assert.NilError(t, err)
 
 	t.Run("get non-existent returns empty policy", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -76,8 +90,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -110,8 +123,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set stale", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -138,8 +150,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -175,8 +186,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set and get other resource", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -215,8 +225,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test no permissions", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -226,8 +235,13 @@ func TestServer(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource:    "resources/1",
-			Permissions: []string{"test.create", "test.get", "test.update", "test.delete"},
+			Resource: "resources/1",
+			Permissions: []string{
+				"test.resources.create",
+				"test.resources.get",
+				"test.resources.update",
+				"test.resources.delete",
+			},
 		})
 		assert.NilError(t, err)
 		assert.Assert(t, cmp.Len(response.Permissions, 0))
@@ -235,8 +249,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test all permissions", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -256,7 +269,12 @@ func TestServer(t *testing.T) {
 			Policy:   policy,
 		})
 		assert.NilError(t, err)
-		permissions := []string{"test.create", "test.get", "test.update", "test.delete"}
+		permissions := []string{
+			"test.resources.create",
+			"test.resources.get",
+			"test.resources.update",
+			"test.resources.delete",
+		}
 		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
 			Resource:    "resources/1",
 			Permissions: permissions,
@@ -267,8 +285,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test some permissions", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user1, nil
 			},
@@ -288,8 +305,13 @@ func TestServer(t *testing.T) {
 			Policy:   policy,
 		})
 		assert.NilError(t, err)
-		permissions := []string{"test.create", "test.get", "test.update", "test.delete"}
-		expected := []string{"test.get"}
+		permissions := []string{
+			"test.resources.create",
+			"test.resources.get",
+			"test.resources.update",
+			"test.resources.delete",
+		}
+		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
 			Resource:    "resources/1",
 			Permissions: permissions,
@@ -300,8 +322,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test permissions wrong user", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(newDatabase(), ServerConfig{
-			BuiltInRoles: roles,
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
 			MemberFn: func(ctx context.Context) (string, error) {
 				return user2, nil
 			},
@@ -321,12 +342,54 @@ func TestServer(t *testing.T) {
 			Policy:   policy,
 		})
 		assert.NilError(t, err)
-		permissions := []string{"test.create", "test.get", "test.update", "test.delete"}
+		permissions := []string{
+			"test.resources.create",
+			"test.resources.get",
+			"test.resources.update",
+			"test.resources.delete",
+		}
 		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
 			Resource:    "resources/1",
 			Permissions: permissions,
 		})
 		assert.NilError(t, err)
 		assert.Assert(t, cmp.Len(response.Permissions, 0))
+	})
+
+	t.Run("test permissions on parent", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewServer(newDatabase(), roles, ServerConfig{
+			MemberFn: func(ctx context.Context) (string, error) {
+				return user1, nil
+			},
+			ErrorHook: func(ctx context.Context, err error) {
+				t.Log(err)
+			},
+		})
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/viewer", Members: []string{user1}},
+			},
+			Etag: []byte("W/0-00000000"),
+		}
+		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
+			Resource: "parents/1",
+			Policy:   policy,
+		})
+		assert.NilError(t, err)
+		permissions := []string{
+			"test.resources.create",
+			"test.resources.get",
+			"test.resources.update",
+			"test.resources.delete",
+		}
+		expected := []string{"test.resources.get"}
+		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
+			Resource:    "parents/1/resources/1",
+			Permissions: permissions,
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected, response.Permissions)
 	})
 }
