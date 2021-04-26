@@ -200,6 +200,44 @@ service FreightService {
     };
   }
 
+  // Batch get sites.
+  // See: https://google.aip.dev/231 (Batch methods: Get).
+  rpc BatchGetSites(BatchGetSitesRequest) returns (BatchGetSitesResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=shippers/*}/sites:batchGet"
+    };
+    option (einride.iam.v1.authorization) = {
+      permission: "freight.sites.get"
+      after: {
+        expression:
+          "test(caller, request.parent)"
+          " || test_all(caller, response.sites.map(s, s.name))"
+        description:
+          "The caller must have permission to get all sites under the parent shipper"
+          ", or the caller must have permission to get each of the requested sites."
+      }
+    };
+  }
+
+  // Search sites.
+  // See: https://google.aip.dev/136 (Custom methods).
+  rpc SearchSites(SearchSitesRequest) returns (SearchSitesResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=shippers/*}/sites:search"
+    };
+    option (einride.iam.v1.authorization) = {
+      permission: "freight.sites.get"
+      after: {
+        expression:
+          "test(caller, request.parent)"
+          " || test_all(caller, response.sites.map(s, s.name))"
+        description:
+          "The caller must have permission to get all sites under the parent shipper"
+          ", or the caller must have permission to get each of the requested sites."
+      }
+    };
+  }
+
   // Get a shipment.
   // See: https://google.aip.dev/131 (Standard methods: Get).
   rpc GetShipment(GetShipmentRequest) returns (Shipment) {
@@ -485,6 +523,12 @@ message ListShippersResponse {
 message CreateShipperRequest {
   // The shipper to create.
   Shipper shipper = 1 [(google.api.field_behavior) = REQUIRED];
+  // The ID to use for the shipper, which will become the final component of
+  // the shippers's resource name.
+  //
+  // This value should be 4-63 characters, and valid characters
+  // are /[a-z][0-9]-/.
+  string shipper_id = 2;
 }
 
 // Request message for FreightService.UpdateShipper.
@@ -585,6 +629,69 @@ message DeleteSiteRequest {
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "iam-example.einride.tech/Site"
   ];
+}
+
+// Request message for FreightService.BatchGetSites.
+message BatchGetSitesRequest {
+  // The parent resource shared by all sites being retrieved.
+  // If this is set, the parent of all of the sites specified in `names`
+  // must match this field.
+  // Format: `shippers/{shipper}`
+  string parent = 1 [
+    (google.api.resource_reference) = {
+      type: "iam-example.einride.tech/Shipper"
+    }
+  ];
+
+  // The names of the sites to retrieve.
+  // A maximum of 1000 sites can be retrieved in a batch.
+  // Format: `shippers/{shipper}/sites/{site}`
+  repeated string names = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "iam-example.einride.tech/Site"
+    }
+  ];
+}
+
+// Response message for FreightService.BatchGetSites.
+message BatchGetSitesResponse {
+  // Sites requested.
+  repeated Site sites = 1;
+}
+
+// Request message for FreightService.SearchSites.
+message SearchSitesRequest {
+  // The resource name of the parent, which owns this collection of sites.
+  // Format: shippers/{shipper}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "iam-example.einride.tech/Shipper"
+    }
+  ];
+
+  // Requested page size. Server may return fewer sites than requested.
+  // If unspecified, server will pick an appropriate default.
+  int32 page_size = 2;
+
+  // A token identifying a page of results the server should return.
+  // Typically, this is the value of
+  // [ListSitesResponse.next_page_token][einride.example.freight.v1.ListSitesResponse.next_page_token]
+  // returned from the previous call to `ListSites` method.
+  string page_token = 3;
+}
+
+// Response message for FreightService.SearchSites.
+message SearchSitesResponse {
+  // The list of sites.
+  repeated Site sites = 1;
+
+  // A token to retrieve next page of results. Pass this value in the
+  // [ListSitesRequest.page_token][einride.example.freight.v1.ListSitesRequest.page_token]
+  // field in the subsequent call to `ListSites` method to retrieve the next
+  // page of results.
+  string next_page_token = 2;
 }
 
 // Request message for FreightService.GetShipment.
