@@ -5,3 +5,11 @@ databases:
     package:
       name: iamspannerdb
       path: ./iamspanner/iamspannerdb
+
+  - name: example
+    schema:
+      - ./iamspanner/schema.sql
+      - ./iamexample/schema.sql
+    package:
+      name: iamexampledb
+      path: ./iamexample/iamexampledb

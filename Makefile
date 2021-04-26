@@ -4,6 +4,7 @@ SHELL := /bin/bash
 all: \
 	buf-lint \
 	buf-generate \
+	buf-generate-example \
 	spanner-generate \
 	go-lint \
 	go-test \
@@ -25,9 +26,15 @@ buf-lint: $(buf)
 
 .PHONY: buf-generate
 buf-generate: $(buf) build/protoc-gen-go
-	$(info [$@] generating iam proto stubs...)
+	$(info [$@] generating proto stubs...)
 	@rm -rf proto/gen/einride/iam/v1
 	@$(buf) generate --path proto/src/einride/iam/v1 --template buf.gen.yaml
+
+.PHONY: buf-generate-example
+buf-generate-example: $(buf) build/protoc-gen-go $(protoc_gen_go_grpc)
+	$(info [$@] generating proto stubs...)
+	@rm -rf proto/gen/einride/iam/example/v1
+	@$(buf) generate --path proto/src/einride/iam/example/v1 --template buf.gen.example.yaml
 
 .PHONY: spanner-generate
 spanner-generate:

@@ -178,6 +178,8 @@ func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 			return true
 		})
 	}
+	// Include global bindings.
+	resourcesAndParents["*"] = struct{}{}
 	// Build deduplicated key ranges to read.
 	memberResourceKeySets := make([]spanner.KeySet, 0, len(resources))
 	for resource := range resourcesAndParents {

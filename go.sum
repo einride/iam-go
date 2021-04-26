@@ -121,6 +121,7 @@ github.com/google/pprof v0.0.0-20210122040257-d980be63207e/go.mod h1:kpwsk12EmLe
 github.com/google/pprof v0.0.0-20210226084205-cbba55b83ad5/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
 github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5 h1:sjZBwGj9Jlw33ImPtvFviGYvseOtDM7hkSKB7+Tv3SM=
@@ -153,8 +154,8 @@ github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.einride.tech/aip v0.35.0 h1:++nHTdRBpeEcl+0KRlluNLaGP2SaWPlMardeJ8BSHN0=
 go.einride.tech/aip v0.35.0/go.mod h1:JgWM7uEMZ1GfTehF4YJKSPg3PQlwgpnLbL+imA0yH3M=
-go.einride.tech/spanner-aip v0.33.0 h1:pAcu4pJ2qVX1VUdGoIlmrcNJdAcPwOrk8VH/7kjGx8Q=
-go.einride.tech/spanner-aip v0.33.0/go.mod h1:nxaR0F9hrPxC/7xmFDBIk68j+z9uwYtoNELYqcNjxf8=
+go.einride.tech/spanner-aip v0.34.0 h1:EtTeXHWZIaw6iWElJoNfkGvmF+gnEkFCWC+wowBbUCg=
+go.einride.tech/spanner-aip v0.34.0/go.mod h1:nxaR0F9hrPxC/7xmFDBIk68j+z9uwYtoNELYqcNjxf8=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
