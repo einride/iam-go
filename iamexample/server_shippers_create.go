@@ -36,7 +36,7 @@ func (s *Server) CreateShipper(
 		case codes.AlreadyExists:
 			return nil, status.Errorf(code, "shipper %s already exists", request.Shipper.Name)
 		default:
-			return nil, s.storageError(ctx, err)
+			return nil, s.handleStorageError(ctx, err)
 		}
 	}
 	request.Shipper.CreateTime = timestamppb.New(commitTime)

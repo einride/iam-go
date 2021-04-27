@@ -36,7 +36,7 @@ func (s *Server) GetShipper(
 		case codes.NotFound:
 			return nil, status.Errorf(code, "not found: %s", request.Name)
 		}
-		return nil, s.storageError(ctx, err)
+		return nil, s.handleStorageError(ctx, err)
 	}
 	msg, err := convertShipperRowToProto(row)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func testGet(ctx context.Context, t *testing.T, newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer) {
+func testGetShipper(ctx context.Context, t *testing.T, newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer) {
 	t.Run("Get", func(t *testing.T) {
 		t.Run("authorized", func(t *testing.T) {
 			t.Run("not found", func(t *testing.T) {

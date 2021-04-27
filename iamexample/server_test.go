@@ -50,8 +50,11 @@ func TestServer(t *testing.T) {
 			Next: server,
 		}
 	}
-	testGet(ctx, t, newServer)
-	testCreate(ctx, t, newServer)
+	testGetShipper(ctx, t, newServer)
+	testCreateShipper(ctx, t, newServer)
+	testUpdateShipper(ctx, t, newServer)
+	testListShippers(ctx, t, newServer)
+	testDeleteShippers(ctx, t, newServer)
 }
 
 func addPolicyBinding(
