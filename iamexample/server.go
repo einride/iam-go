@@ -31,7 +31,7 @@ func (s *Server) errorHook(ctx context.Context, err error) {
 	}
 }
 
-func (s *Server) storageError(ctx context.Context, err error) error {
+func (s *Server) handleStorageError(ctx context.Context, err error) error {
 	s.errorHook(ctx, err)
 	switch code := status.Code(err); code {
 	case codes.Canceled, codes.DeadlineExceeded, codes.Aborted, codes.Unavailable:

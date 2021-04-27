@@ -60,7 +60,7 @@ func (s *Server) UpdateShipper(
 		case codes.NotFound:
 			return nil, status.Errorf(code, "no such shipper: %s", request.Shipper.Name)
 		default:
-			return nil, s.storageError(ctx, err)
+			return nil, s.handleStorageError(ctx, err)
 		}
 	}
 	result.UpdateTime = timestamppb.New(commitTime)
