@@ -12,12 +12,12 @@ import (
 )
 
 func testUpdateShipper(ctx context.Context, t *testing.T, newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer) {
-	t.Run("Update", func(t *testing.T) {
+	t.Run("UpdateShipper", func(t *testing.T) {
 		t.Run("authorized", func(t *testing.T) {
 			t.Run("ok", func(t *testing.T) {
 				const (
 					member    = "user:test@example.com"
-					shipperID = "123"
+					shipperID = "1234"
 					shipper   = "shippers/" + shipperID
 				)
 				server := newServer(constantMember(member))
@@ -46,7 +46,7 @@ func testUpdateShipper(ctx context.Context, t *testing.T, newServer func(iamspan
 		t.Run("unauthorized", func(t *testing.T) {
 			const (
 				member    = "user:test@example.com"
-				shipperID = "123"
+				shipperID = "1234"
 				shipper   = "shippers/" + shipperID
 			)
 			server := newServer(constantMember(member))

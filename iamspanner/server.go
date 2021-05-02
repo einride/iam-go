@@ -10,6 +10,7 @@ import (
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
+	"go.einride.tech/iam/iamrole"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
@@ -21,13 +22,13 @@ import (
 
 // Server is a Spanner implementation of the iam.IAMPolicyServer interface.
 type Server struct {
+	iam.UnimplementedIAMPolicyServer
+	admin.UnimplementedIAMServer
 	client         *spanner.Client
 	roles          *iamregistry.Roles
 	memberResolver MemberResolver
 	config         ServerConfig
 }
-
-var _ iam.IAMPolicyServer = &Server{}
 
 // ServerConfig configures a Spanner IAM policy server.
 type ServerConfig struct {
@@ -145,6 +146,53 @@ func (s *Server) TestIamPermissions(
 		}
 	}
 	return response, nil
+}
+
+// TestPermissionOnResource tests if the caller has the specified permission on the specified resource.
+func (s *Server) TestPermissionOnResource(
+	ctx context.Context,
+	permission string,
+	resource string,
+) (bool, error) {
+	result, err := s.TestPermissionOnResources(ctx, permission, []string{resource})
+	if err != nil {
+		return false, err
+	}
+	return result[resource], nil
+}
+
+// TestPermissionOnResources tests if the caller has the specified permission on the specified resources.
+func (s *Server) TestPermissionOnResources(
+	ctx context.Context,
+	permission string,
+	resources []string,
+) (map[string]bool, error) {
+	member, err := s.memberResolver.ResolveMember(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[string]bool, len(resources))
+	tx := s.client.Single()
+	defer tx.Close()
+	if err := s.ReadRolesBoundToMemberAndResourcesInTransaction(
+		ctx,
+		tx,
+		member,
+		resources,
+		func(ctx context.Context, boundResource string, role *admin.Role) error {
+			for _, resource := range resources {
+				result[resource] = result[resource] ||
+					(boundResource == "*" ||
+						resource == boundResource ||
+						resourcename.HasParent(resource, boundResource) &&
+							iamrole.HasPermission(role, permission))
+			}
+			return nil
+		},
+	); err != nil {
+		return nil, s.handleStorageError(ctx, err)
+	}
+	return result, nil
 }
 
 // ReadRolesBoundToMemberAndResources reads all roles bound to the member and resources.

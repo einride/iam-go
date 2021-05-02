@@ -47,6 +47,16 @@ func (r *Roles) RoleHasPermission(name, permission string) bool {
 	return iamrole.HasPermission(role, permission)
 }
 
+// RangeRoles iterates over all registered roles while f returns true.
+// The iteration order is undefined.
+func (r *Roles) RangeRoles(fn func(*admin.Role) bool) {
+	for _, role := range r.roles {
+		if !fn(role) {
+			break
+		}
+	}
+}
+
 // RangeRolesByPermission iterates over all registered roles with the provided permission while f returns true.
 // The iteration order is undefined, and permissions with wildcards are not allowed.
 func (r *Roles) RangeRolesByPermission(permission string, fn func(*admin.Role) bool) {

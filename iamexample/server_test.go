@@ -2,8 +2,10 @@ package iamexample
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
+	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
@@ -47,14 +49,26 @@ func TestServer(t *testing.T) {
 			},
 		}
 		return &Authorization{
+			IAM:  iamServer,
 			Next: server,
 		}
 	}
+	// shippers
 	testGetShipper(ctx, t, newServer)
 	testCreateShipper(ctx, t, newServer)
 	testUpdateShipper(ctx, t, newServer)
 	testListShippers(ctx, t, newServer)
-	testDeleteShippers(ctx, t, newServer)
+	testDeleteShipper(ctx, t, newServer)
+	// sites
+	testCreateSite(ctx, t, newServer)
+	testGetSite(ctx, t, newServer)
+	testDeleteSite(ctx, t, newServer)
+	testListSites(ctx, t, newServer)
+	testUpdateSite(ctx, t, newServer)
+	testBatchGetSites(ctx, t, newServer)
+	// shipments
+	testCreateShipment(ctx, t, newServer)
+	testBatchGetShipments(ctx, t, newServer)
 }
 
 func addPolicyBinding(
@@ -102,6 +116,47 @@ func addPolicyBinding(
 	assert.NilError(t, err)
 }
 
+func createShipper(
+	ctx context.Context,
+	t *testing.T,
+	server iamexamplev1.FreightServiceServer,
+	name string,
+) {
+	t.Helper()
+	var id string
+	assert.NilError(t, resourcename.Sscan(name, "shippers/{shipper}", &id))
+	input := &iamexamplev1.Shipper{
+		DisplayName: fmt.Sprintf("shipper %s", id),
+	}
+	got, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
+		Shipper:   input,
+		ShipperId: id,
+	})
+	assert.NilError(t, err)
+	assert.Equal(t, input.DisplayName, got.DisplayName)
+}
+
+func createSite(
+	ctx context.Context,
+	t *testing.T,
+	server iamexamplev1.FreightServiceServer,
+	name string,
+) {
+	t.Helper()
+	var shipperID, siteID string
+	assert.NilError(t, resourcename.Sscan(name, "shippers/{shipper}/sites/{site}", &shipperID, &siteID))
+	input := &iamexamplev1.Site{
+		DisplayName: fmt.Sprintf("site %s", siteID),
+	}
+	got, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
+		Parent: resourcename.Sprint("shippers/{shipper}", shipperID),
+		Site:   input,
+		SiteId: siteID,
+	})
+	assert.NilError(t, err)
+	assert.Equal(t, input.DisplayName, got.DisplayName)
+}
+
 func lookupPredefinedRoles(t *testing.T) *iamregistry.Roles {
 	desc, err := protoregistry.GlobalFiles.FindDescriptorByName(
 		protoreflect.FullName(iamexamplev1.FreightService_ServiceDesc.ServiceName),
@@ -125,5 +180,11 @@ func (f memberResolverFn) ResolveMember(ctx context.Context) (string, error) {
 func constantMember(member string) iamspanner.MemberResolver {
 	return memberResolverFn(func(ctx context.Context) (string, error) {
 		return member, nil
+	})
+}
+
+func ptrMember(member *string) iamspanner.MemberResolver {
+	return memberResolverFn(func(ctx context.Context) (string, error) {
+		return *member, nil
 	})
 }

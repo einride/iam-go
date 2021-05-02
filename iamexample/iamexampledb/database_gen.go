@@ -280,7 +280,7 @@ type SitesRow struct {
 	CreateTime  time.Time           `spanner:"create_time"`
 	UpdateTime  time.Time           `spanner:"update_time"`
 	DeleteTime  spanner.NullTime    `spanner:"delete_time"`
-	DisplayName spanner.NullString  `spanner:"display_name"`
+	DisplayName string              `spanner:"display_name"`
 	Latitude    spanner.NullFloat64 `spanner:"latitude"`
 	Longitude   spanner.NullFloat64 `spanner:"longitude"`
 }
@@ -331,7 +331,7 @@ func (r *SitesRow) Validate() error {
 	if len(r.SiteId) > 63 {
 		return fmt.Errorf("column site_id length > 63")
 	}
-	if !r.DisplayName.IsNull() && len(r.DisplayName.StringVal) > 63 {
+	if len(r.DisplayName) > 63 {
 		return fmt.Errorf("column display_name length > 63")
 	}
 	return nil
@@ -430,12 +430,10 @@ func (r *SitesRow) MutatePresentColumns() (string, []string, []interface{}) {
 		"site_id",
 		"create_time",
 		"update_time",
+		"display_name",
 	)
 	if !r.DeleteTime.IsNull() {
 		columns = append(columns, "delete_time")
-	}
-	if !r.DisplayName.IsNull() {
-		columns = append(columns, "display_name")
 	}
 	if !r.Latitude.IsNull() {
 		columns = append(columns, "latitude")
@@ -454,18 +452,19 @@ func (r *SitesRow) Key() SitesKey {
 }
 
 type ShipmentsRow struct {
-	ShipperId            string             `spanner:"shipper_id"`
-	ShipmentId           string             `spanner:"shipment_id"`
-	CreateTime           time.Time          `spanner:"create_time"`
-	UpdateTime           time.Time          `spanner:"update_time"`
-	DeleteTime           spanner.NullTime   `spanner:"delete_time"`
-	OriginSiteId         spanner.NullString `spanner:"origin_site_id"`
-	DestinationSiteId    spanner.NullString `spanner:"destination_site_id"`
-	PickupEarliestTime   spanner.NullTime   `spanner:"pickup_earliest_time"`
-	PickupLatestTime     spanner.NullTime   `spanner:"pickup_latest_time"`
-	DeliveryEarliestTime spanner.NullTime   `spanner:"delivery_earliest_time"`
-	DeliveryLatestTime   spanner.NullTime   `spanner:"delivery_latest_time"`
-	LineItems            []*LineItemsRow    `spanner:"line_items"`
+	ShipperId            string               `spanner:"shipper_id"`
+	ShipmentId           string               `spanner:"shipment_id"`
+	CreateTime           time.Time            `spanner:"create_time"`
+	UpdateTime           time.Time            `spanner:"update_time"`
+	DeleteTime           spanner.NullTime     `spanner:"delete_time"`
+	OriginSiteId         string               `spanner:"origin_site_id"`
+	DestinationSiteId    string               `spanner:"destination_site_id"`
+	PickupEarliestTime   time.Time            `spanner:"pickup_earliest_time"`
+	PickupLatestTime     time.Time            `spanner:"pickup_latest_time"`
+	DeliveryEarliestTime time.Time            `spanner:"delivery_earliest_time"`
+	DeliveryLatestTime   time.Time            `spanner:"delivery_latest_time"`
+	Annotations          []spanner.NullString `spanner:"annotations"`
+	LineItems            []*LineItemsRow      `spanner:"line_items"`
 }
 
 func (*ShipmentsRow) ColumnNames() []string {
@@ -481,6 +480,7 @@ func (*ShipmentsRow) ColumnNames() []string {
 		"pickup_latest_time",
 		"delivery_earliest_time",
 		"delivery_latest_time",
+		"annotations",
 	}
 }
 
@@ -497,6 +497,7 @@ func (*ShipmentsRow) ColumnIDs() []spansql.ID {
 		"pickup_latest_time",
 		"delivery_earliest_time",
 		"delivery_latest_time",
+		"annotations",
 	}
 }
 
@@ -513,6 +514,7 @@ func (*ShipmentsRow) ColumnExprs() []spansql.Expr {
 		spansql.ID("pickup_latest_time"),
 		spansql.ID("delivery_earliest_time"),
 		spansql.ID("delivery_latest_time"),
+		spansql.ID("annotations"),
 	}
 }
 
@@ -523,11 +525,14 @@ func (r *ShipmentsRow) Validate() error {
 	if len(r.ShipmentId) > 63 {
 		return fmt.Errorf("column shipment_id length > 63")
 	}
-	if !r.OriginSiteId.IsNull() && len(r.OriginSiteId.StringVal) > 63 {
+	if len(r.OriginSiteId) > 63 {
 		return fmt.Errorf("column origin_site_id length > 63")
 	}
-	if !r.DestinationSiteId.IsNull() && len(r.DestinationSiteId.StringVal) > 63 {
+	if len(r.DestinationSiteId) > 63 {
 		return fmt.Errorf("column destination_site_id length > 63")
+	}
+	if r.Annotations == nil {
+		return fmt.Errorf("array column annotations is nil")
 	}
 	return nil
 }
@@ -579,6 +584,10 @@ func (r *ShipmentsRow) UnmarshalSpannerRow(row *spanner.Row) error {
 			if err := row.Column(i, &r.DeliveryLatestTime); err != nil {
 				return fmt.Errorf("unmarshal shipments row: delivery_latest_time column: %w", err)
 			}
+		case "annotations":
+			if err := row.Column(i, &r.Annotations); err != nil {
+				return fmt.Errorf("unmarshal shipments row: annotations column: %w", err)
+			}
 		case "line_items":
 			if err := row.Column(i, &r.LineItems); err != nil {
 				return fmt.Errorf("unmarshal shipments interleaved row: line_items column: %w", err)
@@ -603,6 +612,7 @@ func (r *ShipmentsRow) Mutate() (string, []string, []interface{}) {
 		r.PickupLatestTime,
 		r.DeliveryEarliestTime,
 		r.DeliveryLatestTime,
+		r.Annotations,
 	}
 }
 
@@ -635,6 +645,8 @@ func (r *ShipmentsRow) MutateColumns(columns []string) (string, []string, []inte
 			values = append(values, r.DeliveryEarliestTime)
 		case "delivery_latest_time":
 			values = append(values, r.DeliveryLatestTime)
+		case "annotations":
+			values = append(values, r.Annotations)
 		default:
 			panic(fmt.Errorf("table shipments does not have column %s", column))
 		}
@@ -650,27 +662,16 @@ func (r *ShipmentsRow) MutatePresentColumns() (string, []string, []interface{}) 
 		"shipment_id",
 		"create_time",
 		"update_time",
+		"origin_site_id",
+		"destination_site_id",
+		"pickup_earliest_time",
+		"pickup_latest_time",
+		"delivery_earliest_time",
+		"delivery_latest_time",
+		"annotations",
 	)
 	if !r.DeleteTime.IsNull() {
 		columns = append(columns, "delete_time")
-	}
-	if !r.OriginSiteId.IsNull() {
-		columns = append(columns, "origin_site_id")
-	}
-	if !r.DestinationSiteId.IsNull() {
-		columns = append(columns, "destination_site_id")
-	}
-	if !r.PickupEarliestTime.IsNull() {
-		columns = append(columns, "pickup_earliest_time")
-	}
-	if !r.PickupLatestTime.IsNull() {
-		columns = append(columns, "pickup_latest_time")
-	}
-	if !r.DeliveryEarliestTime.IsNull() {
-		columns = append(columns, "delivery_earliest_time")
-	}
-	if !r.DeliveryLatestTime.IsNull() {
-		columns = append(columns, "delivery_latest_time")
 	}
 	return r.MutateColumns(columns)
 }
@@ -683,13 +684,13 @@ func (r *ShipmentsRow) Key() ShipmentsKey {
 }
 
 type LineItemsRow struct {
-	ShipperId  string              `spanner:"shipper_id"`
-	ShipmentId string              `spanner:"shipment_id"`
-	LineNumber int64               `spanner:"line_number"`
-	Title      spanner.NullString  `spanner:"title"`
-	Quantity   spanner.NullFloat64 `spanner:"quantity"`
-	WeightKg   spanner.NullFloat64 `spanner:"weight_kg"`
-	VolumeM3   spanner.NullFloat64 `spanner:"volume_m3"`
+	ShipperId  string  `spanner:"shipper_id"`
+	ShipmentId string  `spanner:"shipment_id"`
+	LineNumber int64   `spanner:"line_number"`
+	Title      string  `spanner:"title"`
+	Quantity   float64 `spanner:"quantity"`
+	WeightKg   float64 `spanner:"weight_kg"`
+	VolumeM3   float64 `spanner:"volume_m3"`
 }
 
 func (*LineItemsRow) ColumnNames() []string {
@@ -735,7 +736,7 @@ func (r *LineItemsRow) Validate() error {
 	if len(r.ShipmentId) > 63 {
 		return fmt.Errorf("column shipment_id length > 63")
 	}
-	if !r.Title.IsNull() && len(r.Title.StringVal) > 63 {
+	if len(r.Title) > 63 {
 		return fmt.Errorf("column title length > 63")
 	}
 	return nil
@@ -826,19 +827,11 @@ func (r *LineItemsRow) MutatePresentColumns() (string, []string, []interface{}) 
 		"shipper_id",
 		"shipment_id",
 		"line_number",
+		"title",
+		"quantity",
+		"weight_kg",
+		"volume_m3",
 	)
-	if !r.Title.IsNull() {
-		columns = append(columns, "title")
-	}
-	if !r.Quantity.IsNull() {
-		columns = append(columns, "quantity")
-	}
-	if !r.WeightKg.IsNull() {
-		columns = append(columns, "weight_kg")
-	}
-	if !r.VolumeM3.IsNull() {
-		columns = append(columns, "volume_m3")
-	}
 	return r.MutateColumns(columns)
 }
 

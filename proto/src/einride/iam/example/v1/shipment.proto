@@ -73,9 +73,9 @@ message Shipment {
 // A shipment line item.
 message LineItem {
   // The title of the line item.
-  string title = 1;
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
   // The quantity of the line item.
-  float quantity = 2;
+  float quantity = 2 [(google.api.field_behavior) = REQUIRED];
   // The weight of the line item in kilograms.
   float weight_kg = 3;
   // The volume of the line item in cubic meters.

@@ -608,6 +608,12 @@ message CreateSiteRequest {
   ];
   // The site to create.
   Site site = 2 [(google.api.field_behavior) = REQUIRED];
+  // The ID to use for the site, which will become the final component of
+  // the site's resource name.
+  //
+  // This value should be 4-63 characters, and valid characters
+  // are /[a-z][0-9]-/.
+  string site_id = 3;
 }
 
 // Request message for FreightService.UpdateSite.
@@ -750,6 +756,12 @@ message CreateShipmentRequest {
   ];
   // The shipment to create.
   Shipment shipment = 2 [(google.api.field_behavior) = REQUIRED];
+  // The ID to use for the shipment, which will become the final component of
+  // the shipment's resource name.
+  //
+  // This value should be 4-63 characters, and valid characters
+  // are /[a-z][0-9]-/.
+  string shipment_id = 3;
 }
 
 // Request message for FreightService.UpdateShipment.

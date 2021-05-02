@@ -2,6 +2,7 @@ package iamspanner
 
 import (
 	"context"
+	"sort"
 	"testing"
 
 	"cloud.google.com/go/spanner"
@@ -420,6 +421,69 @@ func TestServer(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, response.Permissions)
+	})
+
+	t.Run("get role", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewServer(
+			newDatabase(),
+			roles,
+			memberResolver(func(ctx context.Context) (string, error) {
+				return user1, nil
+			}),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		expected, ok := roles.FindRoleByName("roles/admin")
+		assert.Assert(t, ok)
+		actual, err := server.GetRole(ctx, &admin.GetRoleRequest{
+			Name: "roles/admin",
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected, actual, protocmp.Transform())
+	})
+
+	t.Run("list roles", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewServer(
+			newDatabase(),
+			roles,
+			memberResolver(func(ctx context.Context) (string, error) {
+				return user1, nil
+			}),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		expected := make([]*admin.Role, 0, roles.Count())
+		roles.RangeRoles(func(role *admin.Role) bool {
+			expected = append(expected, role)
+			return true
+		})
+		sort.Slice(expected, func(i, j int) bool {
+			return expected[i].Name < expected[j].Name
+		})
+		actual := make([]*admin.Role, 0, roles.Count())
+		var nextPageToken string
+		for {
+			response, err := server.ListRoles(ctx, &admin.ListRolesRequest{
+				PageSize:  1,
+				PageToken: nextPageToken,
+				View:      admin.RoleView_FULL,
+			})
+			assert.NilError(t, err)
+			actual = append(actual, response.Roles...)
+			nextPageToken = response.NextPageToken
+			if nextPageToken == "" {
+				break
+			}
+		}
+		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
 }
 
