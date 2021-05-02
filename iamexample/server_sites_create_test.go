@@ -11,22 +11,29 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func testCreateShipper(ctx context.Context, t *testing.T, newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer) {
-	t.Run("CreateShipper", func(t *testing.T) {
+func testCreateSite(
+	ctx context.Context,
+	t *testing.T,
+	newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer,
+) {
+	t.Run("CreateSite", func(t *testing.T) {
 		t.Run("authorized", func(t *testing.T) {
 			t.Run("ok", func(t *testing.T) {
 				const (
-					member    = "user:test@example.com"
-					shipperID = "1234"
+					member = "user:test@example.com"
+					parent = "shippers/1234"
+					siteID = "5678"
 				)
 				server := newServer(constantMember(member))
 				addPolicyBinding(ctx, t, server, "*", "roles/freight.admin", member)
-				input := &iamexamplev1.Shipper{
-					DisplayName: "Test Shipper",
+				createShipper(ctx, t, server, parent)
+				input := &iamexamplev1.Site{
+					DisplayName: "Test Site",
 				}
-				got, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
-					Shipper:   input,
-					ShipperId: shipperID,
+				got, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
+					Parent: parent,
+					Site:   input,
+					SiteId: siteID,
 				})
 				assert.NilError(t, err)
 				assert.Equal(t, input.DisplayName, got.DisplayName)
@@ -35,15 +42,17 @@ func testCreateShipper(ctx context.Context, t *testing.T, newServer func(iamspan
 
 		t.Run("unauthorized", func(t *testing.T) {
 			const (
-				member    = "user:test@example.com"
-				shipperID = "1234"
+				member = "user:test@example.com"
+				parent = "shippers/1234"
+				siteID = "5678"
 			)
 			server := newServer(constantMember(member))
-			got, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
-				Shipper: &iamexamplev1.Shipper{
-					DisplayName: "Test Shipper",
+			got, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
+				Parent: parent,
+				Site: &iamexamplev1.Site{
+					DisplayName: "Test Site",
 				},
-				ShipperId: shipperID,
+				SiteId: siteID,
 			})
 			assert.Equal(t, codes.PermissionDenied, status.Code(err), "unexpected status: %v", err)
 			assert.Assert(t, got == nil)

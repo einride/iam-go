@@ -112,7 +112,7 @@ var descriptor = databaseDescriptor{
 		displayName: columnDescriptor{
 			columnID:             "display_name",
 			columnType:           spansql.Type{Array: false, Base: 4, Len: 63},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		latitude: columnDescriptor{
@@ -163,37 +163,43 @@ var descriptor = databaseDescriptor{
 		originSiteId: columnDescriptor{
 			columnID:             "origin_site_id",
 			columnType:           spansql.Type{Array: false, Base: 4, Len: 63},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		destinationSiteId: columnDescriptor{
 			columnID:             "destination_site_id",
 			columnType:           spansql.Type{Array: false, Base: 4, Len: 63},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		pickupEarliestTime: columnDescriptor{
 			columnID:             "pickup_earliest_time",
 			columnType:           spansql.Type{Array: false, Base: 7, Len: 0},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		pickupLatestTime: columnDescriptor{
 			columnID:             "pickup_latest_time",
 			columnType:           spansql.Type{Array: false, Base: 7, Len: 0},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		deliveryEarliestTime: columnDescriptor{
 			columnID:             "delivery_earliest_time",
 			columnType:           spansql.Type{Array: false, Base: 7, Len: 0},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		deliveryLatestTime: columnDescriptor{
 			columnID:             "delivery_latest_time",
 			columnType:           spansql.Type{Array: false, Base: 7, Len: 0},
-			notNull:              false,
+			notNull:              true,
+			allowCommitTimestamp: false,
+		},
+		annotations: columnDescriptor{
+			columnID:             "annotations",
+			columnType:           spansql.Type{Array: true, Base: 4, Len: 9223372036854775807},
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 	},
@@ -220,25 +226,25 @@ var descriptor = databaseDescriptor{
 		title: columnDescriptor{
 			columnID:             "title",
 			columnType:           spansql.Type{Array: false, Base: 4, Len: 63},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		quantity: columnDescriptor{
 			columnID:             "quantity",
 			columnType:           spansql.Type{Array: false, Base: 2, Len: 0},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		weightKg: columnDescriptor{
 			columnID:             "weight_kg",
 			columnType:           spansql.Type{Array: false, Base: 2, Len: 0},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 		volumeM3: columnDescriptor{
 			columnID:             "volume_m3",
 			columnType:           spansql.Type{Array: false, Base: 2, Len: 0},
-			notNull:              false,
+			notNull:              true,
 			allowCommitTimestamp: false,
 		},
 	},
@@ -600,6 +606,7 @@ type ShipmentsTableDescriptor interface {
 	PickupLatestTime() ColumnDescriptor
 	DeliveryEarliestTime() ColumnDescriptor
 	DeliveryLatestTime() ColumnDescriptor
+	Annotations() ColumnDescriptor
 }
 
 type shipmentsTableDescriptor struct {
@@ -615,6 +622,7 @@ type shipmentsTableDescriptor struct {
 	pickupLatestTime     columnDescriptor
 	deliveryEarliestTime columnDescriptor
 	deliveryLatestTime   columnDescriptor
+	annotations          columnDescriptor
 }
 
 func (d *shipmentsTableDescriptor) TableName() string {
@@ -638,6 +646,7 @@ func (d *shipmentsTableDescriptor) ColumnNames() []string {
 		"pickup_latest_time",
 		"delivery_earliest_time",
 		"delivery_latest_time",
+		"annotations",
 	}
 }
 
@@ -654,6 +663,7 @@ func (d *shipmentsTableDescriptor) ColumnIDs() []spansql.ID {
 		"pickup_latest_time",
 		"delivery_earliest_time",
 		"delivery_latest_time",
+		"annotations",
 	}
 }
 
@@ -670,6 +680,7 @@ func (d *shipmentsTableDescriptor) ColumnExprs() []spansql.Expr {
 		spansql.ID("pickup_latest_time"),
 		spansql.ID("delivery_earliest_time"),
 		spansql.ID("delivery_latest_time"),
+		spansql.ID("annotations"),
 	}
 }
 
@@ -715,6 +726,10 @@ func (d *shipmentsTableDescriptor) DeliveryEarliestTime() ColumnDescriptor {
 
 func (d *shipmentsTableDescriptor) DeliveryLatestTime() ColumnDescriptor {
 	return &d.deliveryLatestTime
+}
+
+func (d *shipmentsTableDescriptor) Annotations() ColumnDescriptor {
+	return &d.annotations
 }
 
 type LineItemsTableDescriptor interface {

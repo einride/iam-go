@@ -12,26 +12,33 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func testDeleteShipper(ctx context.Context, t *testing.T, newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer) {
-	t.Run("DeleteShipper", func(t *testing.T) {
+func testDeleteSite(
+	ctx context.Context,
+	t *testing.T,
+	newServer func(iamspanner.MemberResolver) iamexamplev1.FreightServiceServer,
+) {
+	t.Run("DeleteSite", func(t *testing.T) {
 		t.Run("authorized", func(t *testing.T) {
 			t.Run("ok", func(t *testing.T) {
 				const (
-					member    = "user:test@example.com"
-					shipperID = "1234"
+					member = "user:test@example.com"
+					parent = "shippers/1234"
+					siteID = "5678"
 				)
 				server := newServer(constantMember(member))
 				addPolicyBinding(ctx, t, server, "*", "roles/freight.admin", member)
-				input := &iamexamplev1.Shipper{
-					DisplayName: "Test Shipper",
+				createShipper(ctx, t, server, parent)
+				input := &iamexamplev1.Site{
+					DisplayName: "Test Site",
 				}
-				created, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
-					Shipper:   input,
-					ShipperId: shipperID,
+				created, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
+					Parent: parent,
+					Site:   input,
+					SiteId: siteID,
 				})
 				assert.NilError(t, err)
 				assert.Equal(t, input.DisplayName, created.DisplayName)
-				deleted, err := server.DeleteShipper(ctx, &iamexamplev1.DeleteShipperRequest{
+				deleted, err := server.DeleteSite(ctx, &iamexamplev1.DeleteSiteRequest{
 					Name: created.Name,
 				})
 				assert.NilError(t, err)
@@ -42,13 +49,12 @@ func testDeleteShipper(ctx context.Context, t *testing.T, newServer func(iamspan
 
 		t.Run("unauthorized", func(t *testing.T) {
 			const (
-				member    = "user:test@example.com"
-				shipperID = "1234"
-				shipper   = "shippers/" + shipperID
+				member = "user:test@example.com"
+				site   = "shippers/1234/sites/5678"
 			)
 			server := newServer(constantMember(member))
-			deleted, err := server.DeleteShipper(ctx, &iamexamplev1.DeleteShipperRequest{
-				Name: shipper,
+			deleted, err := server.DeleteSite(ctx, &iamexamplev1.DeleteSiteRequest{
+				Name: site,
 			})
 			assert.Equal(t, codes.PermissionDenied, status.Code(err), "unexpected status: %v", err)
 			assert.Assert(t, deleted == nil)
