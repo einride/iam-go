@@ -3,14 +3,18 @@ package iamexample
 import (
 	"context"
 
+	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
+	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Authorization struct {
+	iam.UnimplementedIAMPolicyServer
+	admin.UnimplementedIAMServer
 	Next iamexamplev1.FreightServiceServer
 	IAM  *iamspanner.Server
 }
@@ -275,14 +279,42 @@ func (a *Authorization) SetIamPolicy(
 	ctx context.Context,
 	request *iam.SetIamPolicyRequest,
 ) (*iam.Policy, error) {
-	return nil, status.Error(codes.Unimplemented, "TODO: implement me")
+	var permission string
+	switch {
+	case resourcename.Match("shippers/{shipper}", request.Resource):
+		permission = "freight.shippers.setIamPolicy"
+	case resourcename.Match("shippers/{shipper}/sites/{site}", request.Resource):
+		permission = "freight.sites.setIamPolicy"
+	case resourcename.Match("shippers/{shipper}/shipments/{shipment}", request.Resource):
+		permission = "freight.shipments.setIamPolicy"
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported resource: %s", request.Resource)
+	}
+	if err := a.require(ctx, permission, request.Resource); err != nil {
+		return nil, err
+	}
+	return a.Next.SetIamPolicy(ctx, request)
 }
 
 func (a *Authorization) GetIamPolicy(
 	ctx context.Context,
 	request *iam.GetIamPolicyRequest,
 ) (*iam.Policy, error) {
-	return nil, status.Error(codes.Unimplemented, "TODO: implement me")
+	var permission string
+	switch {
+	case resourcename.Match("shippers/{shipper}", request.Resource):
+		permission = "freight.shippers.getIamPolicy"
+	case resourcename.Match("shippers/{shipper}/sites/{site}", request.Resource):
+		permission = "freight.sites.getIamPolicy"
+	case resourcename.Match("shippers/{shipper}/shipments/{shipment}", request.Resource):
+		permission = "freight.shipments.getIamPolicy"
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported resource: %s", request.Resource)
+	}
+	if err := a.require(ctx, permission, request.Resource); err != nil {
+		return nil, err
+	}
+	return a.Next.GetIamPolicy(ctx, request)
 }
 
 func (a *Authorization) TestIamPermissions(
