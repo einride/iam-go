@@ -27,13 +27,13 @@ func BootstrapRootAdmin(ctx context.Context, spannerClient *spanner.Client) erro
 }
 
 // InitializeResources uses an iamexamplev1.FreightServiceClient to initialize the set of example resources.
-func InitializeResources(ctx context.Context, client iamexamplev1.FreightServiceClient) error {
+func InitializeResources(ctx context.Context, server iamexamplev1.FreightServiceServer) error {
 	einride := Einride()
 	var shipperID string
 	if err := resourcename.Sscan(einride.Name, "shippers/{shipper}", &shipperID); err != nil {
 		return err
 	}
-	if _, err := client.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
+	if _, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
 		Shipper:   einride,
 		ShipperId: shipperID,
 	}); err != nil {
@@ -53,7 +53,7 @@ func InitializeResources(ctx context.Context, client iamexamplev1.FreightService
 		); err != nil {
 			return err
 		}
-		if _, err := client.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
+		if _, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
 			Parent: einride.Name,
 			Site:   site,
 			SiteId: siteID,
@@ -66,7 +66,7 @@ func InitializeResources(ctx context.Context, client iamexamplev1.FreightService
 		EinrideGothenburgOfficeSetIamPolicyRequest(),
 		EinrideBatcaveSetIamPolicyRequest(),
 	} {
-		if _, err := client.SetIamPolicy(ctx, request); err != nil {
+		if _, err := server.SetIamPolicy(ctx, request); err != nil {
 			return err
 		}
 	}
