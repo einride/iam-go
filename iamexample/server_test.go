@@ -55,7 +55,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	iamServer, err := iamspanner.NewServer(
 		spannerClient,
 		roles,
-		NewMemberHeaderResolver(),
+		NewIAMMemberHeaderResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {
 				t.Log(err)

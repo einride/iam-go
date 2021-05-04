@@ -3,7 +3,7 @@ package iamexample
 import (
 	"context"
 
-	"go.einride.tech/iam/iamspanner"
+	"go.einride.tech/iam/iammember"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -12,26 +12,26 @@ import (
 // MemberHeader is the gRPC header used by the example server to determine IAM members of the caller.
 const MemberHeader = "x-iam-example-members"
 
-// NewMemberHeaderResolver returns an iamspanner.MemberResolver that resolves members from MemberHeader.
-func NewMemberHeaderResolver() iamspanner.MemberResolver {
-	return &memberHeaderResolver{}
+// NewIAMMemberHeaderResolver returns an iammember.Resolver that resolves members from MemberHeader.
+func NewIAMMemberHeaderResolver() iammember.Resolver {
+	return &iamMemberHeaderResolver{}
 }
 
-var _ iamspanner.MemberResolver = &memberHeaderResolver{}
+var _ iammember.Resolver = &iamMemberHeaderResolver{}
 
-type memberHeaderResolver struct{}
+type iamMemberHeaderResolver struct{}
 
-// ResolveMember implements iamspanner.MemberResolver.
-func (m *memberHeaderResolver) ResolveMember(ctx context.Context) (string, error) {
+// ResolveIAMMembers implements iammember.Resolver.
+func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) ([]string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return "", status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
+		return nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
 	}
 	values := md.Get(MemberHeader)
 	if len(values) == 0 {
-		return "", status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
+		return nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
 	}
-	return values[0], nil
+	return values, nil
 }
 
 // WithOutgoingMembers appends the provided members to the outgoing gRPC context.

@@ -75,8 +75,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -97,8 +97,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -132,8 +132,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -162,8 +162,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -201,8 +201,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -243,8 +243,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -270,8 +270,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -309,8 +309,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -349,8 +349,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user2, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user2}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -388,8 +388,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -428,8 +428,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -451,8 +451,8 @@ func TestServer(t *testing.T) {
 		server, err := NewServer(
 			newDatabase(),
 			roles,
-			memberResolver(func(ctx context.Context) (string, error) {
-				return user1, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -487,8 +487,8 @@ func TestServer(t *testing.T) {
 	})
 }
 
-type memberResolver func(context.Context) (string, error)
+type iamMemberResolver func(context.Context) ([]string, error)
 
-func (r memberResolver) ResolveMember(ctx context.Context) (string, error) {
+func (r iamMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, error) {
 	return r(ctx)
 }
