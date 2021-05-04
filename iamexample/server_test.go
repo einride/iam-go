@@ -3,132 +3,125 @@ package iamexample
 import (
 	"context"
 	"fmt"
+	"net"
 	"testing"
 
+	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
+	"go.einride.tech/iam/iamexample/iamexampledata"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
+	"go.einride.tech/iam/iamtest"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
-	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"go.einride.tech/spanner-aip/spantest"
-	"google.golang.org/genproto/googleapis/iam/v1"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/reflect/protoregistry"
+	"google.golang.org/grpc"
 	"gotest.tools/v3/assert"
 )
 
 func TestServer(t *testing.T) {
-	fx := spantest.NewEmulatorFixture(t)
-	ctx := context.Background()
-	if deadline, ok := t.Deadline(); ok {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithDeadline(ctx, deadline)
-		t.Cleanup(cancel)
-	}
-	newServer := func(resolver iamspanner.MemberResolver) iamexamplev1.FreightServiceServer {
-		spannerClient := fx.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
-		iamServer, err := iamspanner.NewServer(
-			spannerClient,
-			lookupPredefinedRoles(t),
-			resolver,
-			iamspanner.ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
-					t.Log(err)
-				},
-			},
-		)
-		assert.NilError(t, err)
-		server := &Server{
-			IAM:     iamServer,
-			Spanner: spannerClient,
-			Config: Config{
-				ErrorHook: func(ctx context.Context, err error) {
-					t.Log(err)
-				},
-			},
-		}
-		return &Authorization{
-			IAM:  iamServer,
-			Next: server,
-		}
-	}
+	ts := newServerTestSuite(t)
 	// shippers
-	testGetShipper(ctx, t, newServer)
-	testCreateShipper(ctx, t, newServer)
-	testUpdateShipper(ctx, t, newServer)
-	testListShippers(ctx, t, newServer)
-	testDeleteShipper(ctx, t, newServer)
+	t.Run("CreateShipper", ts.testCreateShipper)
+	t.Run("DeleteShipper", ts.testDeleteShipper)
+	t.Run("GetShipper", ts.testGetShipper)
+	t.Run("ListShippers", ts.testListShippers)
+	t.Run("UpdateShipper", ts.testUpdateShipper)
 	// sites
-	testCreateSite(ctx, t, newServer)
-	testGetSite(ctx, t, newServer)
-	testDeleteSite(ctx, t, newServer)
-	testListSites(ctx, t, newServer)
-	testUpdateSite(ctx, t, newServer)
-	testBatchGetSites(ctx, t, newServer)
+	t.Run("CreateSite", ts.testCreateSite)
+	t.Run("DeleteSite", ts.testDeleteSite)
+	t.Run("GetSite", ts.testGetSite)
+	t.Run("ListSites", ts.testListSites)
+	t.Run("UpdateSite", ts.testUpdateSite)
+	t.Run("BatchGetSites", ts.testBatchGetSites)
 	// shipments
-	testCreateShipment(ctx, t, newServer)
-	testBatchGetShipments(ctx, t, newServer)
+	t.Run("CreateShipment", ts.testCreateShipment)
+	t.Run("BatchGetShipments", ts.testBatchGetShipments)
 }
 
-func addPolicyBinding(
-	ctx context.Context,
-	t *testing.T,
-	server iam.IAMPolicyServer,
-	resource string,
-	role string,
-	member string,
-) {
-	// Bypass authorization.
-	authorization, ok := server.(*Authorization)
-	assert.Assert(t, ok)
-	serverImpl, ok := authorization.Next.(*Server)
-	assert.Assert(t, ok)
-	// Get current policy.
-	policy, err := serverImpl.IAM.GetIamPolicy(ctx, &iam.GetIamPolicyRequest{
-		Resource: "resource",
-	})
+type serverTestSuite struct {
+	spanner spantest.Fixture
+}
+
+func newServerTestSuite(t *testing.T) *serverTestSuite {
+	return &serverTestSuite{
+		spanner: spantest.NewEmulatorFixture(t),
+	}
+}
+
+func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
+	roles, err := iamregistry.NewRoles(iamexampledata.PredefinedRoles())
 	assert.NilError(t, err)
-	// Add binding to policy.
-	var added bool
-	for _, binding := range policy.Bindings {
-		if binding.Role == role {
-			for _, bindingMember := range binding.Members {
-				if bindingMember == member {
-					return // already have this policy binding
-				}
-			}
-			binding.Members = append(binding.Members, member)
-			added = true
+	spannerClient := ts.spanner.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
+	iamServer, err := iamspanner.NewServer(
+		spannerClient,
+		roles,
+		NewMemberHeaderResolver(),
+		iamspanner.ServerConfig{
+			ErrorHook: func(ctx context.Context, err error) {
+				t.Log(err)
+			},
+		},
+	)
+	assert.NilError(t, err)
+	server := &Server{
+		IAM:     iamServer,
+		Spanner: spannerClient,
+		Config: Config{
+			ErrorHook: func(ctx context.Context, err error) {
+				t.Log(err)
+			},
+		},
+	}
+	serverWithAuthorization := &Authorization{
+		IAM:  iamServer,
+		Next: server,
+	}
+	lis, err := net.Listen("tcp", "localhost:0")
+	assert.NilError(t, err)
+	grpcServer := grpc.NewServer()
+	iamexamplev1.RegisterFreightServiceServer(grpcServer, serverWithAuthorization)
+	errChan := make(chan error)
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+			errChan <- err
+			return
 		}
-	}
-	if !added {
-		policy.Bindings = append(policy.Bindings, &iam.Binding{
-			Role:    role,
-			Members: []string{member},
-		})
-	}
-	// Set updated policy.
-	_, err = serverImpl.IAM.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-		Resource: resource,
-		Policy:   policy,
+		errChan <- nil
+	}()
+	t.Cleanup(func() {
+		assert.NilError(t, <-errChan)
 	})
+	t.Cleanup(func() {
+		grpcServer.GracefulStop()
+	})
+	ctx := withTestDeadline(context.Background(), t)
+	conn, err := grpc.DialContext(ctx, lis.Addr().String(), grpc.WithInsecure(), grpc.WithBlock())
 	assert.NilError(t, err)
+	serviceClient := iamexamplev1.NewFreightServiceClient(conn)
+	return &serverTestFixture{
+		iam:     iamtest.NewFixture(iamServer),
+		spanner: spannerClient,
+		client:  serviceClient,
+	}
 }
 
-func createShipper(
-	ctx context.Context,
-	t *testing.T,
-	server iamexamplev1.FreightServiceServer,
-	name string,
-) {
+type serverTestFixture struct {
+	iam     *iamtest.Fixture
+	spanner *spanner.Client
+	client  iamexamplev1.FreightServiceClient
+}
+
+func (fx *serverTestFixture) createShipper(t *testing.T, name string) {
 	t.Helper()
+	const member = "user:fixture@example.com"
+	fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+	ctx := WithOutgoingMembers(withTestDeadline(context.Background(), t), member)
 	var id string
 	assert.NilError(t, resourcename.Sscan(name, "shippers/{shipper}", &id))
 	input := &iamexamplev1.Shipper{
 		DisplayName: fmt.Sprintf("shipper %s", id),
 	}
-	got, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
+	got, err := fx.client.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
 		Shipper:   input,
 		ShipperId: id,
 	})
@@ -136,19 +129,17 @@ func createShipper(
 	assert.Equal(t, input.DisplayName, got.DisplayName)
 }
 
-func createSite(
-	ctx context.Context,
-	t *testing.T,
-	server iamexamplev1.FreightServiceServer,
-	name string,
-) {
+func (fx *serverTestFixture) createSite(t *testing.T, name string) {
 	t.Helper()
+	const member = "user:fixture@example.com"
+	fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+	ctx := WithOutgoingMembers(withTestDeadline(context.Background(), t), member)
 	var shipperID, siteID string
 	assert.NilError(t, resourcename.Sscan(name, "shippers/{shipper}/sites/{site}", &shipperID, &siteID))
 	input := &iamexamplev1.Site{
 		DisplayName: fmt.Sprintf("site %s", siteID),
 	}
-	got, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
+	got, err := fx.client.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
 		Parent: resourcename.Sprint("shippers/{shipper}", shipperID),
 		Site:   input,
 		SiteId: siteID,
@@ -157,34 +148,12 @@ func createSite(
 	assert.Equal(t, input.DisplayName, got.DisplayName)
 }
 
-func lookupPredefinedRoles(t *testing.T) *iamregistry.Roles {
-	desc, err := protoregistry.GlobalFiles.FindDescriptorByName(
-		protoreflect.FullName(iamexamplev1.FreightService_ServiceDesc.ServiceName),
-	)
-	assert.NilError(t, err)
-	serviceDesc, ok := desc.(protoreflect.ServiceDescriptor)
-	assert.Assert(t, ok)
-	predefinedRoles := proto.GetExtension(serviceDesc.Options(), iamv1.E_PredefinedRoles).(*iamv1.Roles)
-	assert.Assert(t, predefinedRoles != nil)
-	roles, err := iamregistry.NewRoles(predefinedRoles)
-	assert.NilError(t, err)
-	return roles
-}
-
-type memberResolverFn func(context.Context) (string, error)
-
-func (f memberResolverFn) ResolveMember(ctx context.Context) (string, error) {
-	return f(ctx)
-}
-
-func constantMember(member string) iamspanner.MemberResolver {
-	return memberResolverFn(func(ctx context.Context) (string, error) {
-		return member, nil
-	})
-}
-
-func ptrMember(member *string) iamspanner.MemberResolver {
-	return memberResolverFn(func(ctx context.Context) (string, error) {
-		return *member, nil
-	})
+func withTestDeadline(ctx context.Context, t *testing.T) context.Context {
+	deadline, ok := t.Deadline()
+	if !ok {
+		return ctx
+	}
+	ctx, cancel := context.WithDeadline(ctx, deadline)
+	t.Cleanup(cancel)
+	return ctx
 }
