@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
+	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamrole"
@@ -26,7 +27,7 @@ type Server struct {
 	admin.UnimplementedIAMServer
 	client         *spanner.Client
 	roles          *iamregistry.Roles
-	memberResolver MemberResolver
+	memberResolver iammember.Resolver
 	config         ServerConfig
 }
 
@@ -41,17 +42,11 @@ type ReadTransaction interface {
 	ReadWithOptions(context.Context, string, spanner.KeySet, []string, *spanner.ReadOptions) *spanner.RowIterator
 }
 
-// MemberResolver resolves the policy member identity from a caller context.
-// When no member can be resolved, the resolver should return an error with an UNAUTHENTICATED status code.
-type MemberResolver interface {
-	ResolveMember(context.Context) (string, error)
-}
-
 // NewServer creates a new Spanner IAM policy server.
 func NewServer(
 	client *spanner.Client,
 	roles *iamregistry.Roles,
-	memberResolver MemberResolver,
+	memberResolver iammember.Resolver,
 	config ServerConfig,
 ) (*Server, error) {
 	s := &Server{
@@ -114,19 +109,19 @@ func (s *Server) TestIamPermissions(
 	ctx context.Context,
 	request *iam.TestIamPermissionsRequest,
 ) (*iam.TestIamPermissionsResponse, error) {
-	member, err := s.memberResolver.ResolveMember(ctx)
+	members, err := s.resolveMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
 	permissions := make(map[string]struct{}, len(request.Permissions))
 	tx := s.client.Single()
 	defer tx.Close()
-	if err := s.ReadRolesBoundToMemberAndResourcesInTransaction(
+	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
 		ctx,
 		tx,
-		member,
+		members,
 		[]string{request.Resource},
-		func(ctx context.Context, _ string, role *admin.Role) error {
+		func(ctx context.Context, _, _ string, role *admin.Role) error {
 			for _, permission := range request.Permissions {
 				if s.roles.RoleHasPermission(role.Name, permission) {
 					permissions[permission] = struct{}{}
@@ -167,19 +162,19 @@ func (s *Server) TestPermissionOnResources(
 	permission string,
 	resources []string,
 ) (map[string]bool, error) {
-	member, err := s.memberResolver.ResolveMember(ctx)
+	members, err := s.resolveMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
 	result := make(map[string]bool, len(resources))
 	tx := s.client.Single()
 	defer tx.Close()
-	if err := s.ReadRolesBoundToMemberAndResourcesInTransaction(
+	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
 		ctx,
 		tx,
-		member,
+		members,
 		resources,
-		func(ctx context.Context, boundResource string, role *admin.Role) error {
+		func(ctx context.Context, _ string, boundResource string, role *admin.Role) error {
 			for _, resource := range resources {
 				result[resource] = result[resource] ||
 					(boundResource == "*" ||
@@ -195,27 +190,27 @@ func (s *Server) TestPermissionOnResources(
 	return result, nil
 }
 
-// ReadRolesBoundToMemberAndResources reads all roles bound to the member and resources.
-func (s *Server) ReadRolesBoundToMemberAndResources(
+// ReadRolesBoundToMembersAndResources reads all roles bound to the provided members and resources.
+func (s *Server) ReadRolesBoundToMembersAndResources(
 	ctx context.Context,
-	member string,
+	members []string,
 	resources []string,
-	fn func(ctx context.Context, resource string, role *admin.Role) error,
+	fn func(ctx context.Context, member, resource string, role *admin.Role) error,
 ) error {
 	tx := s.client.Single()
 	defer tx.Close()
-	return s.ReadRolesBoundToMemberAndResourcesInTransaction(ctx, tx, member, resources, fn)
+	return s.ReadRolesBoundToMembersAndResourcesInTransaction(ctx, tx, members, resources, fn)
 }
 
-// ReadRolesBoundToMemberAndResourcesInTransaction reads all roles bound to the member and resources
+// ReadRolesBoundToMembersAndResourcesInTransaction reads all roles bound to members and resources
 // within the provided Spanner transaction.
 // Also considers roles bound to parent resources.
-func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
+func (s *Server) ReadRolesBoundToMembersAndResourcesInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
-	member string,
+	members []string,
 	resources []string,
-	fn func(ctx context.Context, resource string, role *admin.Role) error,
+	fn func(ctx context.Context, member, resource string, role *admin.Role) error,
 ) error {
 	// Deduplicate resources and parents to read.
 	resourcesAndParents := make(map[string]struct{}, len(resources))
@@ -231,7 +226,9 @@ func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 	// Build deduplicated key ranges to read.
 	memberResourceKeySets := make([]spanner.KeySet, 0, len(resources))
 	for resource := range resourcesAndParents {
-		memberResourceKeySets = append(memberResourceKeySets, spanner.Key{member, resource}.AsPrefix())
+		for _, member := range members {
+			memberResourceKeySets = append(memberResourceKeySets, spanner.Key{member, resource}.AsPrefix())
+		}
 	}
 	iamPolicyBindings := iamspannerdb.Descriptor().IamPolicyBindings()
 	iamPolicyBindingsByMemberAndResource := iamspannerdb.Descriptor().IamPolicyBindingsByMemberAndResource()
@@ -240,6 +237,7 @@ func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 		iamPolicyBindings.TableName(),
 		spanner.KeySets(memberResourceKeySets...),
 		[]string{
+			iamPolicyBindingsByMemberAndResource.Member().ColumnName(),
 			iamPolicyBindingsByMemberAndResource.Resource().ColumnName(),
 			iamPolicyBindingsByMemberAndResource.Role().ColumnName(),
 		},
@@ -247,19 +245,23 @@ func (s *Server) ReadRolesBoundToMemberAndResourcesInTransaction(
 			Index: iamPolicyBindingsByMemberAndResource.IndexName(),
 		},
 	).Do(func(r *spanner.Row) error {
+		var member string
+		if err := r.Column(0, &member); err != nil {
+			return err
+		}
 		var resource string
-		if err := r.Column(0, &resource); err != nil {
+		if err := r.Column(1, &resource); err != nil {
 			return err
 		}
 		var roleName string
-		if err := r.Column(1, &roleName); err != nil {
+		if err := r.Column(2, &roleName); err != nil {
 			return err
 		}
 		role, ok := s.roles.FindRoleByName(roleName)
 		if !ok {
 			return status.Errorf(codes.Internal, "missing built-in role: %s", roleName)
 		}
-		return fn(ctx, resource, role)
+		return fn(ctx, member, resource, role)
 	})
 }
 
@@ -442,6 +444,14 @@ func (s *Server) handleStorageError(ctx context.Context, err error) error {
 	default:
 		return status.Error(codes.Internal, "storage error")
 	}
+}
+
+func (s *Server) resolveMembers(ctx context.Context) ([]string, error) {
+	members, err := s.memberResolver.ResolveIAMMembers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return members, nil
 }
 
 func computeETag(policy *iam.Policy) ([]byte, error) {
