@@ -26,7 +26,7 @@ var startCommand = &cobra.Command{
 		if err := viperCfg.BindPFlags(cmd.Flags()); err != nil {
 			return err
 		}
-		var cfg startCommandConfig
+		var cfg startFlags
 		if err := viperCfg.Unmarshal(&cfg); err != nil {
 			return err
 		}
@@ -34,7 +34,7 @@ var startCommand = &cobra.Command{
 	},
 }
 
-type startCommandConfig struct {
+type startFlags struct {
 	Address             string `mapstructure:"address"`
 	SpannerEmulatorHost string `mapstructure:"spanner-emulator-host"`
 }
@@ -45,7 +45,7 @@ func init() {
 	startCommand.Flags().String("spanner-emulator-host", "localhost:9010", "emulator host to connect to")
 }
 
-func runStartCommand(ctx context.Context, cfg *startCommandConfig) error {
+func runStartCommand(ctx context.Context, cfg *startFlags) error {
 	log.Printf("connecting to Spanner emulator on address %s...", cfg.SpannerEmulatorHost)
 	conn, err := grpc.DialContext(ctx, cfg.SpannerEmulatorHost, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {

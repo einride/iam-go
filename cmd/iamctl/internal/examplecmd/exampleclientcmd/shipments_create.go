@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.einride.tech/iam/cmd/iamctl/internal/connection"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -24,16 +25,24 @@ var createShipmentCommand = &cobra.Command{
 		if err := viperCfg.BindPFlags(cmd.PersistentFlags()); err != nil {
 			return err
 		}
-		var cfg createShipmentCommandConfig
-		if err := viperCfg.Unmarshal(&cfg); err != nil {
+		var flags createShipmentFlags
+		if err := viperCfg.Unmarshal(&flags); err != nil {
 			return err
 		}
-		return runCreateShipmentCommand(cmd.Context(), &cfg)
+		conn, err := flags.Connect(cmd.Context())
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = conn.Close()
+		}()
+		client := iamexamplev1.NewFreightServiceClient(conn)
+		return runCreateShipmentCommand(cmd.Context(), client, &flags)
 	},
 }
 
-type createShipmentCommandConfig struct {
-	commandConfig        `mapstructure:",squash"`
+type createShipmentFlags struct {
+	connection.Flags     `mapstructure:",squash"`
 	Parent               string `mapstructure:"parent"`
 	ShipmentID           string `mapstructure:"shipment-id"`
 	OriginSite           string `mapstructure:"origin-site"`
@@ -62,38 +71,38 @@ func init() {
 	_ = createShipmentCommand.MarkFlagRequired("delivery-latest-time")
 }
 
-func runCreateShipmentCommand(ctx context.Context, config *createShipmentCommandConfig) error {
-	client, err := config.connect(ctx)
+func runCreateShipmentCommand(
+	ctx context.Context,
+	client iamexamplev1.FreightServiceClient,
+	flags *createShipmentFlags,
+) error {
+	pickupEarliestTime, err := parseTime("pickup-earliest-time", flags.PickupEarliestTime)
 	if err != nil {
 		return err
 	}
-	pickupEarliestTime, err := parseTime("pickup-earliest-time", config.PickupEarliestTime)
+	pickupLatestTime, err := parseTime("pickup-latest-time", flags.PickupLatestTime)
 	if err != nil {
 		return err
 	}
-	pickupLatestTime, err := parseTime("pickup-latest-time", config.PickupLatestTime)
+	deliveryEarliestTime, err := parseTime("delivery-earliest-time", flags.DeliveryEarliestTime)
 	if err != nil {
 		return err
 	}
-	deliveryEarliestTime, err := parseTime("delivery-earliest-time", config.DeliveryEarliestTime)
-	if err != nil {
-		return err
-	}
-	deliveryLatestTime, err := parseTime("delivery-latest-time", config.DeliveryLatestTime)
+	deliveryLatestTime, err := parseTime("delivery-latest-time", flags.DeliveryLatestTime)
 	if err != nil {
 		return err
 	}
 	shipment, err := client.CreateShipment(ctx, &iamexamplev1.CreateShipmentRequest{
-		Parent: config.Parent,
+		Parent: flags.Parent,
 		Shipment: &iamexamplev1.Shipment{
-			OriginSite:           config.OriginSite,
-			DestinationSite:      config.DestinationSite,
+			OriginSite:           flags.OriginSite,
+			DestinationSite:      flags.DestinationSite,
 			PickupEarliestTime:   pickupEarliestTime,
 			PickupLatestTime:     pickupLatestTime,
 			DeliveryEarliestTime: deliveryEarliestTime,
 			DeliveryLatestTime:   deliveryLatestTime,
 		},
-		ShipmentId: config.ShipmentID,
+		ShipmentId: flags.ShipmentID,
 	})
 	if err != nil {
 		return err

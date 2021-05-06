@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.einride.tech/iam/cmd/iamctl/internal/connection"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -22,21 +23,29 @@ var createSiteCommand = &cobra.Command{
 		if err := viperCfg.BindPFlags(cmd.PersistentFlags()); err != nil {
 			return err
 		}
-		var cfg createSiteCommandConfig
-		if err := viperCfg.Unmarshal(&cfg); err != nil {
+		var flags createSiteFlags
+		if err := viperCfg.Unmarshal(&flags); err != nil {
 			return err
 		}
-		return runCreateSiteCommand(cmd.Context(), &cfg)
+		conn, err := flags.Connect(cmd.Context())
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = conn.Close()
+		}()
+		client := iamexamplev1.NewFreightServiceClient(conn)
+		return runCreateSiteCommand(cmd.Context(), client, &flags)
 	},
 }
 
-type createSiteCommandConfig struct {
-	commandConfig `mapstructure:",squash"`
-	Parent        string  `mapstructure:"parent"`
-	SiteID        string  `mapstructure:"site-id"`
-	DisplayName   string  `mapstructure:"display-name"`
-	Latitude      float64 `mapstructure:"latitude"`
-	Longitude     float64 `mapstructure:"longitude"`
+type createSiteFlags struct {
+	connection.Flags `mapstructure:",squash"`
+	Parent           string  `mapstructure:"parent"`
+	SiteID           string  `mapstructure:"site-id"`
+	DisplayName      string  `mapstructure:"display-name"`
+	Latitude         float64 `mapstructure:"latitude"`
+	Longitude        float64 `mapstructure:"longitude"`
 }
 
 func init() {
@@ -49,11 +58,11 @@ func init() {
 	_ = createSiteCommand.MarkFlagRequired("display-name")
 }
 
-func runCreateSiteCommand(ctx context.Context, config *createSiteCommandConfig) error {
-	client, err := config.connect(ctx)
-	if err != nil {
-		return err
-	}
+func runCreateSiteCommand(
+	ctx context.Context,
+	client iamexamplev1.FreightServiceClient,
+	config *createSiteFlags,
+) error {
 	var latLng *latlng.LatLng
 	if config.Latitude != 0 || config.Longitude != 0 {
 		latLng = &latlng.LatLng{
