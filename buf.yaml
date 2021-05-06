@@ -1,6 +1,6 @@
 version: v1beta1
 
-name: buf.build/einride/iam-go
+name: buf.build/einride/iam
 
 deps:
   - buf.build/beta/googleapis
