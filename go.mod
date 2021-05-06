@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	cloud.google.com/go/spanner v1.18.0
-	go.einride.tech/aip v0.36.0
+	go.einride.tech/aip v0.38.0
 	go.einride.tech/spanner-aip v0.34.0
 	google.golang.org/api v0.46.0
 	google.golang.org/genproto v0.0.0-20210429181445-86c259c2b4ab
