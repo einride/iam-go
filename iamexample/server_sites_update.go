@@ -78,7 +78,7 @@ type updateSiteRequest struct {
 
 func (r *updateSiteRequest) parse(request *iamexamplev1.UpdateSiteRequest) error {
 	hasNoMask := len(request.GetUpdateMask().GetPaths()) == 0
-	hasWildcardMask := len(request.UpdateMask.GetPaths()) == 1 && request.UpdateMask.Paths[0] == "*"
+	hasWildcardMask := len(request.UpdateMask.GetPaths()) == 1 && request.UpdateMask.Paths[0] == "/"
 	has := func(path string) bool {
 		if hasWildcardMask {
 			return true

@@ -11,6 +11,7 @@ import (
 	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
+	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamrole"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
@@ -177,7 +178,7 @@ func (s *Server) TestPermissionOnResources(
 		func(ctx context.Context, _ string, boundResource string, role *admin.Role) error {
 			for _, resource := range resources {
 				result[resource] = result[resource] ||
-					(boundResource == "*" ||
+					(boundResource == iamresource.Root ||
 						resource == boundResource ||
 						resourcename.HasParent(resource, boundResource) &&
 							iamrole.HasPermission(role, permission))
@@ -214,15 +215,18 @@ func (s *Server) ReadRolesBoundToMembersAndResourcesInTransaction(
 ) error {
 	// Deduplicate resources and parents to read.
 	resourcesAndParents := make(map[string]struct{}, len(resources))
+	// Include root resource.
+	resourcesAndParents[iamresource.Root] = struct{}{}
 	for _, resource := range resources {
+		if resource == iamresource.Root {
+			continue
+		}
 		resourcesAndParents[resource] = struct{}{}
 		resourcename.RangeParents(resource, func(parent string) bool {
 			resourcesAndParents[parent] = struct{}{}
 			return true
 		})
 	}
-	// Include global bindings.
-	resourcesAndParents["*"] = struct{}{}
 	// Build deduplicated key ranges to read.
 	memberResourceKeySets := make([]spanner.KeySet, 0, len(resources))
 	for resource := range resourcesAndParents {

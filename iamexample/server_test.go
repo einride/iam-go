@@ -114,7 +114,7 @@ type serverTestFixture struct {
 func (fx *serverTestFixture) createShipper(t *testing.T, name string) {
 	t.Helper()
 	const member = "user:fixture@example.com"
-	fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+	fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 	ctx := WithOutgoingMembers(withTestDeadline(context.Background(), t), member)
 	var id string
 	assert.NilError(t, resourcename.Sscan(name, "shippers/{shipper}", &id))
@@ -132,7 +132,7 @@ func (fx *serverTestFixture) createShipper(t *testing.T, name string) {
 func (fx *serverTestFixture) createSite(t *testing.T, name string) {
 	t.Helper()
 	const member = "user:fixture@example.com"
-	fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+	fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 	ctx := WithOutgoingMembers(withTestDeadline(context.Background(), t), member)
 	var shipperID, siteID string
 	assert.NilError(t, resourcename.Sscan(name, "shippers/{shipper}/sites/{site}", &shipperID, &siteID))

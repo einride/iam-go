@@ -24,7 +24,7 @@ func (ts *serverTestSuite) testDeleteSite(t *testing.T) {
 			)
 			fx := ts.newTestFixture(t)
 			fx.createShipper(t, parent)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			input := &iamexamplev1.Site{
 				DisplayName: "Test Site",
 			}

@@ -30,7 +30,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 			fx.createShipper(t, parent)
 			fx.createSite(t, originSite)
 			fx.createSite(t, destinationSite)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			ctx := WithOutgoingMembers(ctx, member)
 			expected := make([]*iamexamplev1.Shipment, 0, count)
 			names := make([]string, 0, count)
@@ -72,7 +72,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 				count           = 20
 			)
 			fx := ts.newTestFixture(t)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			fx.createShipper(t, parent)
 			fx.createSite(t, originSite)
 			fx.createSite(t, destinationSite)
@@ -126,7 +126,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 		fx.createShipper(t, parent)
 		fx.createSite(t, originSite)
 		fx.createSite(t, destinationSite)
-		fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", admin)
+		fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", admin)
 		created, err := fx.client.CreateShipment(
 			WithOutgoingMembers(ctx, admin),
 			&iamexamplev1.CreateShipmentRequest{

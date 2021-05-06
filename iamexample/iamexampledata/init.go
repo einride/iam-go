@@ -6,6 +6,7 @@ import (
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamexample/iamexampledb"
+	"go.einride.tech/iam/iamresource"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
 )
@@ -14,7 +15,7 @@ import (
 func BootstrapRootAdmin(ctx context.Context, spannerClient *spanner.Client) error {
 	if _, err := spannerClient.Apply(ctx, []*spanner.Mutation{
 		spanner.Insert((&iamexampledb.IamPolicyBindingsRow{
-			Resource:     "*",
+			Resource:     iamresource.Root,
 			BindingIndex: 0,
 			Role:         "roles/freight.admin",
 			MemberIndex:  0,

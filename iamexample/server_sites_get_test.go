@@ -21,7 +21,7 @@ func (ts *serverTestSuite) testGetSite(t *testing.T) {
 				site   = "shippers/1234/sites/5678"
 			)
 			fx := ts.newTestFixture(t)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			got, err := fx.client.GetSite(
 				WithOutgoingMembers(ctx, member),
 				&iamexamplev1.GetSiteRequest{

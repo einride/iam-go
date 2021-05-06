@@ -20,7 +20,7 @@ func (ts *serverTestSuite) testListShippers(t *testing.T) {
 		t.Run("ok", func(t *testing.T) {
 			const member = "user:test@example.com"
 			fx := ts.newTestFixture(t)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			const count = 20
 			expected := make([]*iamexamplev1.Shipper, 0, count)
 			for i := 0; i < count; i++ {
