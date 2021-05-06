@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.einride.tech/iam/cmd/iamctl/internal/connection"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -21,19 +22,27 @@ var listSitesCommand = &cobra.Command{
 		if err := viperCfg.BindPFlags(cmd.PersistentFlags()); err != nil {
 			return err
 		}
-		var cfg listSiteCommandConfig
-		if err := viperCfg.Unmarshal(&cfg); err != nil {
+		var flags listSiteFlags
+		if err := viperCfg.Unmarshal(&flags); err != nil {
 			return err
 		}
-		return runListSiteCommand(cmd.Context(), &cfg)
+		conn, err := flags.Connect(cmd.Context())
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = conn.Close()
+		}()
+		client := iamexamplev1.NewFreightServiceClient(conn)
+		return runListSiteCommand(cmd.Context(), client, &flags)
 	},
 }
 
-type listSiteCommandConfig struct {
-	commandConfig `mapstructure:",squash"`
-	Parent        string `mapstructure:"parent"`
-	PageSize      int32  `mapstructure:"page-size"`
-	PageToken     string `mapstructure:"page-token"`
+type listSiteFlags struct {
+	connection.Flags `mapstructure:",squash"`
+	Parent           string `mapstructure:"parent"`
+	PageSize         int32  `mapstructure:"page-size"`
+	PageToken        string `mapstructure:"page-token"`
 }
 
 func init() {
@@ -43,11 +52,11 @@ func init() {
 	_ = listSitesCommand.MarkFlagRequired("parent")
 }
 
-func runListSiteCommand(ctx context.Context, config *listSiteCommandConfig) error {
-	client, err := config.connect(ctx)
-	if err != nil {
-		return err
-	}
+func runListSiteCommand(
+	ctx context.Context,
+	client iamexamplev1.FreightServiceClient,
+	config *listSiteFlags,
+) error {
 	response, err := client.ListSites(ctx, &iamexamplev1.ListSitesRequest{
 		Parent:    config.Parent,
 		PageSize:  config.PageSize,

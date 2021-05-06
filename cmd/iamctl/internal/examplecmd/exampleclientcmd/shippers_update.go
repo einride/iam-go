@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	"go.einride.tech/iam/cmd/iamctl/internal/connection"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
@@ -22,19 +24,27 @@ var updateShipperCommand = &cobra.Command{
 		if err := viperCfg.BindPFlags(cmd.PersistentFlags()); err != nil {
 			return err
 		}
-		var cfg updateShipperCommandConfig
-		if err := viperCfg.Unmarshal(&cfg); err != nil {
+		var flags updateShipperFlags
+		if err := viperCfg.Unmarshal(&flags); err != nil {
 			return err
 		}
-		return runUpdateShipperCommand(cmd.Context(), &cfg)
+		conn, err := flags.Connect(cmd.Context())
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = conn.Close()
+		}()
+		client := iamexamplev1.NewFreightServiceClient(conn)
+		return runUpdateShipperCommand(cmd.Context(), client, &flags)
 	},
 }
 
-type updateShipperCommandConfig struct {
-	commandConfig `mapstructure:",squash"`
-	Name          string   `mapstructure:"name"`
-	DisplayName   string   `mapstructure:"display-name"`
-	UpdateMask    []string `mapstructure:"update-mask"`
+type updateShipperFlags struct {
+	connection.Flags `mapstructure:",squash"`
+	Name             string   `mapstructure:"name"`
+	DisplayName      string   `mapstructure:"display-name"`
+	UpdateMask       []string `mapstructure:"update-mask"`
 }
 
 func init() {
@@ -44,19 +54,19 @@ func init() {
 	_ = updateShipperCommand.MarkFlagRequired("name")
 }
 
-func runUpdateShipperCommand(ctx context.Context, config *updateShipperCommandConfig) error {
-	client, err := config.connect(ctx)
-	if err != nil {
-		return err
-	}
+func runUpdateShipperCommand(
+	ctx context.Context,
+	client iamexamplev1.FreightServiceClient,
+	flags *updateShipperFlags,
+) error {
 	var updateMask *fieldmaskpb.FieldMask
-	if len(config.UpdateMask) > 0 {
-		updateMask = &fieldmaskpb.FieldMask{Paths: config.UpdateMask}
+	if len(flags.UpdateMask) > 0 {
+		updateMask = &fieldmaskpb.FieldMask{Paths: flags.UpdateMask}
 	}
 	response, err := client.UpdateShipper(ctx, &iamexamplev1.UpdateShipperRequest{
 		Shipper: &iamexamplev1.Shipper{
-			Name:        config.Name,
-			DisplayName: config.DisplayName,
+			Name:        flags.Name,
+			DisplayName: flags.DisplayName,
 		},
 		UpdateMask: updateMask,
 	})

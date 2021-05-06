@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.einride.tech/iam/cmd/iamctl/internal/connection"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -21,18 +22,26 @@ var batchGetShipmentsCommand = &cobra.Command{
 		if err := viperCfg.BindPFlags(cmd.PersistentFlags()); err != nil {
 			return err
 		}
-		var cfg batchGetShipmentsCommandConfig
-		if err := viperCfg.Unmarshal(&cfg); err != nil {
+		var flags batchGetShipmentsFlags
+		if err := viperCfg.Unmarshal(&flags); err != nil {
 			return err
 		}
-		return runBatchGetShipmentsCommand(cmd.Context(), &cfg)
+		conn, err := flags.Connect(cmd.Context())
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = conn.Close()
+		}()
+		client := iamexamplev1.NewFreightServiceClient(conn)
+		return runBatchGetShipmentsCommand(cmd.Context(), client, &flags)
 	},
 }
 
-type batchGetShipmentsCommandConfig struct {
-	commandConfig `mapstructure:",squash"`
-	Parent        string   `mapstructure:"parent"`
-	Names         []string `mapstructure:"names"`
+type batchGetShipmentsFlags struct {
+	connection.Flags `mapstructure:",squash"`
+	Parent           string   `mapstructure:"parent"`
+	Names            []string `mapstructure:"names"`
 }
 
 func init() {
@@ -41,14 +50,14 @@ func init() {
 	_ = batchGetShipmentsCommand.MarkFlagRequired("names")
 }
 
-func runBatchGetShipmentsCommand(ctx context.Context, config *batchGetShipmentsCommandConfig) error {
-	client, err := config.connect(ctx)
-	if err != nil {
-		return err
-	}
+func runBatchGetShipmentsCommand(
+	ctx context.Context,
+	client iamexamplev1.FreightServiceClient,
+	flags *batchGetShipmentsFlags,
+) error {
 	shipment, err := client.BatchGetShipments(ctx, &iamexamplev1.BatchGetShipmentsRequest{
-		Parent: config.Parent,
-		Names:  config.Names,
+		Parent: flags.Parent,
+		Names:  flags.Names,
 	})
 	if err != nil {
 		return err

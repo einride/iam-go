@@ -51,7 +51,7 @@ func newServer(spannerClient *spanner.Client) (iamexamplev1.FreightServiceServer
 }
 
 func runServer(ctx context.Context, server iamexamplev1.FreightServiceServer, address string) error {
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(logUnary))
 	iam.RegisterIAMPolicyServer(grpcServer, server)
 	if adminServer, ok := server.(admin.IAMServer); ok {
 		admin.RegisterIAMServer(grpcServer, adminServer)
@@ -70,4 +70,19 @@ func runServer(ctx context.Context, server iamexamplev1.FreightServiceServer, ad
 		return err
 	}
 	return nil
+}
+
+func logUnary(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
+	resp, err := handler(ctx, req)
+	if err != nil {
+		log.Printf("%s\n->\t%s\n<-\t%s", info.FullMethod, req, err)
+	} else {
+		log.Printf("%s\n->\t%s\n<-\t%s", info.FullMethod, req, resp)
+	}
+	return resp, err
 }

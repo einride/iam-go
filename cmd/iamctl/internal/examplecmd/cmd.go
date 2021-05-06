@@ -2,8 +2,8 @@ package examplecmd
 
 import (
 	"github.com/spf13/cobra"
-	"go.einride.tech/iam/cmd/iamctl/examplecmd/exampleclientcmd"
-	"go.einride.tech/iam/cmd/iamctl/examplecmd/exampleservercmd"
+	"go.einride.tech/iam/cmd/iamctl/internal/examplecmd/exampleclientcmd"
+	"go.einride.tech/iam/cmd/iamctl/internal/examplecmd/exampleservercmd"
 )
 
 var Command = &cobra.Command{
@@ -14,4 +14,5 @@ var Command = &cobra.Command{
 func init() {
 	Command.AddCommand(exampleclientcmd.Command)
 	Command.AddCommand(exampleservercmd.Command)
+	Command.Hidden = true
 }
