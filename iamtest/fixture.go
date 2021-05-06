@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamspanner"
 	"google.golang.org/genproto/googleapis/iam/v1"
 	"gotest.tools/v3/assert"
@@ -21,34 +22,27 @@ func NewFixture(server *iamspanner.Server) *Fixture {
 
 // AddPolicyBinding adds the provided policy binding.
 func (fx *Fixture) AddPolicyBinding(t *testing.T, resource, role, member string) {
+	ctx := withTestDeadline(context.Background(), t)
 	// Get current policy.
-	policy, err := fx.server.GetIamPolicy(context.TODO(), &iam.GetIamPolicyRequest{
+	policy, err := fx.server.GetIamPolicy(ctx, &iam.GetIamPolicyRequest{
 		Resource: resource,
 	})
 	assert.NilError(t, err)
-	// Add binding to policy.
-	var added bool
-	for _, binding := range policy.Bindings {
-		if binding.Role == role {
-			for _, bindingMember := range binding.Members {
-				if bindingMember == member {
-					return // already have this policy binding
-				}
-			}
-			binding.Members = append(binding.Members, member)
-			added = true
-		}
-	}
-	if !added {
-		policy.Bindings = append(policy.Bindings, &iam.Binding{
-			Role:    role,
-			Members: []string{member},
-		})
-	}
+	iampolicy.AddBinding(policy, role, member)
 	// Set updated policy.
-	_, err = fx.server.SetIamPolicy(context.TODO(), &iam.SetIamPolicyRequest{
+	_, err = fx.server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
 		Resource: resource,
 		Policy:   policy,
 	})
 	assert.NilError(t, err)
+}
+
+func withTestDeadline(ctx context.Context, t *testing.T) context.Context {
+	deadline, ok := t.Deadline()
+	if !ok {
+		return ctx
+	}
+	ctx, cancel := context.WithDeadline(ctx, deadline)
+	t.Cleanup(cancel)
+	return ctx
 }
