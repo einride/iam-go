@@ -21,7 +21,7 @@ func (ts *serverTestSuite) testGetShipper(t *testing.T) {
 				shipper = "shippers/1234"
 			)
 			fx := ts.newTestFixture(t)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			got, err := fx.client.GetShipper(
 				WithOutgoingMembers(ctx, member),
 				&iamexamplev1.GetShipperRequest{

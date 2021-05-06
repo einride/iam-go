@@ -22,7 +22,7 @@ func (ts *serverTestSuite) testDeleteShipper(t *testing.T) {
 				shipperID = "1234"
 			)
 			fx := ts.newTestFixture(t)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			input := &iamexamplev1.Shipper{
 				DisplayName: "Test Shipper",
 			}

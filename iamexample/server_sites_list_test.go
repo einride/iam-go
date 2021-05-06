@@ -25,7 +25,7 @@ func (ts *serverTestSuite) testListSites(t *testing.T) {
 			)
 			fx := ts.newTestFixture(t)
 			fx.createShipper(t, parent)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			expected := make([]*iamexamplev1.Site, 0, count)
 			for i := 0; i < count; i++ {
 				created, err := fx.client.CreateSite(

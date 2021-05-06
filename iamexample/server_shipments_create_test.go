@@ -29,7 +29,7 @@ func (ts *serverTestSuite) testCreateShipment(t *testing.T) {
 			fx.createShipper(t, parent)
 			fx.createSite(t, originSite)
 			fx.createSite(t, destinationSite)
-			fx.iam.AddPolicyBinding(t, "*", "roles/freight.admin", member)
+			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			input := &iamexamplev1.Shipment{
 				OriginSite:           originSite,
 				DestinationSite:      destinationSite,

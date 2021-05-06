@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.einride.tech/aip/resourcename"
+	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
@@ -37,7 +38,7 @@ func (a *Authorization) ListShippers(
 	request *iamexamplev1.ListShippersRequest,
 ) (*iamexamplev1.ListShippersResponse, error) {
 	const permission = "freight.shippers.list"
-	if err := a.require(ctx, permission, "*"); err != nil {
+	if err := a.require(ctx, permission, iamresource.Root); err != nil {
 		return nil, err
 	}
 	return a.Next.ListShippers(ctx, request)
@@ -48,7 +49,7 @@ func (a *Authorization) CreateShipper(
 	request *iamexamplev1.CreateShipperRequest,
 ) (*iamexamplev1.Shipper, error) {
 	const permission = "freight.shippers.create"
-	if err := a.require(ctx, permission, "*"); err != nil {
+	if err := a.require(ctx, permission, iamresource.Root); err != nil {
 		return nil, err
 	}
 	return a.Next.CreateShipper(ctx, request)
@@ -281,6 +282,8 @@ func (a *Authorization) SetIamPolicy(
 ) (*iam.Policy, error) {
 	var permission string
 	switch {
+	case request.Resource == iamresource.Root:
+		permission = "freight.root.setIamPolicy"
 	case resourcename.Match("shippers/{shipper}", request.Resource):
 		permission = "freight.shippers.setIamPolicy"
 	case resourcename.Match("shippers/{shipper}/sites/{site}", request.Resource):
@@ -302,6 +305,8 @@ func (a *Authorization) GetIamPolicy(
 ) (*iam.Policy, error) {
 	var permission string
 	switch {
+	case request.Resource == iamresource.Root:
+		permission = "freight.root.getIamPolicy"
 	case resourcename.Match("shippers/{shipper}", request.Resource):
 		permission = "freight.shippers.getIamPolicy"
 	case resourcename.Match("shippers/{shipper}/sites/{site}", request.Resource):

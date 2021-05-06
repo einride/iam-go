@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamregistry"
+	"go.einride.tech/iam/iamresource"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"go.einride.tech/spanner-aip/spantest"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
@@ -405,6 +406,46 @@ func TestServer(t *testing.T) {
 		}
 		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
 			Resource: "parents/1",
+			Policy:   policy,
+		})
+		assert.NilError(t, err)
+		permissions := []string{
+			"test.resources.create",
+			"test.resources.get",
+			"test.resources.update",
+			"test.resources.delete",
+		}
+		expected := []string{"test.resources.get"}
+		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
+			Resource:    "parents/1/resources/1",
+			Permissions: permissions,
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected, response.Permissions)
+	})
+
+	t.Run("test permissions on root", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewServer(
+			newDatabase(),
+			roles,
+			iamMemberResolver(func(ctx context.Context) ([]string, error) {
+				return []string{user1}, nil
+			}),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/viewer", Members: []string{user1}},
+			},
+			Etag: []byte("W/0-00000000"),
+		}
+		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
+			Resource: iamresource.Root,
 			Policy:   policy,
 		})
 		assert.NilError(t, err)
