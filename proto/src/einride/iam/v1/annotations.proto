@@ -16,12 +16,12 @@ import "google/type/expr.proto";
 
 extend google.protobuf.MethodOptions {
   // Authorization for the method.
-  Authorization authorization = 11000;
+  Authorization authorization = 201600;
 }
 
 extend google.protobuf.ServiceOptions {
   // Predefined roles for the service.
-  Roles predefined_roles = 11001;
+  Roles predefined_roles = 201601;
 }
 
 // Authorization options for a gRPC method.
