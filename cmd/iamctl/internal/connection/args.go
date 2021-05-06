@@ -9,10 +9,8 @@ import (
 
 	"github.com/spf13/pflag"
 	"go.einride.tech/iam/iamexample"
-	"google.golang.org/api/idtoken"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/oauth"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -40,14 +38,7 @@ func (f *Flags) Connect(ctx context.Context) (*grpc.ClientConn, error) {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithUnaryInterceptor(f.unaryClientInterceptor))
 	if f.Token != "" {
-		audience := "https://" + trimPort(f.Address)
-		idTokenSource, err := idtoken.NewTokenSource(ctx, audience)
-		if err != nil {
-			return nil, err
-		}
-		opts = append(opts, grpc.WithPerRPCCredentials(
-			&oauth.TokenSource{TokenSource: idTokenSource},
-		))
+		opts = append(opts, grpc.WithPerRPCCredentials(tokenCredentials(f.Token)))
 	}
 	if f.Insecure {
 		opts = append(opts, grpc.WithInsecure())
@@ -79,6 +70,18 @@ func (c *Flags) unaryClientInterceptor(
 	return nil
 }
 
+type tokenCredentials string
+
+func (t tokenCredentials) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+	return map[string]string{
+		"authorization": "bearer " + string(t),
+	}, nil
+}
+
+func (p tokenCredentials) RequireTransportSecurity() bool {
+	return false
+}
+
 type printDetailsError struct {
 	err error
 }
@@ -103,14 +106,6 @@ func (e *printDetailsError) Error() string {
 		}
 	}
 	return result.String()
-}
-
-func trimPort(target string) string {
-	parts := strings.Split(target, ":")
-	if len(parts) == 1 {
-		return target
-	}
-	return strings.Join(parts[:len(parts)-1], ":")
 }
 
 func withDefaultPort(target string, port int) string {
