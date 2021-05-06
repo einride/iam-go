@@ -401,6 +401,10 @@ service FreightService {
     option (einride.iam.v1.authorization) = {
       resource_permissions {
         resource {
+          type: "/"
+          permission: "freight.root.setIamPolicy"
+        }
+        resource {
           type: "iam-example.einride.tech/Shipper"
           permission: "freight.shippers.setIamPolicy"
         }
@@ -440,6 +444,10 @@ service FreightService {
     option (google.api.method_signature) = "resource";
     option (einride.iam.v1.authorization) = {
       resource_permissions {
+        resource {
+          type: "/"
+          permission: "freight.root.getIamPolicy"
+        }
         resource {
           type: "iam-example.einride.tech/Shipper"
           permission: "freight.shippers.getIamPolicy"
