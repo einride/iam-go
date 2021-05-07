@@ -22,16 +22,16 @@ var _ iammember.Resolver = &iamMemberHeaderResolver{}
 type iamMemberHeaderResolver struct{}
 
 // ResolveIAMMembers implements iammember.Resolver.
-func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) ([]string, error) {
+func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
+		return nil, nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
 	}
 	values := md.Get(MemberHeader)
 	if len(values) == 0 {
-		return nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
+		return nil, nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
 	}
-	return values, nil
+	return ctx, values, nil
 }
 
 // WithOutgoingMembers appends the provided members to the outgoing gRPC context.

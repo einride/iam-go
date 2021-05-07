@@ -110,7 +110,7 @@ func (s *IAMServer) TestIamPermissions(
 	ctx context.Context,
 	request *iam.TestIamPermissionsRequest,
 ) (*iam.TestIamPermissionsResponse, error) {
-	members, err := s.resolveMembers(ctx)
+	ctx, members, err := s.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (s *IAMServer) TestPermissionOnResources(
 	permission string,
 	resources []string,
 ) (map[string]bool, error) {
-	members, err := s.resolveMembers(ctx)
+	ctx, members, err := s.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -448,14 +448,6 @@ func (s *IAMServer) handleStorageError(ctx context.Context, err error) error {
 	default:
 		return status.Error(codes.Internal, "storage error")
 	}
-}
-
-func (s *IAMServer) resolveMembers(ctx context.Context) ([]string, error) {
-	members, err := s.memberResolver.ResolveIAMMembers(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return members, nil
 }
 
 func computeETag(policy *iam.Policy) ([]byte, error) {
