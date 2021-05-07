@@ -11,7 +11,7 @@ import (
 )
 
 // ListRoles implements admin.IAMServer.
-func (s *Server) ListRoles(
+func (s *IAMServer) ListRoles(
 	ctx context.Context,
 	request *admin.ListRolesRequest,
 ) (*admin.ListRolesResponse, error) {
@@ -22,7 +22,7 @@ func (s *Server) ListRoles(
 	return s.listRoles(ctx, &parsedRequest)
 }
 
-func (s *Server) listRoles(
+func (s *IAMServer) listRoles(
 	_ context.Context,
 	request *listRolesRequest,
 ) (*admin.ListRolesResponse, error) {
