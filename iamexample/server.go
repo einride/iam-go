@@ -12,7 +12,7 @@ import (
 
 // Server implements iamexamplev1.FreightServiceServer.
 type Server struct {
-	IAM     *iamspanner.Server
+	IAM     *iamspanner.IAMServer
 	Spanner *spanner.Client
 	Config  Config
 }

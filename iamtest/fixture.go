@@ -12,11 +12,11 @@ import (
 
 // Fixture is a test fixture with helper methods for IAM testing.
 type Fixture struct {
-	server *iamspanner.Server
+	server *iamspanner.IAMServer
 }
 
-// NewFixture creates a new Fixture for the provided iamspanner.Server.
-func NewFixture(server *iamspanner.Server) *Fixture {
+// NewFixture creates a new Fixture for the provided iamspanner.IAMServer.
+func NewFixture(server *iamspanner.IAMServer) *Fixture {
 	return &Fixture{server: server}
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 // GetRole implements admin.IAMServer.
-func (s *Server) GetRole(
+func (s *IAMServer) GetRole(
 	ctx context.Context,
 	request *admin.GetRoleRequest,
 ) (*admin.Role, error) {
@@ -23,7 +23,7 @@ func (s *Server) GetRole(
 }
 
 // GetRole implements admin.IAMServer.
-func (s *Server) getRole(
+func (s *IAMServer) getRole(
 	_ context.Context,
 	request *getRoleRequest,
 ) (*admin.Role, error) {

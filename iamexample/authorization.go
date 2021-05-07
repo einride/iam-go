@@ -17,7 +17,7 @@ type Authorization struct {
 	iam.UnimplementedIAMPolicyServer
 	admin.UnimplementedIAMServer
 	Next iamexamplev1.FreightServiceServer
-	IAM  *iamspanner.Server
+	IAM  *iamspanner.IAMServer
 }
 
 var _ iamexamplev1.FreightServiceServer = &Authorization{}

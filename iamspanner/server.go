@@ -22,8 +22,8 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// Server is a Spanner implementation of the iam.IAMPolicyServer interface.
-type Server struct {
+// IAMServer is a Spanner implementation of the iam.IAMPolicyServer interface.
+type IAMServer struct {
 	iam.UnimplementedIAMPolicyServer
 	admin.UnimplementedIAMServer
 	client         *spanner.Client
@@ -49,8 +49,8 @@ func NewServer(
 	roles *iamregistry.Roles,
 	memberResolver iammember.Resolver,
 	config ServerConfig,
-) (*Server, error) {
-	s := &Server{
+) (*IAMServer, error) {
+	s := &IAMServer{
 		client:         client,
 		config:         config,
 		roles:          roles,
@@ -60,7 +60,7 @@ func NewServer(
 }
 
 // SetIamPolicy implements iam.IAMPolicyServer.
-func (s *Server) SetIamPolicy(
+func (s *IAMServer) SetIamPolicy(
 	ctx context.Context,
 	request *iam.SetIamPolicyRequest,
 ) (*iam.Policy, error) {
@@ -96,7 +96,7 @@ func (s *Server) SetIamPolicy(
 }
 
 // GetIamPolicy implements iam.IAMPolicyServer.
-func (s *Server) GetIamPolicy(
+func (s *IAMServer) GetIamPolicy(
 	ctx context.Context,
 	request *iam.GetIamPolicyRequest,
 ) (*iam.Policy, error) {
@@ -106,7 +106,7 @@ func (s *Server) GetIamPolicy(
 }
 
 // TestIamPermissions implements iam.IAMPolicyServer.
-func (s *Server) TestIamPermissions(
+func (s *IAMServer) TestIamPermissions(
 	ctx context.Context,
 	request *iam.TestIamPermissionsRequest,
 ) (*iam.TestIamPermissionsResponse, error) {
@@ -145,7 +145,7 @@ func (s *Server) TestIamPermissions(
 }
 
 // TestPermissionOnResource tests if the caller has the specified permission on the specified resource.
-func (s *Server) TestPermissionOnResource(
+func (s *IAMServer) TestPermissionOnResource(
 	ctx context.Context,
 	permission string,
 	resource string,
@@ -158,7 +158,7 @@ func (s *Server) TestPermissionOnResource(
 }
 
 // TestPermissionOnResources tests if the caller has the specified permission on the specified resources.
-func (s *Server) TestPermissionOnResources(
+func (s *IAMServer) TestPermissionOnResources(
 	ctx context.Context,
 	permission string,
 	resources []string,
@@ -192,7 +192,7 @@ func (s *Server) TestPermissionOnResources(
 }
 
 // ReadRolesBoundToMembersAndResources reads all roles bound to the provided members and resources.
-func (s *Server) ReadRolesBoundToMembersAndResources(
+func (s *IAMServer) ReadRolesBoundToMembersAndResources(
 	ctx context.Context,
 	members []string,
 	resources []string,
@@ -206,7 +206,7 @@ func (s *Server) ReadRolesBoundToMembersAndResources(
 // ReadRolesBoundToMembersAndResourcesInTransaction reads all roles bound to members and resources
 // within the provided Spanner transaction.
 // Also considers roles bound to parent resources.
-func (s *Server) ReadRolesBoundToMembersAndResourcesInTransaction(
+func (s *IAMServer) ReadRolesBoundToMembersAndResourcesInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
 	members []string,
@@ -270,7 +270,7 @@ func (s *Server) ReadRolesBoundToMembersAndResourcesInTransaction(
 }
 
 // QueryResourcesBoundToMemberAndPermission reads all resources bound to the member and permission.
-func (s *Server) QueryResourcesBoundToMemberAndPermission(
+func (s *IAMServer) QueryResourcesBoundToMemberAndPermission(
 	ctx context.Context,
 	member string,
 	permission string,
@@ -282,7 +282,7 @@ func (s *Server) QueryResourcesBoundToMemberAndPermission(
 
 // QueryResourcesBoundToMemberAndPermissionInTransaction reads all resources bound to the member and permission,
 // within the provided Spanner transaction.
-func (s *Server) QueryResourcesBoundToMemberAndPermissionInTransaction(
+func (s *IAMServer) QueryResourcesBoundToMemberAndPermissionInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
 	member string,
@@ -320,7 +320,7 @@ func (s *Server) QueryResourcesBoundToMemberAndPermissionInTransaction(
 }
 
 // QueryIamPolicyInTransaction queries the IAM policy for a resource within the provided transaction.
-func (s *Server) QueryIamPolicyInTransaction(
+func (s *IAMServer) QueryIamPolicyInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
 	resource string,
@@ -369,7 +369,7 @@ func (s *Server) QueryIamPolicyInTransaction(
 
 // ValidateIamPolicyFreshnessInTransaction validates the freshness of an IAM policy for a resource
 // within the provided transaction.
-func (s *Server) ValidateIamPolicyFreshnessInTransaction(
+func (s *IAMServer) ValidateIamPolicyFreshnessInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
 	resource string,
@@ -409,7 +409,7 @@ func insertIAMPolicyMutations(resource string, policy *iam.Policy) []*spanner.Mu
 	return mutations
 }
 
-func (s *Server) validateSetIamPolicyRequest(ctx context.Context, request *iam.SetIamPolicyRequest) error {
+func (s *IAMServer) validateSetIamPolicyRequest(ctx context.Context, request *iam.SetIamPolicyRequest) error {
 	var fieldViolations []*errdetails.BadRequest_FieldViolation
 	if len(request.Resource) == 0 {
 		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
@@ -434,13 +434,13 @@ func (s *Server) validateSetIamPolicyRequest(ctx context.Context, request *iam.S
 	return nil
 }
 
-func (s *Server) logError(ctx context.Context, err error) {
+func (s *IAMServer) logError(ctx context.Context, err error) {
 	if s.config.ErrorHook != nil {
 		s.config.ErrorHook(ctx, err)
 	}
 }
 
-func (s *Server) handleStorageError(ctx context.Context, err error) error {
+func (s *IAMServer) handleStorageError(ctx context.Context, err error) error {
 	s.logError(ctx, err)
 	switch code := status.Code(err); code {
 	case codes.Aborted, codes.Canceled, codes.DeadlineExceeded, codes.Unavailable:
@@ -450,7 +450,7 @@ func (s *Server) handleStorageError(ctx context.Context, err error) error {
 	}
 }
 
-func (s *Server) resolveMembers(ctx context.Context) ([]string, error) {
+func (s *IAMServer) resolveMembers(ctx context.Context) ([]string, error) {
 	members, err := s.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
