@@ -45,6 +45,7 @@ spanner-generate:
 go-mod-tidy:
 	$(info [$@] tidying Go module files...)
 	@go mod tidy
+	@cd cmd/iamctl && go mod tidy
 
 .PHONY: go-test
 go-test:

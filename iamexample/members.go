@@ -4,9 +4,7 @@ import (
 	"context"
 
 	"go.einride.tech/iam/iammember"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
 
 // MemberHeader is the gRPC header used by the example server to determine IAM members of the caller.
@@ -25,13 +23,9 @@ type iamMemberHeaderResolver struct{}
 func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
+		return ctx, nil, nil
 	}
-	values := md.Get(MemberHeader)
-	if len(values) == 0 {
-		return nil, nil, status.Errorf(codes.Unauthenticated, "missing members header: %s", MemberHeader)
-	}
-	return ctx, values, nil
+	return ctx, md.Get(MemberHeader), nil
 }
 
 // WithOutgoingMembers appends the provided members to the outgoing gRPC context.

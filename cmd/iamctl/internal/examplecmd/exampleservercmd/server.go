@@ -2,12 +2,15 @@ package exampleservercmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamexample"
 	"go.einride.tech/iam/iamexample/iamexampledata"
+	"go.einride.tech/iam/iammember"
+	"go.einride.tech/iam/iammember/iamgooglemember"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
@@ -24,7 +27,22 @@ func newServer(spannerClient *spanner.Client) (iamexamplev1.FreightServiceServer
 	iamServer, err := iamspanner.NewServer(
 		spannerClient,
 		roles,
-		iamexample.NewIAMMemberHeaderResolver(),
+		iammember.ChainResolvers(
+			// Resolve members from the example members header.
+			iamexample.NewIAMMemberHeaderResolver(),
+			// Resolve members from the authorization header.
+			iamgooglemember.ResolveAuthorizationHeader(googleUserInfoMemberResolver{}),
+			// Resolve members from the Cloud Endpoint UserInfo header.
+			iamgooglemember.ResolveUserInfoHeader(
+				iamgooglemember.GoogleCloudEndpointUserInfoHeader,
+				googleUserInfoMemberResolver{},
+			),
+			// Resolve members from the API Gateway UserInfo header.
+			iamgooglemember.ResolveUserInfoHeader(
+				iamgooglemember.GoogleCloudAPIGatewayUserInfoHeader,
+				googleUserInfoMemberResolver{},
+			),
+		),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {
 				log.Println(err)
@@ -48,6 +66,18 @@ func newServer(spannerClient *spanner.Client) (iamexamplev1.FreightServiceServer
 		IAM:  iamServer,
 	}
 	return freightServerAuthorization, nil
+}
+
+type googleUserInfoMemberResolver struct{}
+
+func (g googleUserInfoMemberResolver) ResolveIAMMembersFromGoogleUserInfo(
+	ctx context.Context,
+	info *iamgooglemember.UserInfo,
+) (context.Context, []string, error) {
+	if info.HostedDomain != "" && info.Email != "" {
+		return ctx, []string{fmt.Sprintf("%s:%s", info.HostedDomain, info.Email)}, nil
+	}
+	return ctx, nil, nil
 }
 
 func runServer(ctx context.Context, server iamexamplev1.FreightServiceServer, address string) error {
