@@ -9,18 +9,22 @@ import (
 
 	"github.com/spf13/pflag"
 	"go.einride.tech/iam/iamexample"
+	"go.einride.tech/iam/iammember/iamgooglemember"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
 type Flags struct {
-	Address        string   `mapstructure:"address"`
-	Insecure       bool     `mapstructure:"insecure"`
-	Token          string   `mapstructure:"token"`
-	ExampleMembers []string `mapstructure:"example-members"`
+	Address                string   `mapstructure:"address"`
+	Insecure               bool     `mapstructure:"insecure"`
+	Token                  string   `mapstructure:"token"`
+	ExampleMembers         []string `mapstructure:"example-members"`
+	XEndpointAPIUserInfo   string   `mapstructure:"x-endpoint-api-userinfo"`
+	XApiGatewayAPIUserInfo string   `mapstructure:"x-apigateway-api-userinfo"`
 }
 
 func AddToFlagSet(flagSet *pflag.FlagSet) error {
@@ -28,7 +32,15 @@ func AddToFlagSet(flagSet *pflag.FlagSet) error {
 	flagSet.String("token", "", "bearer token used by the client")
 	flagSet.Bool("insecure", false, "make insecure connection")
 	flagSet.StringSlice("example-members", nil, "example IAM members to set for the caller")
+	flagSet.String("x-endpoint-api-userinfo", "", "value to set in the X-Endpoint-Api-GoogleUserInfo header")
+	flagSet.String("x-apigateway-api-userinfo", "", "value to set in the X-Apigateway-Api-GoogleUserInfo header")
 	if err := flagSet.MarkHidden("example-members"); err != nil {
+		return err
+	}
+	if err := flagSet.MarkHidden("x-endpoint-api-userinfo"); err != nil {
+		return err
+	}
+	if err := flagSet.MarkHidden("x-apigateway-api-userinfo"); err != nil {
 		return err
 	}
 	return nil
@@ -63,6 +75,16 @@ func (c *Flags) unaryClientInterceptor(
 ) error {
 	if len(c.ExampleMembers) > 0 {
 		ctx = iamexample.WithOutgoingMembers(ctx, c.ExampleMembers...)
+	}
+	if c.XEndpointAPIUserInfo != "" {
+		ctx = metadata.AppendToOutgoingContext(
+			ctx, iamgooglemember.GoogleCloudEndpointUserInfoHeader, c.XEndpointAPIUserInfo,
+		)
+	}
+	if c.XApiGatewayAPIUserInfo != "" {
+		ctx = metadata.AppendToOutgoingContext(
+			ctx, iamgooglemember.GoogleCloudAPIGatewayUserInfoHeader, c.XApiGatewayAPIUserInfo,
+		)
 	}
 	if err := invoker(ctx, method, req, reply, cc, opts...); err != nil {
 		return &printDetailsError{err: err}
