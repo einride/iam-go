@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
+	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iamexample/iamexampledata"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
@@ -78,7 +79,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	}
 	lis, err := net.Listen("tcp", "localhost:0")
 	assert.NilError(t, err)
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(iamauthz.RequireUnaryAuthorization))
 	iamexamplev1.RegisterFreightServiceServer(grpcServer, serverWithAuthorization)
 	errChan := make(chan error)
 	go func() {
