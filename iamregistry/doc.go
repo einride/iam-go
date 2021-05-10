@@ -1,2 +1,2 @@
-// Package iamregistry provides data structures to register lookup and resolve IAM roles and permissions.
+// Package iamregistry provides data structures for resolving IAM roles and permissions.
 package iamregistry
