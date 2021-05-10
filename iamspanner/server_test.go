@@ -73,7 +73,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("get non-existent returns empty policy", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -95,7 +95,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -130,7 +130,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set stale", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -160,7 +160,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -199,7 +199,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("set and get other resource", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -241,7 +241,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test no permissions", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -268,7 +268,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test all permissions", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -307,7 +307,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test some permissions", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -347,7 +347,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test permissions different user", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -386,7 +386,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test permissions on parent", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -426,7 +426,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("test permissions on root", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -466,7 +466,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("get role", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
@@ -489,7 +489,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("list roles", func(t *testing.T) {
 		t.Parallel()
-		server, err := NewServer(
+		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
 			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
