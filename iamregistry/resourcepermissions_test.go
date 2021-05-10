@@ -35,10 +35,10 @@ func TestResourcePermissions(t *testing.T) {
 	t.Run("non-empty registry", func(t *testing.T) {
 		resourcePermissions, err := NewResourcePermissions(
 			&iamv1.ResourcePermissions{
-				Resource: []*iamv1.ResourcePermission{
-					{Type: "/", Permission: "test.root.examplePermission"},
-					{Type: "example.com/User", Permission: "test.users.examplePermission"},
-					{Type: "example.com/Book", Permission: "test.books.examplePermission"},
+				ResourcePermission: []*iamv1.ResourcePermission{
+					{Resource: &annotations.ResourceDescriptor{Type: "/"}, Permission: "test.root.examplePermission"},
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/User"}, Permission: "test.users.examplePermission"},
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/Book"}, Permission: "test.books.examplePermission"},
 				},
 			},
 			[]*annotations.ResourceDescriptor{
@@ -78,10 +78,10 @@ func TestResourcePermissions(t *testing.T) {
 	t.Run("double registration", func(t *testing.T) {
 		resourcePermissions, err := NewResourcePermissions(
 			&iamv1.ResourcePermissions{
-				Resource: []*iamv1.ResourcePermission{
-					{Type: "example.com/User", Permission: "test.users.examplePermission"},
-					{Type: "example.com/Book", Permission: "test.books.examplePermission"},
-					{Type: "example.com/User", Permission: "test.users.otherPermission"},
+				ResourcePermission: []*iamv1.ResourcePermission{
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/User"}, Permission: "test.users.examplePermission"},
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/Book"}, Permission: "test.books.examplePermission"},
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/User"}, Permission: "test.users.otherPermission"},
 				},
 			},
 			[]*annotations.ResourceDescriptor{
@@ -102,10 +102,10 @@ func TestResourcePermissions(t *testing.T) {
 	t.Run("missing resource", func(t *testing.T) {
 		resourcePermissions, err := NewResourcePermissions(
 			&iamv1.ResourcePermissions{
-				Resource: []*iamv1.ResourcePermission{
-					{Type: "/", Permission: "test.root.examplePermission"},
-					{Type: "example.com/User", Permission: "test.users.examplePermission"},
-					{Type: "example.com/Book", Permission: "test.books.examplePermission"},
+				ResourcePermission: []*iamv1.ResourcePermission{
+					{Resource: &annotations.ResourceDescriptor{Type: "/"}, Permission: "test.root.examplePermission"},
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/User"}, Permission: "test.users.examplePermission"},
+					{Resource: &annotations.ResourceDescriptor{Type: "example.com/Book"}, Permission: "test.books.examplePermission"},
 				},
 			},
 			[]*annotations.ResourceDescriptor{

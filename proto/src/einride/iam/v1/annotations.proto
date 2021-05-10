@@ -10,13 +10,14 @@ option java_package = "tech.einride.iam.v1";
 option objc_class_prefix = "IXX";
 option php_namespace = "Iam\\V1";
 
+import "google/api/resource.proto";
 import "google/iam/admin/v1/iam.proto";
 import "google/protobuf/descriptor.proto";
 import "google/type/expr.proto";
 
 extend google.protobuf.MethodOptions {
-  // Authorization for the method.
-  Authorization authorization = 201600;
+  // Method authorization options.
+  MethodAuthorizationOptions method_authorization = 201600;
 }
 
 extend google.protobuf.ServiceOptions {
@@ -24,8 +25,8 @@ extend google.protobuf.ServiceOptions {
   Roles predefined_roles = 201601;
 }
 
-// Authorization options for a gRPC method.
-message Authorization {
+// Method authorization options.
+message MethodAuthorizationOptions {
   // Permission to use for authorization.
   oneof permissions {
     // A single permission used by the method.
@@ -49,13 +50,14 @@ message Authorization {
 // Resource permissions.
 message ResourcePermissions {
   // The resource permissions.
-  repeated ResourcePermission resource = 1;
+  repeated ResourcePermission resource_permission = 1;
 }
 
 // A resource type and a permission.
 message ResourcePermission {
-  // The resource type.
-  string type = 1;
+  // The resource.
+  // When used for authorization method options, only the type must be provided.
+  google.api.ResourceDescriptor resource = 1;
   // The permission.
   string permission = 2;
 }

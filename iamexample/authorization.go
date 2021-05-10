@@ -28,7 +28,7 @@ func (a *Authorization) GetShipper(
 	request *iamexamplev1.GetShipperRequest,
 ) (*iamexamplev1.Shipper, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shippers.get"
+	permission := iamexamplev1.FreightServiceIAM().GetShipper().GetPermission()
 	if err := a.require(ctx, permission, request.GetName()); err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (a *Authorization) ListShippers(
 	request *iamexamplev1.ListShippersRequest,
 ) (*iamexamplev1.ListShippersResponse, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shippers.list"
+	permission := iamexamplev1.FreightServiceIAM().ListShippers().GetPermission()
 	if err := a.require(ctx, permission, iamresource.Root); err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (a *Authorization) CreateShipper(
 	request *iamexamplev1.CreateShipperRequest,
 ) (*iamexamplev1.Shipper, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shippers.create"
+	permission := iamexamplev1.FreightServiceIAM().CreateShipper().GetPermission()
 	if err := a.require(ctx, permission, iamresource.Root); err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (a *Authorization) UpdateShipper(
 	request *iamexamplev1.UpdateShipperRequest,
 ) (*iamexamplev1.Shipper, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shippers.update"
+	permission := iamexamplev1.FreightServiceIAM().UpdateShipper().GetPermission()
 	if err := a.require(ctx, permission, request.GetShipper().GetName()); err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (a *Authorization) DeleteShipper(
 	request *iamexamplev1.DeleteShipperRequest,
 ) (*iamexamplev1.Shipper, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shippers.delete"
+	permission := iamexamplev1.FreightServiceIAM().DeleteShipper().GetPermission()
 	if err := a.require(ctx, permission, request.GetName()); err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (a *Authorization) GetSite(
 	request *iamexamplev1.GetSiteRequest,
 ) (*iamexamplev1.Site, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.get"
+	permission := iamexamplev1.FreightServiceIAM().GetSite().GetPermission()
 	if err := a.require(ctx, permission, request.GetName()); err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (a *Authorization) ListSites(
 	request *iamexamplev1.ListSitesRequest,
 ) (*iamexamplev1.ListSitesResponse, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.list"
+	permission := iamexamplev1.FreightServiceIAM().ListSites().GetPermission()
 	if err := a.require(ctx, permission, request.GetParent()); err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (a *Authorization) CreateSite(
 	request *iamexamplev1.CreateSiteRequest,
 ) (*iamexamplev1.Site, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.create"
+	permission := iamexamplev1.FreightServiceIAM().CreateSite().GetPermission()
 	if err := a.require(ctx, permission, request.GetParent()); err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (a *Authorization) UpdateSite(
 	request *iamexamplev1.UpdateSiteRequest,
 ) (*iamexamplev1.Site, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.update"
+	permission := iamexamplev1.FreightServiceIAM().UpdateSite().GetPermission()
 	if err := a.require(ctx, permission, request.GetSite().GetName()); err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (a *Authorization) DeleteSite(
 	request *iamexamplev1.DeleteSiteRequest,
 ) (*iamexamplev1.Site, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.delete"
+	permission := iamexamplev1.FreightServiceIAM().DeleteSite().GetPermission()
 	if err := a.require(ctx, permission, request.GetName()); err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (a *Authorization) BatchGetSites(
 	request *iamexamplev1.BatchGetSitesRequest,
 ) (*iamexamplev1.BatchGetSitesResponse, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.get"
+	permission := iamexamplev1.FreightServiceIAM().BatchGetSites().GetPermission()
 	if request.Parent != "" {
 		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
 			return nil, err
@@ -167,7 +167,7 @@ func (a *Authorization) SearchSites(
 	request *iamexamplev1.SearchSitesRequest,
 ) (*iamexamplev1.SearchSitesResponse, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.sites.get"
+	permission := iamexamplev1.FreightServiceIAM().SearchSites().GetPermission()
 	if request.Parent != "" {
 		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
 			return nil, err
@@ -194,7 +194,7 @@ func (a *Authorization) GetShipment(
 	request *iamexamplev1.GetShipmentRequest,
 ) (*iamexamplev1.Shipment, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shipments.get"
+	permission := iamexamplev1.FreightServiceIAM().GetShipment().GetPermission()
 	if err := a.require(ctx, permission, request.GetName()); err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func (a *Authorization) ListShipments(
 	request *iamexamplev1.ListShipmentsRequest,
 ) (*iamexamplev1.ListShipmentsResponse, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shipments.list"
+	permission := iamexamplev1.FreightServiceIAM().ListShipments().GetPermission()
 	if err := a.require(ctx, permission, request.GetParent()); err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (a *Authorization) CreateShipment(
 	request *iamexamplev1.CreateShipmentRequest,
 ) (*iamexamplev1.Shipment, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shipments.create"
+	permission := iamexamplev1.FreightServiceIAM().CreateShipment().GetPermission()
 	if err := a.require(ctx, permission, request.GetParent()); err != nil {
 		return nil, err
 	}
@@ -230,7 +230,7 @@ func (a *Authorization) UpdateShipment(
 	request *iamexamplev1.UpdateShipmentRequest,
 ) (*iamexamplev1.Shipment, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shipments.update"
+	permission := iamexamplev1.FreightServiceIAM().UpdateShipment().GetPermission()
 	ok, err := a.test(ctx, permission, request.GetShipment().GetName())
 	if err != nil {
 		return nil, err
@@ -255,7 +255,7 @@ func (a *Authorization) DeleteShipment(
 	request *iamexamplev1.DeleteShipmentRequest,
 ) (*iamexamplev1.Shipment, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shipments.delete"
+	permission := iamexamplev1.FreightServiceIAM().DeleteShipment().GetPermission()
 	if err := a.require(ctx, permission, request.GetName()); err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ func (a *Authorization) BatchGetShipments(
 	request *iamexamplev1.BatchGetShipmentsRequest,
 ) (*iamexamplev1.BatchGetShipmentsResponse, error) {
 	iamauthz.Authorize(ctx)
-	const permission = "freight.shipments.get"
+	permission := iamexamplev1.FreightServiceIAM().BatchGetShipments().GetPermission()
 	if request.Parent != "" {
 		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
 			return nil, err
