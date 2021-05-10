@@ -24,18 +24,18 @@ func NewResourcePermissions(
 		patternPermissions: make(map[string]string, len(resources)),
 	}
 ResourcePermissionLoop:
-	for _, resourcePermission := range resourcePermissions.Resource {
-		if resourcePermission.Type == iamresource.Root {
+	for _, resourcePermission := range resourcePermissions.ResourcePermission {
+		if resourcePermission.Resource.GetType() == iamresource.Root {
 			result.rootPermission = resourcePermission.Permission
 			continue
 		}
 		for _, resource := range resources {
-			if resource.Type == resourcePermission.Type {
+			if resource.Type == resourcePermission.Resource.GetType() {
 				for _, pattern := range resource.Pattern {
 					if existingPermission, ok := result.patternPermissions[pattern]; ok {
 						return nil, fmt.Errorf(
 							"register resource %s: pattern %s already mapped to permission %s",
-							resourcePermission.Type,
+							resourcePermission.Resource.GetType(),
 							pattern,
 							existingPermission,
 						)
@@ -45,7 +45,7 @@ ResourcePermissionLoop:
 				continue ResourcePermissionLoop
 			}
 		}
-		return nil, fmt.Errorf("found no resource with type %s", resourcePermission.Type)
+		return nil, fmt.Errorf("found no resource with type %s", resourcePermission.Resource.GetType())
 	}
 	return &result, nil
 }

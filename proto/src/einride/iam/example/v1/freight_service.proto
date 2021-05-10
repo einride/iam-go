@@ -42,7 +42,7 @@ service FreightService {
       get: "/v1/{name=shippers/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.get"
       before {
         expression: "test(caller, request.name)"
@@ -57,7 +57,7 @@ service FreightService {
     option (google.api.http) = {
       get: "/v1/shippers"
     };
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.list"
       before {
         expression: "test(caller, '*')"
@@ -74,7 +74,7 @@ service FreightService {
       body: "shipper"
     };
     option (google.api.method_signature) = "shipper";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.create"
       before: {
         expression: "test(caller, '*')"
@@ -91,7 +91,7 @@ service FreightService {
       body: "shipper"
     };
     option (google.api.method_signature) = "shipper,update_mask";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.update"
       before: {
         expression: "test(caller, request.shipper.name)"
@@ -108,7 +108,7 @@ service FreightService {
       delete: "/v1/{name=shippers/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.delete"
       before: {
         expression: "test(caller, request.name)"
@@ -124,7 +124,7 @@ service FreightService {
       get: "/v1/{name=shippers/*/sites/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
       before: {
         expression: "test(caller, request.name)"
@@ -140,7 +140,7 @@ service FreightService {
       get: "/v1/{parent=shippers/*}/sites"
     };
     option (google.api.method_signature) = "parent";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.list"
       before: {
         expression: "test(caller, request.parent)"
@@ -157,7 +157,7 @@ service FreightService {
       body: "site"
     };
     option (google.api.method_signature) = "parent,site";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.create"
       before: {
         expression: "test(caller, request.parent)"
@@ -174,7 +174,7 @@ service FreightService {
       body: "site"
     };
     option (google.api.method_signature) = "site,update_mask";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.update"
       before: {
         expression: "test(caller, request.site.name)"
@@ -191,7 +191,7 @@ service FreightService {
       delete: "/v1/{name=shippers/*/sites/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.delete"
       before: {
         expression: "test(caller, request.name)"
@@ -206,7 +206,7 @@ service FreightService {
     option (google.api.http) = {
       get: "/v1/{parent=shippers/*}/sites:batchGet"
     };
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
       after: {
         expression:
@@ -225,7 +225,7 @@ service FreightService {
     option (google.api.http) = {
       get: "/v1/{parent=shippers/*}/sites:search"
     };
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
       after: {
         expression:
@@ -245,7 +245,7 @@ service FreightService {
       get: "/v1/{name=shippers/*/shipments/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.get"
       after {
         expression: "test_any(caller, [request.name, response.origin_site, response.destination_site])"
@@ -264,7 +264,7 @@ service FreightService {
       get: "/v1/{parent=shippers/*}/shipments"
     };
     option (google.api.method_signature) = "parent";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.list"
       before: {
         expression: "test(caller, request.parent)"
@@ -281,7 +281,7 @@ service FreightService {
       body: "shipment"
     };
     option (google.api.method_signature) = "parent,shipment";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.create"
       before {
         expression: "test_any(caller, [request.parent, request.shipment.origin_site, request.shipment.destination_site])"
@@ -301,7 +301,7 @@ service FreightService {
       body: "shipment"
     };
     option (google.api.method_signature) = "shipment,update_mask";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.update"
       custom:
         "The caller must have permission to update the shipment"
@@ -318,7 +318,7 @@ service FreightService {
       delete: "/v1/{name=shippers/*/shipments/*}"
     };
     option (google.api.method_signature) = "name";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.delete"
       before {
         expression: "test(caller, request.name)"
@@ -333,7 +333,7 @@ service FreightService {
     option (google.api.http) = {
       get: "/v1/{parent=shippers/*}/shipments:batchGet"
     };
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.get"
       after: {
         expression:
@@ -398,22 +398,22 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource,policy";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       resource_permissions {
-        resource {
-          type: "/"
+        resource_permission {
+          resource {type: "/"}
           permission: "freight.root.setIamPolicy"
         }
-        resource {
-          type: "iam-example.einride.tech/Shipper"
+        resource_permission {
+          resource {type: "iam-example.einride.tech/Shipper"}
           permission: "freight.shippers.setIamPolicy"
         }
-        resource {
-          type: "iam-example.einride.tech/Site"
+        resource_permission {
+          resource {type: "iam-example.einride.tech/Site"}
           permission: "freight.sites.setIamPolicy"
         }
-        resource {
-          type: "iam-example.einride.tech/Shipment"
+        resource_permission {
+          resource {type: "iam-example.einride.tech/Shipment"}
           permission: "freight.shipments.setIamPolicy"
         }
       }
@@ -442,22 +442,22 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource";
-    option (einride.iam.v1.authorization) = {
+    option (einride.iam.v1.method_authorization) = {
       resource_permissions {
-        resource {
-          type: "/"
+        resource_permission {
+          resource {type: "/"}
           permission: "freight.root.getIamPolicy"
         }
-        resource {
-          type: "iam-example.einride.tech/Shipper"
+        resource_permission {
+          resource {type: "iam-example.einride.tech/Shipper"}
           permission: "freight.shippers.getIamPolicy"
         }
-        resource {
-          type: "iam-example.einride.tech/Site"
+        resource_permission {
+          resource {type: "iam-example.einride.tech/Site"}
           permission: "freight.sites.getIamPolicy"
         }
-        resource {
-          type: "iam-example.einride.tech/Shipment"
+        resource_permission {
+          resource {type: "iam-example.einride.tech/Shipment"}
           permission: "freight.shipments.getIamPolicy"
         }
       }
@@ -488,7 +488,7 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource,permissions";
-    option (einride.iam.v1.authorization).open = true;
+    option (einride.iam.v1.method_authorization).open = true;
   }
 }
 

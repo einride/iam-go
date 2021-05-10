@@ -19,6 +19,11 @@ build/protoc-gen-go: go.mod
 	$(info [$@] rebuilding plugin...)
 	@go build -o $@ google.golang.org/protobuf/cmd/protoc-gen-go
 
+.PHONY: build/protoc-gen-go-iam
+build/protoc-gen-go-iam:
+	$(info [$@] rebuilding plugin...)
+	@go build -o $@ ./cmd/protoc-gen-go-iam
+
 .PHONY: buf-lint
 buf-lint: $(buf)
 	$(info [$@] linting proto files...)
@@ -30,8 +35,13 @@ buf-generate: $(buf) build/protoc-gen-go
 	@rm -rf proto/gen/einride/iam/v1
 	@$(buf) generate --path proto/src/einride/iam/v1 --template buf.gen.yaml
 
+protoc_plugins := \
+ build/protoc-gen-go \
+ build/protoc-gen-go-iam \
+ $(protoc_gen_go_grpc)
+
 .PHONY: buf-generate-example
-buf-generate-example: $(buf) build/protoc-gen-go $(protoc_gen_go_grpc)
+buf-generate-example: $(buf) $(protoc_plugins)
 	$(info [$@] generating proto stubs...)
 	@rm -rf proto/gen/einride/iam/example/v1
 	@$(buf) generate --path proto/src/einride/iam/example/v1 --template buf.gen.example.yaml
