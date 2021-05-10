@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"cloud.google.com/go/spanner"
+	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iamexample"
 	"go.einride.tech/iam/iamexample/iamexampledata"
 	"go.einride.tech/iam/iammember"
@@ -81,7 +82,13 @@ func (g googleUserInfoMemberResolver) ResolveIAMMembersFromGoogleUserInfo(
 }
 
 func runServer(ctx context.Context, server iamexamplev1.FreightServiceServer, address string) error {
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(logUnary))
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			logUnary,
+			iamauthz.RequireUnaryAuthorization,
+		),
+		grpc.StreamInterceptor(iamauthz.RequireStreamAuthorization),
+	)
 	iam.RegisterIAMPolicyServer(grpcServer, server)
 	if adminServer, ok := server.(admin.IAMServer); ok {
 		admin.RegisterIAMServer(grpcServer, adminServer)
