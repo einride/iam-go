@@ -24,7 +24,7 @@ func newServer(spannerClient *spanner.Client) (iamexamplev1.FreightServiceServer
 	if err != nil {
 		return nil, err
 	}
-	iamServer, err := iamspanner.NewServer(
+	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
 		roles,
 		iammember.ChainResolvers(

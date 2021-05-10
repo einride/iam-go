@@ -52,7 +52,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	roles, err := iamregistry.NewRoles(iamexampledata.PredefinedRoles())
 	assert.NilError(t, err)
 	spannerClient := ts.spanner.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
-	iamServer, err := iamspanner.NewServer(
+	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
 		roles,
 		NewIAMMemberHeaderResolver(),

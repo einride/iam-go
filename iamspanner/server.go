@@ -43,8 +43,8 @@ type ReadTransaction interface {
 	ReadWithOptions(context.Context, string, spanner.KeySet, []string, *spanner.ReadOptions) *spanner.RowIterator
 }
 
-// NewServer creates a new Spanner IAM policy server.
-func NewServer(
+// NewIAMServer creates a new Spanner IAM policy server.
+func NewIAMServer(
 	client *spanner.Client,
 	roles *iamregistry.Roles,
 	memberResolver iammember.Resolver,
