@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/pflag"
 	"go.einride.tech/iam/iamexample"
 	"go.einride.tech/iam/iammember/iamgooglemember"
+	"google.golang.org/api/run/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -20,6 +21,9 @@ import (
 
 type Flags struct {
 	Address                string   `mapstructure:"address"`
+	Service                string   `mapstructure:"service"`
+	Project                string   `mapstructure:"project"`
+	Region                 string   `mapstructure:"region"`
 	Insecure               bool     `mapstructure:"insecure"`
 	Token                  string   `mapstructure:"token"`
 	ExampleMembers         []string `mapstructure:"example-members"`
@@ -29,6 +33,9 @@ type Flags struct {
 
 func AddToFlagSet(flagSet *pflag.FlagSet) error {
 	flagSet.String("address", "localhost:8080", "address to connect to")
+	flagSet.String("service", "", "Cloud Run service to connect to")
+	flagSet.String("project", "", "Cloud Run project to connect to")
+	flagSet.String("region", "", "Cloud Run region to connect to")
 	flagSet.String("token", "", "bearer token used by the client")
 	flagSet.Bool("insecure", false, "make insecure connection")
 	flagSet.StringSlice("example-members", nil, "example IAM members to set for the caller")
@@ -52,7 +59,26 @@ func (f *Flags) Connect(ctx context.Context) (*grpc.ClientConn, error) {
 	if f.Token != "" {
 		opts = append(opts, grpc.WithPerRPCCredentials(tokenCredentials(f.Token)))
 	}
+	const tlsPort = 443
+	address := withDefaultPort(f.Address, tlsPort)
+	if f.Service != "" && f.Project != "" && f.Region != "" {
+		apiService, err := run.NewService(ctx)
+		if err != nil {
+			return nil, err
+		}
+		name := fmt.Sprintf("projects/%s/locations/%s/services/%s", f.Project, f.Region, f.Service)
+		service, err := apiService.Projects.Locations.Services.Get(name).Context(ctx).Do()
+		if err != nil {
+			return nil, err
+		}
+		if service.Status != nil && service.Status.Url != "" {
+			address = withDefaultPort(strings.TrimPrefix(service.Status.Url, "https://"), tlsPort)
+		}
+	}
 	if f.Insecure {
+		if !strings.HasPrefix(address, "localhost:") {
+			return nil, fmt.Errorf("can only use --insecure when connecting to localhost")
+		}
 		opts = append(opts, grpc.WithInsecure())
 	} else {
 		systemCertPool, err := x509.SystemCertPool()
@@ -61,8 +87,7 @@ func (f *Flags) Connect(ctx context.Context) (*grpc.ClientConn, error) {
 		}
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(systemCertPool, "")))
 	}
-	const tlsPort = 443
-	return grpc.DialContext(ctx, withDefaultPort(f.Address, tlsPort), opts...)
+	return grpc.DialContext(ctx, address, opts...)
 }
 
 func (c *Flags) unaryClientInterceptor(
