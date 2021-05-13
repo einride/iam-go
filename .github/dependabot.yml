@@ -10,3 +10,8 @@ updates:
     directory: /
     schedule:
       interval: daily
+
+  - package-ecosystem: gomod
+    directory: /cmd/iamctl
+    schedule:
+      interval: daily
