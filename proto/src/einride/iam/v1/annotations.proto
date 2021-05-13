@@ -44,20 +44,20 @@ message Authorization {
     // A flag indicating if the method is open.
     bool open = 6;
   }
+}
 
-  // Resource permissions.
-  message ResourcePermissions {
-    // The resource permissions.
-    repeated ResourcePermission resource = 1;
-  }
+// Resource permissions.
+message ResourcePermissions {
+  // The resource permissions.
+  repeated ResourcePermission resource = 1;
+}
 
-  // A resource type and a permission.
-  message ResourcePermission {
-    // The resource type.
-    string type = 1;
-    // The permission.
-    string permission = 2;
-  }
+// A resource type and a permission.
+message ResourcePermission {
+  // The resource type.
+  string type = 1;
+  // The permission.
+  string permission = 2;
 }
 
 // A list of roles.
