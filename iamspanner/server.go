@@ -157,6 +157,57 @@ func (s *IAMServer) TestPermissionOnResource(
 	return result[resource], nil
 }
 
+func (s *IAMServer) TestResourcePermission(
+	ctx context.Context,
+	members []string,
+	resource string,
+	permission string,
+) (bool, error) {
+	result, err := s.TestResourcePermissions(ctx, members, map[string]string{resource: permission})
+	if err != nil {
+		return false, err
+	}
+	return result[resource], nil
+}
+
+func (s *IAMServer) TestResourcePermissions(
+	ctx context.Context,
+	members []string,
+	resourcePermissions map[string]string,
+) (map[string]bool, error) {
+	result := make(map[string]bool, len(resourcePermissions))
+	tx := s.client.Single()
+	defer tx.Close()
+	resources := make([]string, 0, len(resourcePermissions))
+	for resource := range resourcePermissions {
+		resources = append(resources, resource)
+	}
+	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
+		ctx,
+		tx,
+		members,
+		resources,
+		func(ctx context.Context, _ string, boundResource string, role *admin.Role) error {
+			for resource, permission := range resourcePermissions {
+				result[resource] = result[resource] ||
+					(boundResource == iamresource.Root ||
+						resource == boundResource ||
+						resourcename.HasParent(resource, boundResource) &&
+							iamrole.HasPermission(role, permission))
+			}
+			return nil
+		},
+	); err != nil {
+		return nil, s.handleStorageError(ctx, err)
+	}
+	for resource := range resourcePermissions {
+		if _, ok := result[resource]; !ok {
+			result[resource] = false
+		}
+	}
+	return result, nil
+}
+
 // TestPermissionOnResources tests if the caller has the specified permission on the specified resources.
 func (s *IAMServer) TestPermissionOnResources(
 	ctx context.Context,
