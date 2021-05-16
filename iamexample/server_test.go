@@ -9,7 +9,6 @@ import (
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamauthz"
-	"go.einride.tech/iam/iamexample/iamexampledata"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	"go.einride.tech/iam/iamtest"
@@ -50,13 +49,16 @@ func newServerTestSuite(t *testing.T) *serverTestSuite {
 }
 
 func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
-	roles, err := iamregistry.NewRoles(iamexampledata.PredefinedRoles())
+	iamDescriptor, err := iamexamplev1.NewFreightServiceIAMDescriptor()
+	assert.NilError(t, err)
+	roles, err := iamregistry.NewRoles(iamDescriptor.PredefinedRoles)
 	assert.NilError(t, err)
 	spannerClient := ts.spanner.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
+	memberResolver := NewIAMMemberHeaderResolver()
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
 		roles,
-		NewIAMMemberHeaderResolver(),
+		memberResolver,
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {
 				t.Log(err)
@@ -73,9 +75,13 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 			},
 		},
 	}
+	authorization, err := iamexamplev1.NewFreightServiceAuthorization(server, iamServer, memberResolver)
+	assert.NilError(t, err)
 	serverWithAuthorization := &Authorization{
-		IAM:  iamServer,
-		Next: server,
+		Next:                        server,
+		IAMServer:                   iamServer,
+		IAMDescriptor:               iamDescriptor,
+		FreightServiceAuthorization: authorization,
 	}
 	lis, err := net.Listen("tcp", "localhost:0")
 	assert.NilError(t, err)

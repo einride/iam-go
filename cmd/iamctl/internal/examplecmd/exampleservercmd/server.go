@@ -63,8 +63,8 @@ func newServer(spannerClient *spanner.Client) (iamexamplev1.FreightServiceServer
 		},
 	}
 	freightServerAuthorization := &iamexample.Authorization{
-		Next: freightServer,
-		IAM:  iamServer,
+		Next:      freightServer,
+		IAMServer: iamServer,
 	}
 	return freightServerAuthorization, nil
 }

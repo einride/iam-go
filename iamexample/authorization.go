@@ -3,234 +3,29 @@ package iamexample
 import (
 	"context"
 
-	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamauthz"
-	"go.einride.tech/iam/iamresource"
+	"go.einride.tech/iam/iamreflect"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Authorization struct {
-	iam.UnimplementedIAMPolicyServer
-	admin.UnimplementedIAMServer
-	Next iamexamplev1.FreightServiceServer
-	IAM  *iamspanner.IAMServer
+	*iamexamplev1.FreightServiceAuthorization
+	Next          iamexamplev1.FreightServiceServer
+	IAMServer     *iamspanner.IAMServer
+	IAMDescriptor *iamreflect.IAMDescriptor
 }
 
 var _ iamexamplev1.FreightServiceServer = &Authorization{}
-
-func (a *Authorization) GetShipper(
-	ctx context.Context,
-	request *iamexamplev1.GetShipperRequest,
-) (*iamexamplev1.Shipper, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().GetShipper().GetPermission()
-	if err := a.require(ctx, permission, request.GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.GetShipper(ctx, request)
-}
-
-func (a *Authorization) ListShippers(
-	ctx context.Context,
-	request *iamexamplev1.ListShippersRequest,
-) (*iamexamplev1.ListShippersResponse, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().ListShippers().GetPermission()
-	if err := a.require(ctx, permission, iamresource.Root); err != nil {
-		return nil, err
-	}
-	return a.Next.ListShippers(ctx, request)
-}
-
-func (a *Authorization) CreateShipper(
-	ctx context.Context,
-	request *iamexamplev1.CreateShipperRequest,
-) (*iamexamplev1.Shipper, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().CreateShipper().GetPermission()
-	if err := a.require(ctx, permission, iamresource.Root); err != nil {
-		return nil, err
-	}
-	return a.Next.CreateShipper(ctx, request)
-}
-
-func (a *Authorization) UpdateShipper(
-	ctx context.Context,
-	request *iamexamplev1.UpdateShipperRequest,
-) (*iamexamplev1.Shipper, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().UpdateShipper().GetPermission()
-	if err := a.require(ctx, permission, request.GetShipper().GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.UpdateShipper(ctx, request)
-}
-
-func (a *Authorization) DeleteShipper(
-	ctx context.Context,
-	request *iamexamplev1.DeleteShipperRequest,
-) (*iamexamplev1.Shipper, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().DeleteShipper().GetPermission()
-	if err := a.require(ctx, permission, request.GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.DeleteShipper(ctx, request)
-}
-
-func (a *Authorization) GetSite(
-	ctx context.Context,
-	request *iamexamplev1.GetSiteRequest,
-) (*iamexamplev1.Site, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().GetSite().GetPermission()
-	if err := a.require(ctx, permission, request.GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.GetSite(ctx, request)
-}
-
-func (a *Authorization) ListSites(
-	ctx context.Context,
-	request *iamexamplev1.ListSitesRequest,
-) (*iamexamplev1.ListSitesResponse, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().ListSites().GetPermission()
-	if err := a.require(ctx, permission, request.GetParent()); err != nil {
-		return nil, err
-	}
-	return a.Next.ListSites(ctx, request)
-}
-
-func (a *Authorization) CreateSite(
-	ctx context.Context,
-	request *iamexamplev1.CreateSiteRequest,
-) (*iamexamplev1.Site, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().CreateSite().GetPermission()
-	if err := a.require(ctx, permission, request.GetParent()); err != nil {
-		return nil, err
-	}
-	return a.Next.CreateSite(ctx, request)
-}
-
-func (a *Authorization) UpdateSite(
-	ctx context.Context,
-	request *iamexamplev1.UpdateSiteRequest,
-) (*iamexamplev1.Site, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().UpdateSite().GetPermission()
-	if err := a.require(ctx, permission, request.GetSite().GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.UpdateSite(ctx, request)
-}
-
-func (a *Authorization) DeleteSite(
-	ctx context.Context,
-	request *iamexamplev1.DeleteSiteRequest,
-) (*iamexamplev1.Site, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().DeleteSite().GetPermission()
-	if err := a.require(ctx, permission, request.GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.DeleteSite(ctx, request)
-}
-
-func (a *Authorization) BatchGetSites(
-	ctx context.Context,
-	request *iamexamplev1.BatchGetSitesRequest,
-) (*iamexamplev1.BatchGetSitesResponse, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().BatchGetSites().GetPermission()
-	if request.Parent != "" {
-		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
-			return nil, err
-		} else if ok {
-			return a.Next.BatchGetSites(ctx, request)
-		}
-	}
-	if err := a.requireAll(ctx, permission, request.Names); err != nil {
-		return nil, err
-	}
-	return a.Next.BatchGetSites(ctx, request)
-}
-
-func (a *Authorization) SearchSites(
-	ctx context.Context,
-	request *iamexamplev1.SearchSitesRequest,
-) (*iamexamplev1.SearchSitesResponse, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().SearchSites().GetPermission()
-	if request.Parent != "" {
-		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
-			return nil, err
-		} else if ok {
-			return a.Next.SearchSites(ctx, request)
-		}
-	}
-	response, err := a.Next.SearchSites(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	names := make([]string, 0, len(response.Sites))
-	for _, site := range response.Sites {
-		names = append(names, site.Name)
-	}
-	if err := a.requireAll(ctx, permission, names); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-func (a *Authorization) GetShipment(
-	ctx context.Context,
-	request *iamexamplev1.GetShipmentRequest,
-) (*iamexamplev1.Shipment, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().GetShipment().GetPermission()
-	if err := a.require(ctx, permission, request.GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.GetShipment(ctx, request)
-}
-
-func (a *Authorization) ListShipments(
-	ctx context.Context,
-	request *iamexamplev1.ListShipmentsRequest,
-) (*iamexamplev1.ListShipmentsResponse, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().ListShipments().GetPermission()
-	if err := a.require(ctx, permission, request.GetParent()); err != nil {
-		return nil, err
-	}
-	return a.Next.ListShipments(ctx, request)
-}
-
-func (a *Authorization) CreateShipment(
-	ctx context.Context,
-	request *iamexamplev1.CreateShipmentRequest,
-) (*iamexamplev1.Shipment, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().CreateShipment().GetPermission()
-	if err := a.require(ctx, permission, request.GetParent()); err != nil {
-		return nil, err
-	}
-	return a.Next.CreateShipment(ctx, request)
-}
 
 func (a *Authorization) UpdateShipment(
 	ctx context.Context,
 	request *iamexamplev1.UpdateShipmentRequest,
 ) (*iamexamplev1.Shipment, error) {
 	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().UpdateShipment().GetPermission()
+	const permission = "freight.shipments.update"
 	ok, err := a.test(ctx, permission, request.GetShipment().GetName())
 	if err != nil {
 		return nil, err
@@ -250,24 +45,12 @@ func (a *Authorization) UpdateShipment(
 	return a.Next.UpdateShipment(ctx, request)
 }
 
-func (a *Authorization) DeleteShipment(
-	ctx context.Context,
-	request *iamexamplev1.DeleteShipmentRequest,
-) (*iamexamplev1.Shipment, error) {
-	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().DeleteShipment().GetPermission()
-	if err := a.require(ctx, permission, request.GetName()); err != nil {
-		return nil, err
-	}
-	return a.Next.DeleteShipment(ctx, request)
-}
-
 func (a *Authorization) BatchGetShipments(
 	ctx context.Context,
 	request *iamexamplev1.BatchGetShipmentsRequest,
 ) (*iamexamplev1.BatchGetShipmentsResponse, error) {
 	iamauthz.Authorize(ctx)
-	permission := iamexamplev1.FreightServiceIAM().BatchGetShipments().GetPermission()
+	const permission = "freight.shipments.get"
 	if request.Parent != "" {
 		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
 			return nil, err
@@ -283,7 +66,7 @@ func (a *Authorization) BatchGetShipments(
 	for _, shipment := range response.Shipments {
 		resources = append(resources, shipment.Name, shipment.OriginSite, shipment.DestinationSite)
 	}
-	results, err := a.IAM.TestPermissionOnResources(ctx, permission, resources)
+	results, err := a.IAMServer.TestPermissionOnResources(ctx, permission, resources)
 	if err != nil {
 		return nil, err
 	}
@@ -295,98 +78,25 @@ func (a *Authorization) BatchGetShipments(
 	return response, nil
 }
 
-func (a *Authorization) SetIamPolicy(
-	ctx context.Context,
-	request *iam.SetIamPolicyRequest,
-) (*iam.Policy, error) {
-	iamauthz.Authorize(ctx)
-	var permission string
-	switch {
-	case request.Resource == iamresource.Root:
-		permission = "freight.root.setIamPolicy"
-	case resourcename.Match("shippers/{shipper}", request.Resource):
-		permission = "freight.shippers.setIamPolicy"
-	case resourcename.Match("shippers/{shipper}/sites/{site}", request.Resource):
-		permission = "freight.sites.setIamPolicy"
-	case resourcename.Match("shippers/{shipper}/shipments/{shipment}", request.Resource):
-		permission = "freight.shipments.setIamPolicy"
-	default:
-		return nil, status.Errorf(codes.InvalidArgument, "unsupported resource: %s", request.Resource)
-	}
-	if err := a.require(ctx, permission, request.Resource); err != nil {
-		return nil, err
-	}
-	return a.Next.SetIamPolicy(ctx, request)
-}
-
-func (a *Authorization) GetIamPolicy(
-	ctx context.Context,
-	request *iam.GetIamPolicyRequest,
-) (*iam.Policy, error) {
-	iamauthz.Authorize(ctx)
-	var permission string
-	switch {
-	case request.Resource == iamresource.Root:
-		permission = "freight.root.getIamPolicy"
-	case resourcename.Match("shippers/{shipper}", request.Resource):
-		permission = "freight.shippers.getIamPolicy"
-	case resourcename.Match("shippers/{shipper}/sites/{site}", request.Resource):
-		permission = "freight.sites.getIamPolicy"
-	case resourcename.Match("shippers/{shipper}/shipments/{shipment}", request.Resource):
-		permission = "freight.shipments.getIamPolicy"
-	default:
-		return nil, status.Errorf(codes.InvalidArgument, "unsupported resource: %s", request.Resource)
-	}
-	if err := a.require(ctx, permission, request.Resource); err != nil {
-		return nil, err
-	}
-	return a.Next.GetIamPolicy(ctx, request)
-}
-
-func (a *Authorization) TestIamPermissions(
-	ctx context.Context,
-	request *iam.TestIamPermissionsRequest,
-) (*iam.TestIamPermissionsResponse, error) {
-	iamauthz.Authorize(ctx)
-	return a.Next.TestIamPermissions(ctx, request)
-}
-
-func (a *Authorization) require(ctx context.Context, permission, resource string) error {
-	if ok, err := a.test(ctx, permission, resource); err != nil {
-		return err
-	} else if !ok {
-		return status.Errorf(codes.PermissionDenied, "caller must have permission `%s`", permission)
-	}
-	return nil
-}
-
 func (a *Authorization) test(ctx context.Context, permission, resource string) (bool, error) {
-	return a.IAM.TestPermissionOnResource(ctx, permission, resource)
+	return a.IAMServer.TestPermissionOnResource(ctx, permission, resource)
 }
 
-func (a *Authorization) testAll(ctx context.Context, permission string, resources []string) (bool, error) {
-	results, err := a.IAM.TestPermissionOnResources(ctx, permission, resources)
+func (a *Authorization) testAny(ctx context.Context, permission string, resources []string) (bool, error) {
+	results, err := a.IAMServer.TestPermissionOnResources(ctx, permission, resources)
 	if err != nil {
 		return false, err
 	}
-	all := true
 	for _, resource := range resources {
-		all = all && results[resource]
+		if results[resource] {
+			return true, nil
+		}
 	}
-	return all, nil
-}
-
-func (a *Authorization) requireAll(ctx context.Context, permission string, resources []string) error {
-	if ok, err := a.testAll(ctx, permission, resources); err != nil {
-		return err
-	} else if !ok {
-		return status.Errorf(codes.PermissionDenied, "caller must have permission `%s` on all resources", permission)
-	}
-	return nil
+	return false, nil
 }
 
 func (a *Authorization) requireAny(ctx context.Context, permission string, resources []string) error {
-	if ok, err := a.testAll(ctx, permission, resources); err != nil {
+	if ok, err := a.testAny(ctx, permission, resources); err != nil {
 		return err
 	} else if !ok {
 		return status.Errorf(codes.PermissionDenied, "caller must have permission `%s` on any of the resources", permission)

@@ -208,10 +208,9 @@ service FreightService {
     };
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
-      after: {
+      before: {
         expression:
-          "test(caller, request.parent)"
-          " || test_all(caller, response.sites.map(s, s.name))"
+          "test(caller, request.parent) || test_all(caller, request.names)"
         description:
           "The caller must have permission to get all sites under the parent shipper"
           ", or the caller must have permission to get each of the requested sites."

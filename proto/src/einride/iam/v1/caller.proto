@@ -14,6 +14,6 @@ import "google/protobuf/timestamp.proto";
 
 // Caller identity.
 message Caller {
-  // The caller's IAM policy member identity.
-  string member = 1;
+  // The authenticated IAM policy members of the caller.
+  repeated string members = 1;
 }
