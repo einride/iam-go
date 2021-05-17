@@ -15,6 +15,7 @@ import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "google/iam/admin/v1/iam.proto";
 import "google/iam/v1/iam_policy.proto";
 import "google/iam/v1/policy.proto";
 import "google/protobuf/field_mask.proto";
@@ -60,7 +61,7 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.list"
       before {
-        expression: "test(caller, '*')"
+        expression: "test(caller, '/')"
         description: "The caller must have permission to list all shippers."
       }
     };
@@ -77,7 +78,7 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.create"
       before: {
-        expression: "test(caller, '*')"
+        expression: "test(caller, '/')"
         description: "The caller must have permission to create new shippers."
       }
     };
@@ -488,6 +489,20 @@ service FreightService {
     };
     option (google.api.method_signature) = "resource,permissions";
     option (einride.iam.v1.method_authorization).open = true;
+  }
+
+  // Lists every predefined role that this service supports.
+  rpc ListRoles(google.iam.admin.v1.ListRolesRequest) returns (google.iam.admin.v1.ListRolesResponse) {
+    option (google.api.http) = {
+      get: "/v1/roles"
+    };
+    option (einride.iam.v1.method_authorization) = {
+      permission: "freight.roles.list"
+      before: {
+        expression: "test(caller, '/')"
+        description: "The caller must have permission to list the service's predefined roles."
+      }
+    };
   }
 }
 

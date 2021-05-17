@@ -4,6 +4,7 @@ package iamexamplev1
 
 import (
 	context "context"
+	v11 "google.golang.org/genproto/googleapis/iam/admin/v1"
 	v1 "google.golang.org/genproto/googleapis/iam/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -90,6 +91,8 @@ type FreightServiceClient interface {
 	// UIs and command-line tools, not for authorization checking. This operation
 	// may "fail open" without warning.
 	TestIamPermissions(ctx context.Context, in *v1.TestIamPermissionsRequest, opts ...grpc.CallOption) (*v1.TestIamPermissionsResponse, error)
+	// Lists every predefined role that this service supports.
+	ListRoles(ctx context.Context, in *v11.ListRolesRequest, opts ...grpc.CallOption) (*v11.ListRolesResponse, error)
 }
 
 type freightServiceClient struct {
@@ -289,6 +292,15 @@ func (c *freightServiceClient) TestIamPermissions(ctx context.Context, in *v1.Te
 	return out, nil
 }
 
+func (c *freightServiceClient) ListRoles(ctx context.Context, in *v11.ListRolesRequest, opts ...grpc.CallOption) (*v11.ListRolesResponse, error) {
+	out := new(v11.ListRolesResponse)
+	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/ListRoles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FreightServiceServer is the server API for FreightService service.
 // All implementations should embed UnimplementedFreightServiceServer
 // for forward compatibility
@@ -364,6 +376,8 @@ type FreightServiceServer interface {
 	// UIs and command-line tools, not for authorization checking. This operation
 	// may "fail open" without warning.
 	TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error)
+	// Lists every predefined role that this service supports.
+	ListRoles(context.Context, *v11.ListRolesRequest) (*v11.ListRolesResponse, error)
 }
 
 // UnimplementedFreightServiceServer should be embedded to have forward compatible implementations.
@@ -432,6 +446,9 @@ func (UnimplementedFreightServiceServer) GetIamPolicy(context.Context, *v1.GetIa
 }
 func (UnimplementedFreightServiceServer) TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestIamPermissions not implemented")
+}
+func (UnimplementedFreightServiceServer) ListRoles(context.Context, *v11.ListRolesRequest) (*v11.ListRolesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
 
 // UnsafeFreightServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -823,6 +840,24 @@ func _FreightService_TestIamPermissions_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FreightService_ListRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v11.ListRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FreightServiceServer).ListRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/einride.iam.example.v1.FreightService/ListRoles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FreightServiceServer).ListRoles(ctx, req.(*v11.ListRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FreightService_ServiceDesc is the grpc.ServiceDesc for FreightService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -913,6 +948,10 @@ var FreightService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TestIamPermissions",
 			Handler:    _FreightService_TestIamPermissions_Handler,
+		},
+		{
+			MethodName: "ListRoles",
+			Handler:    _FreightService_ListRoles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
