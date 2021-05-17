@@ -10,6 +10,7 @@ import (
 	iamauthz "go.einride.tech/iam/iamauthz"
 	iammember "go.einride.tech/iam/iammember"
 	iamreflect "go.einride.tech/iam/iamreflect"
+	v11 "google.golang.org/genproto/googleapis/iam/admin/v1"
 	v1 "google.golang.org/genproto/googleapis/iam/v1"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -285,6 +286,19 @@ func NewFreightServiceAuthorization(
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
 	}
 	result.beforeGetIamPolicy = beforeGetIamPolicy
+	descriptorListRoles, err := protoregistry.GlobalFiles.FindDescriptorByName("einride.iam.example.v1.FreightService.ListRoles")
+	if err != nil {
+		return nil, fmt.Errorf("new FreightService authorization: failed to find descriptor for ListRoles")
+	}
+	methodListRoles, ok := descriptorListRoles.(protoreflect.MethodDescriptor)
+	if !ok {
+		return nil, fmt.Errorf("new FreightService authorization: got non-method descriptor for ListRoles")
+	}
+	beforeListRoles, err := iamauthz.NewBeforeMethodAuthorization(methodListRoles, permissionTester, memberResolver)
+	if err != nil {
+		return nil, fmt.Errorf("new FreightService authorization: %w", err)
+	}
+	result.beforeListRoles = beforeListRoles
 	return &result, nil
 }
 
@@ -309,6 +323,7 @@ type FreightServiceAuthorization struct {
 	afterBatchGetShipments *iamauthz.AfterMethodAuthorization
 	beforeSetIamPolicy     *iamauthz.BeforeMethodAuthorization
 	beforeGetIamPolicy     *iamauthz.BeforeMethodAuthorization
+	beforeListRoles        *iamauthz.BeforeMethodAuthorization
 }
 
 func (a *FreightServiceAuthorization) GetShipper(
@@ -536,4 +551,15 @@ func (a *FreightServiceAuthorization) TestIamPermissions(
 ) (*v1.TestIamPermissionsResponse, error) {
 	iamauthz.Authorize(ctx)
 	return a.next.TestIamPermissions(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) ListRoles(
+	ctx context.Context,
+	request *v11.ListRolesRequest,
+) (*v11.ListRolesResponse, error) {
+	ctx, err := a.beforeListRoles.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return a.next.ListRoles(ctx, request)
 }

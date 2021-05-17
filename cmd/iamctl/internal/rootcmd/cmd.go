@@ -29,6 +29,7 @@ func init() {
 	Command.AddCommand(setIAMPolicyCommand)
 	Command.AddCommand(addIAMPolicyBindingCommand)
 	Command.AddCommand(removeIAMPolicyBindingCommand)
+	Command.AddCommand(listRolesCommand)
 	_ = connection.AddToFlagSet(Command.PersistentFlags())
 	Command.SetHelpCommand(&cobra.Command{
 		Use:    "hidden-help",
