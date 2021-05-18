@@ -4,12 +4,15 @@ import (
 	"context"
 
 	"cloud.google.com/go/spanner"
+	"go.einride.tech/aip/resourceid"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iamexample/iamexampledb"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
+	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -17,7 +20,7 @@ import (
 func (s *Server) DeleteShipper(
 	ctx context.Context,
 	request *iamexamplev1.DeleteShipperRequest,
-) (*iamexamplev1.Shipper, error) {
+) (*longrunning.Operation, error) {
 	var parsedRequest deleteShipperRequest
 	if err := parsedRequest.parse(request); err != nil {
 		return nil, err
@@ -28,7 +31,7 @@ func (s *Server) DeleteShipper(
 func (s *Server) deleteShipper(
 	ctx context.Context,
 	request *deleteShipperRequest,
-) (*iamexamplev1.Shipper, error) {
+) (*longrunning.Operation, error) {
 	var result *iamexamplev1.Shipper
 	commitTime, err := s.Spanner.ReadWriteTransaction(
 		ctx,
@@ -66,7 +69,29 @@ func (s *Server) deleteShipper(
 	}
 	result.UpdateTime = timestamppb.New(commitTime)
 	result.DeleteTime = result.UpdateTime
-	return result, nil
+	operationResponse, err := anypb.New(result)
+	if err != nil {
+		s.errorHook(ctx, err)
+		return nil, status.Error(codes.Internal, "error marshaling operation response")
+	}
+	now := timestamppb.Now()
+	operationMetadata, err := anypb.New(&iamexamplev1.DeleteShipperOperationMetadata{
+		StartTime: now,
+		EndTime:   now,
+	})
+	if err != nil {
+		s.errorHook(ctx, err)
+		return nil, status.Error(codes.Internal, "error marshaling operation metadata")
+	}
+	operation := &longrunning.Operation{
+		Name:     resourcename.Sprint("operations/{operation}", resourceid.NewSystemGeneratedBase32()),
+		Done:     true,
+		Metadata: operationMetadata,
+		Result: &longrunning.Operation_Response{
+			Response: operationResponse,
+		},
+	}
+	return operation, nil
 }
 
 type deleteShipperRequest struct {

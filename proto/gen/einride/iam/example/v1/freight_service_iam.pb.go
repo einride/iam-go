@@ -12,6 +12,7 @@ import (
 	iamreflect "go.einride.tech/iam/iamreflect"
 	v11 "google.golang.org/genproto/googleapis/iam/admin/v1"
 	v1 "google.golang.org/genproto/googleapis/iam/v1"
+	longrunning "google.golang.org/genproto/googleapis/longrunning"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -373,7 +374,7 @@ func (a *FreightServiceAuthorization) UpdateShipper(
 func (a *FreightServiceAuthorization) DeleteShipper(
 	ctx context.Context,
 	request *DeleteShipperRequest,
-) (*Shipper, error) {
+) (*longrunning.Operation, error) {
 	ctx, err := a.beforeDeleteShipper.AuthorizeRequest(ctx, request)
 	if err != nil {
 		return nil, err

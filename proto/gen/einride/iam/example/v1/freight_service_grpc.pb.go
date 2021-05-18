@@ -6,6 +6,7 @@ import (
 	context "context"
 	v11 "google.golang.org/genproto/googleapis/iam/admin/v1"
 	v1 "google.golang.org/genproto/googleapis/iam/v1"
+	longrunning "google.golang.org/genproto/googleapis/longrunning"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -34,8 +35,8 @@ type FreightServiceClient interface {
 	UpdateShipper(ctx context.Context, in *UpdateShipperRequest, opts ...grpc.CallOption) (*Shipper, error)
 	// Delete a shipper.
 	// See: https://google.aip.dev/135 (Standard methods: Delete).
-	// See: https://google.aip.dev/164 (Soft delete).
-	DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*Shipper, error)
+	// See: https://google.aip.dev/151 (Long-running operations).
+	DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*longrunning.Operation, error)
 	// Get a site.
 	// See: https://google.aip.dev/131 (Standard methods: Get).
 	GetSite(ctx context.Context, in *GetSiteRequest, opts ...grpc.CallOption) (*Site, error)
@@ -139,8 +140,8 @@ func (c *freightServiceClient) UpdateShipper(ctx context.Context, in *UpdateShip
 	return out, nil
 }
 
-func (c *freightServiceClient) DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*Shipper, error) {
-	out := new(Shipper)
+func (c *freightServiceClient) DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*longrunning.Operation, error) {
+	out := new(longrunning.Operation)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/DeleteShipper", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -319,8 +320,8 @@ type FreightServiceServer interface {
 	UpdateShipper(context.Context, *UpdateShipperRequest) (*Shipper, error)
 	// Delete a shipper.
 	// See: https://google.aip.dev/135 (Standard methods: Delete).
-	// See: https://google.aip.dev/164 (Soft delete).
-	DeleteShipper(context.Context, *DeleteShipperRequest) (*Shipper, error)
+	// See: https://google.aip.dev/151 (Long-running operations).
+	DeleteShipper(context.Context, *DeleteShipperRequest) (*longrunning.Operation, error)
 	// Get a site.
 	// See: https://google.aip.dev/131 (Standard methods: Get).
 	GetSite(context.Context, *GetSiteRequest) (*Site, error)
@@ -396,7 +397,7 @@ func (UnimplementedFreightServiceServer) CreateShipper(context.Context, *CreateS
 func (UnimplementedFreightServiceServer) UpdateShipper(context.Context, *UpdateShipperRequest) (*Shipper, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateShipper not implemented")
 }
-func (UnimplementedFreightServiceServer) DeleteShipper(context.Context, *DeleteShipperRequest) (*Shipper, error) {
+func (UnimplementedFreightServiceServer) DeleteShipper(context.Context, *DeleteShipperRequest) (*longrunning.Operation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteShipper not implemented")
 }
 func (UnimplementedFreightServiceServer) GetSite(context.Context, *GetSiteRequest) (*Site, error) {

@@ -53,12 +53,12 @@ func runDeleteShipperCommand(
 	client iamexamplev1.FreightServiceClient,
 	flags *deleteShipperFlags,
 ) error {
-	shipper, err := client.DeleteShipper(ctx, &iamexamplev1.DeleteShipperRequest{
+	operation, err := client.DeleteShipper(ctx, &iamexamplev1.DeleteShipperRequest{
 		Name: flags.Name,
 	})
 	if err != nil {
 		return err
 	}
-	log.Println(protojson.Format(shipper))
+	log.Println(protojson.Format(operation))
 	return nil
 }
