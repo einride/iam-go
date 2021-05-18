@@ -3,11 +3,12 @@ package iamexample
 import (
 	"context"
 	"testing"
-	"time"
 
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 	"gotest.tools/v3/assert"
 )
 
@@ -35,15 +36,19 @@ func (ts *serverTestSuite) testDeleteShipper(t *testing.T) {
 			)
 			assert.NilError(t, err)
 			assert.Equal(t, input.DisplayName, created.DisplayName)
-			deleted, err := fx.client.DeleteShipper(
+			operation, err := fx.client.DeleteShipper(
 				WithOutgoingMembers(ctx, member),
 				&iamexamplev1.DeleteShipperRequest{
 					Name: created.Name,
 				},
 			)
 			assert.NilError(t, err)
+			assert.Assert(t, operation.Done)
+			response, err := anypb.UnmarshalNew(operation.GetResponse(), proto.UnmarshalOptions{})
+			assert.NilError(t, err)
+			deleted, ok := response.(*iamexamplev1.Shipper)
+			assert.Assert(t, ok)
 			assert.Equal(t, created.Name, deleted.Name)
-			assert.Assert(t, time.Since(deleted.DeleteTime.AsTime()) < time.Second)
 		})
 	})
 

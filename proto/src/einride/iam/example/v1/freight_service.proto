@@ -18,6 +18,7 @@ import "google/api/resource.proto";
 import "google/iam/admin/v1/iam.proto";
 import "google/iam/v1/iam_policy.proto";
 import "google/iam/v1/policy.proto";
+import "google/longrunning/operations.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -103,12 +104,16 @@ service FreightService {
 
   // Delete a shipper.
   // See: https://google.aip.dev/135 (Standard methods: Delete).
-  // See: https://google.aip.dev/164 (Soft delete).
-  rpc DeleteShipper(DeleteShipperRequest) returns (Shipper) {
+  // See: https://google.aip.dev/151 (Long-running operations).
+  rpc DeleteShipper(DeleteShipperRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       delete: "/v1/{name=shippers/*}"
     };
     option (google.api.method_signature) = "name";
+    option (google.longrunning.operation_info) = {
+      response_type: "Shipper"
+      metadata_type: "DeleteShipperOperationMetadata"
+    };
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.delete"
       before: {
@@ -345,6 +350,17 @@ service FreightService {
       }
     };
   }
+
+  option (einride.iam.v1.longrunning_operations_permissions) = {
+    operation_permissions {
+      operation {type: "iam-example.einride.tech/ShipperOperation"}
+      list: "freight.shipperOperations.list"
+      get: "freight.shipperOperations.get"
+      cancel: "freight.shipperOperations.cancel"
+      delete: "freight.shipperOperations.delete"
+      wait: "freight.shipperOperations.wait"
+    }
+  };
 
   option (einride.iam.v1.predefined_roles) = {
     role {
@@ -834,4 +850,22 @@ message BatchGetShipmentsRequest {
 message BatchGetShipmentsResponse {
   // Shipments requested.
   repeated Shipment shipments = 1;
+}
+
+// A shipper operation.
+option (google.api.resource_definition) = {
+  type: "api.einride.tech/ShipperOperation"
+  pattern: "shippers/{shipper}/operations/{operation}"
+  plural: "shipperOperations"
+  singular: "shipperOperation"
+};
+
+// Long-running operation metadata message for freight service operations.
+message DeleteShipperOperationMetadata {
+  // The time this operation started.
+  google.protobuf.Timestamp start_time = 1;
+
+  // The time this operation completed. Will be unset if operation still in
+  // progress.
+  google.protobuf.Timestamp end_time = 2;
 }

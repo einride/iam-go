@@ -8,7 +8,8 @@ all: \
 	spanner-generate \
 	go-lint \
 	go-test \
-	go-mod-tidy
+	go-mod-tidy \
+	go-install-iamctl
 
 include tools/buf/rules.mk
 include tools/golangci-lint/rules.mk
@@ -61,3 +62,8 @@ go-mod-tidy:
 go-test:
 	$(info [$@] running Go test suites...)
 	go test -count=1 -race ./...
+
+.PHONY: go-install-iamctl
+go-install-iamctl:
+	$(info [$@] installing iamctl...)
+	@cd ./cmd/iamctl && go install .
