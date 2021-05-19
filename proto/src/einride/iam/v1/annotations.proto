@@ -18,8 +18,8 @@ import "google/type/expr.proto";
 extend google.protobuf.ServiceOptions {
   // Predefined roles for the service.
   Roles predefined_roles = 201601;
-  // Long-running operation permissions for the service.
-  LongrunningOperationsPermissions longrunning_operations_permissions = 201602;
+  // Long-running operations authorization for the service.
+  LongRunningOperationsAuthorization long_running_operations_authorization = 201602;
 }
 
 extend google.protobuf.MethodOptions {
@@ -70,23 +70,32 @@ message ResourcePermission {
 }
 
 // Long-running operations permissions.
-message LongrunningOperationsPermissions {
-  // The operation permissions.
-  repeated OperationPermissions operation_permissions = 1;
-
-  // Permissions for a long-running operation type.
-  message OperationPermissions {
-    // The long-running operation resource. The type field is required.
-    google.api.ResourceDescriptor operation = 1;
-    // Permission for listing operations.
-    string list = 2;
-    // Permission for getting an operation.
-    string get = 3;
-    // Permission for cancelling an operation.
-    string cancel = 4;
-    // Permission for deleting an operation.
-    string delete = 5;
-    // Permission for waiting on an operation.
-    string wait = 6;
+message LongRunningOperationsAuthorization {
+  // The long-running operation permissions.
+  repeated LongRunningOperationPermissions operation_permissions = 1;
+  // Strategy that decides if the request is authorized.
+  oneof strategy {
+    // A flag indicating if a standard authorization checked is performed before the request.
+    bool before = 3;
+    // A flag indicating if custom-implemented authorization is required.
+    bool custom = 4;
+    // A flag indicating if no authorization is required.
+    bool none = 5;
   }
+}
+
+// Permissions for a long-running operation.
+message LongRunningOperationPermissions {
+  // The long-running operation resource. The type field is required.
+  google.api.ResourceDescriptor operation = 1;
+  // Permission for listing operations.
+  string list = 2;
+  // Permission for getting an operation.
+  string get = 3;
+  // Permission for cancelling an operation.
+  string cancel = 4;
+  // Permission for deleting an operation.
+  string delete = 5;
+  // Permission for waiting on an operation.
+  string wait = 6;
 }

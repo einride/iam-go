@@ -23,8 +23,12 @@ const (
 )
 
 type PermissionTester interface {
-	TestResourcePermission(context.Context, []string, string, string) (bool, error)
-	TestResourcePermissions(context.Context, []string, map[string]string) (map[string]bool, error)
+	TestResourcePermission(
+		ctx context.Context, members []string, resource string, permission string,
+	) (bool, error)
+	TestResourcePermissions(
+		ctx context.Context, members []string, resourcePermissions map[string]string,
+	) (map[string]bool, error)
 }
 
 type Functions struct {

@@ -57,6 +57,13 @@ func (c authorizationCodeGenerator) generateStruct(g *protogen.GeneratedFile) {
 			g.P("after", method.GoName, " *", afterMethodAuthorization)
 		}
 	}
+	if longRunning := getLongRunningOperationsAuthorization(c.service); longRunning != nil && longRunning.GetBefore() {
+		longRunningAuthorization := g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "go.einride.tech/iam/iamauthz",
+			GoName:       "BeforeLongRunningOperationMethodAuthorization",
+		})
+		g.P("beforeLongRunningOperationMethod *", longRunningAuthorization)
+	}
 	g.P("}")
 	for _, method := range c.service.Methods {
 		contextContext := g.QualifiedGoIdent(protogen.GoIdent{
@@ -112,6 +119,80 @@ func (c authorizationCodeGenerator) generateStruct(g *protogen.GeneratedFile) {
 		}
 		g.P("}")
 	}
+	if longRunning := getLongRunningOperationsAuthorization(c.service); longRunning != nil && longRunning.GetBefore() {
+		c.generateLongRunningOperationMethod(g, longRunning, "ListOperations", g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "google.golang.org/genproto/googleapis/longrunning",
+			GoName:       "ListOperationsResponse",
+		}))
+		c.generateLongRunningOperationMethod(g, longRunning, "GetOperation", g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "google.golang.org/genproto/googleapis/longrunning",
+			GoName:       "Operation",
+		}))
+		c.generateLongRunningOperationMethod(g, longRunning, "DeleteOperation", g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "google.golang.org/protobuf/types/known/emptypb",
+			GoName:       "Empty",
+		}))
+		c.generateLongRunningOperationMethod(g, longRunning, "CancelOperation", g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "google.golang.org/protobuf/types/known/emptypb",
+			GoName:       "Empty",
+		}))
+		c.generateLongRunningOperationMethod(g, longRunning, "WaitOperation", g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "google.golang.org/genproto/googleapis/longrunning",
+			GoName:       "Operation",
+		}))
+	}
+}
+
+func (c authorizationCodeGenerator) generateLongRunningOperationMethod(
+	g *protogen.GeneratedFile,
+	longRunning *iamv1.LongRunningOperationsAuthorization,
+	methodName string,
+	response string,
+) {
+	contextContext := g.QualifiedGoIdent(protogen.GoIdent{
+		GoImportPath: "context",
+		GoName:       "Context",
+	})
+	request := g.QualifiedGoIdent(protogen.GoIdent{
+		GoImportPath: "google.golang.org/genproto/googleapis/longrunning",
+		GoName:       methodName + "Request",
+	})
+	statusError := g.QualifiedGoIdent(protogen.GoIdent{
+		GoImportPath: "google.golang.org/grpc/status",
+		GoName:       "Error",
+	})
+	codesUnimplemented := g.QualifiedGoIdent(protogen.GoIdent{
+		GoImportPath: "google.golang.org/grpc/codes",
+		GoName:       "Unimplemented",
+	})
+	g.P()
+	g.P("func (a *", c.StructGoName(), ") ", methodName, "(")
+	g.P("ctx ", contextContext, ",")
+	g.P("request *", request, ",")
+	g.P(") (*", response, ", error) {")
+	switch longRunning.Strategy.(type) {
+	case *iamv1.LongRunningOperationsAuthorization_None:
+		authorize := g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "go.einride.tech/iam/iamauthz",
+			GoName:       "Authorize",
+		})
+		g.P(authorize, "(ctx)")
+	case *iamv1.LongRunningOperationsAuthorization_Custom:
+		g.P("return nil, ", statusError, "(", codesUnimplemented, `, "custom authorization not implemented")`)
+	case *iamv1.LongRunningOperationsAuthorization_Before:
+		g.P("ctx, err := a.beforeLongRunningOperationMethod.AuthorizeRequest(ctx, request)")
+		g.P("if err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+	}
+	g.P("impl, ok := a.next.(interface{")
+	g.P(methodName, "(", contextContext, ", *", request, ") (*", response, ", error)")
+	g.P("})")
+	g.P("if !ok {")
+	g.P("return nil, ", statusError, "(", codesUnimplemented, `, "`, methodName, ` not implemented")`)
+	g.P("}")
+	g.P("return impl.", methodName, "(ctx, request)")
+	g.P("}")
 }
 
 func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFile) {
@@ -193,6 +274,29 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 				g.P("result.after", method.GoName, " = after", method.GoName)
 			}
 		}
+	}
+	if longRunning := getLongRunningOperationsAuthorization(c.service); longRunning != nil && longRunning.GetBefore() {
+		constructor := g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "go.einride.tech/iam/iamauthz",
+			GoName:       "NewBeforeLongRunningOperationMethodAuthorization",
+		})
+		fmtErrorf := g.QualifiedGoIdent(protogen.GoIdent{
+			GoImportPath: "fmt",
+			GoName:       "Errorf",
+		})
+		descriptor := descriptorCodeGenerator(c)
+		g.P("iamDescriptor, err := ", descriptor.ConstructorGoName(), "()")
+		g.P("if err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+		g.P(
+			"beforeLongRunningOperationMethod, err := ", constructor,
+			"(iamDescriptor.LongRunningOperationsAuthorization.OperationPermissions, permissionTester, memberResolver)",
+		)
+		g.P("if err != nil {")
+		g.P("return nil, ", fmtErrorf, `("new `, c.service.GoName, ` authorization: %w", err)`)
+		g.P("}")
+		g.P("result.beforeLongRunningOperationMethod = beforeLongRunningOperationMethod")
 	}
 	g.P("return &result, nil")
 	g.P("}")

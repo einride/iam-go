@@ -15,10 +15,11 @@ import (
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
+	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
 )
 
-func newServer(spannerClient *spanner.Client) (iamexamplev1.FreightServiceServer, error) {
+func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error) {
 	iamDescriptor, err := iamexamplev1.NewFreightServiceIAMDescriptor()
 	if err != nil {
 		return nil, err
@@ -90,7 +91,7 @@ func (g googleUserInfoMemberResolver) ResolveIAMMembersFromGoogleUserInfo(
 	return ctx, nil, nil
 }
 
-func runServer(ctx context.Context, server iamexamplev1.FreightServiceServer, address string) error {
+func runServer(ctx context.Context, server *iamexample.Authorization, address string) error {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logUnary,
@@ -99,6 +100,7 @@ func runServer(ctx context.Context, server iamexamplev1.FreightServiceServer, ad
 		grpc.StreamInterceptor(iamauthz.RequireStreamAuthorization),
 	)
 	iammixin.Register(grpcServer, server)
+	longrunning.RegisterOperationsServer(grpcServer, server)
 	iamexamplev1.RegisterFreightServiceServer(grpcServer, server)
 	go func() {
 		<-ctx.Done()
