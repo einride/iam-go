@@ -47,10 +47,10 @@ message MethodAuthorizationOptions {
     google.type.Expr before = 3;
     // Expression that decides after the request if the caller is authorized.
     google.type.Expr after = 4;
-    // A comment explaining a custom way of determining if the caller is authorized.
-    string custom = 5;
-    // A flag indicating if the method is open.
-    bool open = 6;
+    // A flag indicating if the method requires custom-implemented authorization.
+    bool custom = 5;
+    // A flag indicating if the method requires no authorization.
+    bool none = 6;
   }
 }
 
