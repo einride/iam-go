@@ -82,13 +82,23 @@ func (c authorizationCodeGenerator) generateStruct(g *protogen.GeneratedFile) {
 			g.P("return nil, errAuth")
 			g.P("}")
 			g.P("return response, err")
-		case *iamv1.MethodAuthorizationOptions_Open:
+		case *iamv1.MethodAuthorizationOptions_None:
 			authorize := g.QualifiedGoIdent(protogen.GoIdent{
 				GoImportPath: "go.einride.tech/iam/iamauthz",
 				GoName:       "Authorize",
 			})
 			g.P(authorize, "(ctx)")
 			g.P("return a.next.", method.GoName, "(ctx, request)")
+		case *iamv1.MethodAuthorizationOptions_Custom:
+			statusError := g.QualifiedGoIdent(protogen.GoIdent{
+				GoImportPath: "google.golang.org/grpc/status",
+				GoName:       "Error",
+			})
+			codesInternal := g.QualifiedGoIdent(protogen.GoIdent{
+				GoImportPath: "google.golang.org/grpc/codes",
+				GoName:       "Internal",
+			})
+			g.P("return nil, ", statusError, "(", codesInternal, `, "custom authorization not implemented")`)
 		default:
 			statusError := g.QualifiedGoIdent(protogen.GoIdent{
 				GoImportPath: "google.golang.org/grpc/status",

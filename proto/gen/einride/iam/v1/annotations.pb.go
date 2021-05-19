@@ -90,7 +90,7 @@ type MethodAuthorizationOptions struct {
 	//	*MethodAuthorizationOptions_Before
 	//	*MethodAuthorizationOptions_After
 	//	*MethodAuthorizationOptions_Custom
-	//	*MethodAuthorizationOptions_Open
+	//	*MethodAuthorizationOptions_None
 	Strategy isMethodAuthorizationOptions_Strategy `protobuf_oneof:"strategy"`
 }
 
@@ -168,16 +168,16 @@ func (x *MethodAuthorizationOptions) GetAfter() *expr.Expr {
 	return nil
 }
 
-func (x *MethodAuthorizationOptions) GetCustom() string {
+func (x *MethodAuthorizationOptions) GetCustom() bool {
 	if x, ok := x.GetStrategy().(*MethodAuthorizationOptions_Custom); ok {
 		return x.Custom
 	}
-	return ""
+	return false
 }
 
-func (x *MethodAuthorizationOptions) GetOpen() bool {
-	if x, ok := x.GetStrategy().(*MethodAuthorizationOptions_Open); ok {
-		return x.Open
+func (x *MethodAuthorizationOptions) GetNone() bool {
+	if x, ok := x.GetStrategy().(*MethodAuthorizationOptions_None); ok {
+		return x.None
 	}
 	return false
 }
@@ -215,13 +215,13 @@ type MethodAuthorizationOptions_After struct {
 }
 
 type MethodAuthorizationOptions_Custom struct {
-	// A comment explaining a custom way of determining if the caller is authorized.
-	Custom string `protobuf:"bytes,5,opt,name=custom,proto3,oneof"`
+	// A flag indicating if the method requires custom-implemented authorization.
+	Custom bool `protobuf:"varint,5,opt,name=custom,proto3,oneof"`
 }
 
-type MethodAuthorizationOptions_Open struct {
-	// A flag indicating if the method is open.
-	Open bool `protobuf:"varint,6,opt,name=open,proto3,oneof"`
+type MethodAuthorizationOptions_None struct {
+	// A flag indicating if the method requires no authorization.
+	None bool `protobuf:"varint,6,opt,name=none,proto3,oneof"`
 }
 
 func (*MethodAuthorizationOptions_Before) isMethodAuthorizationOptions_Strategy() {}
@@ -230,7 +230,7 @@ func (*MethodAuthorizationOptions_After) isMethodAuthorizationOptions_Strategy()
 
 func (*MethodAuthorizationOptions_Custom) isMethodAuthorizationOptions_Strategy() {}
 
-func (*MethodAuthorizationOptions_Open) isMethodAuthorizationOptions_Strategy() {}
+func (*MethodAuthorizationOptions_None) isMethodAuthorizationOptions_Strategy() {}
 
 // Resource permissions.
 type ResourcePermissions struct {
@@ -563,9 +563,9 @@ var file_einride_iam_v1_annotations_proto_rawDesc = []byte{
 	0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x74,
 	0x79, 0x70, 0x65, 0x2e, 0x45, 0x78, 0x70, 0x72, 0x48, 0x01, 0x52, 0x05, 0x61, 0x66, 0x74, 0x65,
 	0x72, 0x12, 0x18, 0x0a, 0x06, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x18, 0x05, 0x20, 0x01, 0x28,
-	0x09, 0x48, 0x01, 0x52, 0x06, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x12, 0x14, 0x0a, 0x04, 0x6f,
-	0x70, 0x65, 0x6e, 0x18, 0x06, 0x20, 0x01, 0x28, 0x08, 0x48, 0x01, 0x52, 0x04, 0x6f, 0x70, 0x65,
-	0x6e, 0x42, 0x0d, 0x0a, 0x0b, 0x70, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73,
+	0x08, 0x48, 0x01, 0x52, 0x06, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x12, 0x14, 0x0a, 0x04, 0x6e,
+	0x6f, 0x6e, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x08, 0x48, 0x01, 0x52, 0x04, 0x6e, 0x6f, 0x6e,
+	0x65, 0x42, 0x0d, 0x0a, 0x0b, 0x70, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73,
 	0x42, 0x0a, 0x0a, 0x08, 0x73, 0x74, 0x72, 0x61, 0x74, 0x65, 0x67, 0x79, 0x22, 0x6a, 0x0a, 0x13,
 	0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69,
 	0x6f, 0x6e, 0x73, 0x12, 0x53, 0x0a, 0x13, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f,
@@ -771,7 +771,7 @@ func file_einride_iam_v1_annotations_proto_init() {
 		(*MethodAuthorizationOptions_Before)(nil),
 		(*MethodAuthorizationOptions_After)(nil),
 		(*MethodAuthorizationOptions_Custom)(nil),
-		(*MethodAuthorizationOptions_Open)(nil),
+		(*MethodAuthorizationOptions_None)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -498,7 +498,7 @@ func (a *FreightServiceAuthorization) UpdateShipment(
 	ctx context.Context,
 	request *UpdateShipmentRequest,
 ) (*Shipment, error) {
-	return nil, status.Error(codes.Internal, "authorization not configured")
+	return nil, status.Error(codes.Internal, "custom authorization not implemented")
 }
 
 func (a *FreightServiceAuthorization) DeleteShipment(

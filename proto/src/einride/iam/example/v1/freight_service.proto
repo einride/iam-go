@@ -308,10 +308,8 @@ service FreightService {
     option (google.api.method_signature) = "shipment,update_mask";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.update"
-      custom:
-        "The caller must have permission to update the shipment"
-        ", or the caller must have permission to update shipments from the shipment's original origin site"
-        ", or the caller must have permission to update shipments to the shipment's original destination site."
+      // Must read existing shipment during authorization to check origin/destination site.
+      custom: true
     };
   }
 
@@ -504,7 +502,7 @@ service FreightService {
       }
     };
     option (google.api.method_signature) = "resource,permissions";
-    option (einride.iam.v1.method_authorization).open = true;
+    option (einride.iam.v1.method_authorization).none = true;
   }
 
   // Lists every predefined role that this service supports.
