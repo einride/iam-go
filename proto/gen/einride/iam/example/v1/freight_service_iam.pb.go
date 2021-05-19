@@ -17,6 +17,7 @@ import (
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoregistry "google.golang.org/protobuf/reflect/protoregistry"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewFreightServiceIAMDescriptor returns a new FreightService IAM descriptor.
@@ -300,31 +301,41 @@ func NewFreightServiceAuthorization(
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
 	}
 	result.beforeListRoles = beforeListRoles
+	iamDescriptor, err := NewFreightServiceIAMDescriptor()
+	if err != nil {
+		return nil, err
+	}
+	beforeLongRunningOperationMethod, err := iamauthz.NewBeforeLongRunningOperationMethodAuthorization(iamDescriptor.LongRunningOperationsAuthorization.OperationPermissions, permissionTester, memberResolver)
+	if err != nil {
+		return nil, fmt.Errorf("new FreightService authorization: %w", err)
+	}
+	result.beforeLongRunningOperationMethod = beforeLongRunningOperationMethod
 	return &result, nil
 }
 
 type FreightServiceAuthorization struct {
-	next                   FreightServiceServer
-	beforeGetShipper       *iamauthz.BeforeMethodAuthorization
-	beforeListShippers     *iamauthz.BeforeMethodAuthorization
-	beforeCreateShipper    *iamauthz.BeforeMethodAuthorization
-	beforeUpdateShipper    *iamauthz.BeforeMethodAuthorization
-	beforeDeleteShipper    *iamauthz.BeforeMethodAuthorization
-	beforeGetSite          *iamauthz.BeforeMethodAuthorization
-	beforeListSites        *iamauthz.BeforeMethodAuthorization
-	beforeCreateSite       *iamauthz.BeforeMethodAuthorization
-	beforeUpdateSite       *iamauthz.BeforeMethodAuthorization
-	beforeDeleteSite       *iamauthz.BeforeMethodAuthorization
-	beforeBatchGetSites    *iamauthz.BeforeMethodAuthorization
-	afterSearchSites       *iamauthz.AfterMethodAuthorization
-	afterGetShipment       *iamauthz.AfterMethodAuthorization
-	beforeListShipments    *iamauthz.BeforeMethodAuthorization
-	beforeCreateShipment   *iamauthz.BeforeMethodAuthorization
-	beforeDeleteShipment   *iamauthz.BeforeMethodAuthorization
-	afterBatchGetShipments *iamauthz.AfterMethodAuthorization
-	beforeSetIamPolicy     *iamauthz.BeforeMethodAuthorization
-	beforeGetIamPolicy     *iamauthz.BeforeMethodAuthorization
-	beforeListRoles        *iamauthz.BeforeMethodAuthorization
+	next                             FreightServiceServer
+	beforeGetShipper                 *iamauthz.BeforeMethodAuthorization
+	beforeListShippers               *iamauthz.BeforeMethodAuthorization
+	beforeCreateShipper              *iamauthz.BeforeMethodAuthorization
+	beforeUpdateShipper              *iamauthz.BeforeMethodAuthorization
+	beforeDeleteShipper              *iamauthz.BeforeMethodAuthorization
+	beforeGetSite                    *iamauthz.BeforeMethodAuthorization
+	beforeListSites                  *iamauthz.BeforeMethodAuthorization
+	beforeCreateSite                 *iamauthz.BeforeMethodAuthorization
+	beforeUpdateSite                 *iamauthz.BeforeMethodAuthorization
+	beforeDeleteSite                 *iamauthz.BeforeMethodAuthorization
+	beforeBatchGetSites              *iamauthz.BeforeMethodAuthorization
+	afterSearchSites                 *iamauthz.AfterMethodAuthorization
+	afterGetShipment                 *iamauthz.AfterMethodAuthorization
+	beforeListShipments              *iamauthz.BeforeMethodAuthorization
+	beforeCreateShipment             *iamauthz.BeforeMethodAuthorization
+	beforeDeleteShipment             *iamauthz.BeforeMethodAuthorization
+	afterBatchGetShipments           *iamauthz.AfterMethodAuthorization
+	beforeSetIamPolicy               *iamauthz.BeforeMethodAuthorization
+	beforeGetIamPolicy               *iamauthz.BeforeMethodAuthorization
+	beforeListRoles                  *iamauthz.BeforeMethodAuthorization
+	beforeLongRunningOperationMethod *iamauthz.BeforeLongRunningOperationMethodAuthorization
 }
 
 func (a *FreightServiceAuthorization) GetShipper(
@@ -563,4 +574,89 @@ func (a *FreightServiceAuthorization) ListRoles(
 		return nil, err
 	}
 	return a.next.ListRoles(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) ListOperations(
+	ctx context.Context,
+	request *longrunning.ListOperationsRequest,
+) (*longrunning.ListOperationsResponse, error) {
+	ctx, err := a.beforeLongRunningOperationMethod.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	impl, ok := a.next.(interface {
+		ListOperations(context.Context, *longrunning.ListOperationsRequest) (*longrunning.ListOperationsResponse, error)
+	})
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "ListOperations not implemented")
+	}
+	return impl.ListOperations(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) GetOperation(
+	ctx context.Context,
+	request *longrunning.GetOperationRequest,
+) (*longrunning.Operation, error) {
+	ctx, err := a.beforeLongRunningOperationMethod.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	impl, ok := a.next.(interface {
+		GetOperation(context.Context, *longrunning.GetOperationRequest) (*longrunning.Operation, error)
+	})
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "GetOperation not implemented")
+	}
+	return impl.GetOperation(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) DeleteOperation(
+	ctx context.Context,
+	request *longrunning.DeleteOperationRequest,
+) (*emptypb.Empty, error) {
+	ctx, err := a.beforeLongRunningOperationMethod.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	impl, ok := a.next.(interface {
+		DeleteOperation(context.Context, *longrunning.DeleteOperationRequest) (*emptypb.Empty, error)
+	})
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "DeleteOperation not implemented")
+	}
+	return impl.DeleteOperation(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) CancelOperation(
+	ctx context.Context,
+	request *longrunning.CancelOperationRequest,
+) (*emptypb.Empty, error) {
+	ctx, err := a.beforeLongRunningOperationMethod.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	impl, ok := a.next.(interface {
+		CancelOperation(context.Context, *longrunning.CancelOperationRequest) (*emptypb.Empty, error)
+	})
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "CancelOperation not implemented")
+	}
+	return impl.CancelOperation(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) WaitOperation(
+	ctx context.Context,
+	request *longrunning.WaitOperationRequest,
+) (*longrunning.Operation, error) {
+	ctx, err := a.beforeLongRunningOperationMethod.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	impl, ok := a.next.(interface {
+		WaitOperation(context.Context, *longrunning.WaitOperationRequest) (*longrunning.Operation, error)
+	})
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "WaitOperation not implemented")
+	}
+	return impl.WaitOperation(ctx, request)
 }

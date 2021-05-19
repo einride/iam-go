@@ -3,6 +3,7 @@ package iamreflect
 import (
 	"fmt"
 
+	"go.einride.tech/iam/iamresource"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/proto"
@@ -14,6 +15,8 @@ import (
 type IAMDescriptor struct {
 	// PredefinedRoles are the service's predefined IAM roles.
 	PredefinedRoles *iamv1.Roles
+	// LongRunningOperationsAuthorization is the service's configuration for authorization of long-running operations.
+	LongRunningOperationsAuthorization *iamv1.LongRunningOperationsAuthorization
 	// MethodAuthorizationOptions is a mapping from full method name to the method's authorization options.
 	MethodAuthorizationOptions map[protoreflect.FullName]*iamv1.MethodAuthorizationOptions
 	// RequestAuthorizationOptions is a mapping from full request name to the method's authorization options.
@@ -36,6 +39,13 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 	).(*iamv1.Roles); predefinedRoles != nil {
 		result.PredefinedRoles = proto.Clone(predefinedRoles).(*iamv1.Roles)
 	}
+	if longRunningOperationsAuthorization := proto.GetExtension(
+		service.Options(), iamv1.E_LongRunningOperationsAuthorization,
+	).(*iamv1.LongRunningOperationsAuthorization); longRunningOperationsAuthorization != nil {
+		result.LongRunningOperationsAuthorization = proto.Clone(
+			longRunningOperationsAuthorization,
+		).(*iamv1.LongRunningOperationsAuthorization)
+	}
 	for i := 0; i < service.Methods().Len(); i++ {
 		method := service.Methods().Get(i)
 		if methodAuthorizationOptions := proto.GetExtension(
@@ -53,13 +63,18 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 			result.RequestAuthorizationOptions[method.Input().FullName()] = methodAuthorizationOptions
 		}
 	}
+	// Resolve method authorization resources.
 	for _, methodAuthorizationOptions := range result.MethodAuthorizationOptions {
 		resourcePermissions := methodAuthorizationOptions.GetResourcePermissions()
 		if resourcePermissions == nil {
 			continue
 		}
 		for _, resourcePermission := range resourcePermissions.ResourcePermission {
-			if len(resourcePermission.Resource.GetPattern()) > 0 {
+			switch {
+			case resourcePermission.Resource.GetType() == iamresource.Root:
+				// Root resource requires no pattern resolution.
+				continue
+			case len(resourcePermission.Resource.GetPattern()) > 0:
 				// Resource is annotated with patterns manually. No need to resolve.
 				continue
 			}
@@ -81,6 +96,29 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 			resourcePermission.Resource = proto.Clone(resource).(*annotations.ResourceDescriptor)
 		}
 	}
+	// Resolve long-running operation authorization operations.
+	for _, operationPermissions := range result.LongRunningOperationsAuthorization.OperationPermissions {
+		if len(operationPermissions.Operation.GetPattern()) > 0 {
+			// Operation is annotated with patterns manually. No need to resolve.
+			continue
+		}
+		operation, ok := resolveResource(operationPermissions.Operation.GetType(), service, files)
+		if !ok {
+			return nil, fmt.Errorf(
+				"new %s IAM descriptor: unable to resolve operation '%s' patterns",
+				service.Name(),
+				operation.GetType(),
+			)
+		}
+		if len(operation.Pattern) == 0 {
+			return nil, fmt.Errorf(
+				"new %s IAM descriptor: operation '%s' has no patterns",
+				service.Name(),
+				operation.GetType(),
+			)
+		}
+		operationPermissions.Operation = proto.Clone(operation).(*annotations.ResourceDescriptor)
+	}
 	return &result, nil
 }
 
@@ -96,7 +134,7 @@ func (d *IAMDescriptor) ResolvePermissionByRequestAndResource(
 	case *iamv1.MethodAuthorizationOptions_Permission:
 		return permissions.Permission, true
 	case *iamv1.MethodAuthorizationOptions_ResourcePermissions:
-		return ResolveResourcePermission(permissions.ResourcePermissions, resource)
+		return ResolveResourcePermission(permissions.ResourcePermissions.GetResourcePermission(), resource)
 	default:
 		return "", false
 	}
@@ -122,8 +160,10 @@ func resolveResource(
 			if resource := proto.GetExtension(
 				message.Options(), annotations.E_Resource,
 			).(*annotations.ResourceDescriptor); resource != nil {
-				result = resource
-				return false
+				if resource.Type == resourceType {
+					result = resource
+					return false
+				}
 			}
 			if !searchMessagesFn(message.Messages()) {
 				return false

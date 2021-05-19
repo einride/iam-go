@@ -14,6 +14,7 @@ import (
 	"go.einride.tech/iam/iamtest"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"go.einride.tech/spanner-aip/spantest"
+	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
 	"gotest.tools/v3/assert"
 )
@@ -36,6 +37,8 @@ func TestServer(t *testing.T) {
 	// shipments
 	t.Run("CreateShipment", ts.testCreateShipment)
 	t.Run("BatchGetShipments", ts.testBatchGetShipments)
+	// long-running operations
+	t.Run("LongRunningOperations", ts.testLongRunningOperations)
 }
 
 type serverTestSuite struct {
@@ -87,6 +90,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	assert.NilError(t, err)
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(iamauthz.RequireUnaryAuthorization))
 	iamexamplev1.RegisterFreightServiceServer(grpcServer, serverWithAuthorization)
+	longrunning.RegisterOperationsServer(grpcServer, serverWithAuthorization)
 	errChan := make(chan error)
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
@@ -105,17 +109,20 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	conn, err := grpc.DialContext(ctx, lis.Addr().String(), grpc.WithInsecure(), grpc.WithBlock())
 	assert.NilError(t, err)
 	serviceClient := iamexamplev1.NewFreightServiceClient(conn)
+	longRunningClient := longrunning.NewOperationsClient(conn)
 	return &serverTestFixture{
-		iam:     iamtest.NewFixture(iamServer),
-		spanner: spannerClient,
-		client:  serviceClient,
+		iam:               iamtest.NewFixture(iamServer),
+		spanner:           spannerClient,
+		client:            serviceClient,
+		longRunningClient: longRunningClient,
 	}
 }
 
 type serverTestFixture struct {
-	iam     *iamtest.Fixture
-	spanner *spanner.Client
-	client  iamexamplev1.FreightServiceClient
+	iam               *iamtest.Fixture
+	spanner           *spanner.Client
+	client            iamexamplev1.FreightServiceClient
+	longRunningClient longrunning.OperationsClient
 }
 
 func (fx *serverTestFixture) createShipper(t *testing.T, name string) {

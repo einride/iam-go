@@ -349,7 +349,7 @@ service FreightService {
     };
   }
 
-  option (einride.iam.v1.longrunning_operations_permissions) = {
+  option (einride.iam.v1.long_running_operations_authorization) = {
     operation_permissions {
       operation {type: "iam-example.einride.tech/ShipperOperation"}
       list: "freight.shipperOperations.list"
@@ -358,6 +358,7 @@ service FreightService {
       delete: "freight.shipperOperations.delete"
       wait: "freight.shipperOperations.wait"
     }
+    before: true
   };
 
   option (einride.iam.v1.predefined_roles) = {
@@ -852,7 +853,7 @@ message BatchGetShipmentsResponse {
 
 // A shipper operation.
 option (google.api.resource_definition) = {
-  type: "api.einride.tech/ShipperOperation"
+  type: "iam-example.einride.tech/ShipperOperation"
   pattern: "shippers/{shipper}/operations/{operation}"
   plural: "shipperOperations"
   singular: "shipperOperation"

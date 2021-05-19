@@ -7,8 +7,11 @@ import (
 )
 
 // ResolveResourcePermission resolves a permission for a resource name, given a set of resource permissions.
-func ResolveResourcePermission(resourcePermissions *iamv1.ResourcePermissions, resourceName string) (string, bool) {
-	for _, resourcePermission := range resourcePermissions.GetResourcePermission() {
+func ResolveResourcePermission(
+	resourcePermissions []*iamv1.ResourcePermission,
+	resourceName string,
+) (string, bool) {
+	for _, resourcePermission := range resourcePermissions {
 		if resourcePermission.GetResource().GetType() == iamresource.Root && resourceName == iamresource.Root {
 			return resourcePermission.GetPermission(), true
 		}
