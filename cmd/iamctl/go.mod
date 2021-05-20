@@ -8,8 +8,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	go.einride.tech/iam v0.0.0-00010101000000-000000000000
-	google.golang.org/api v0.46.0
-	google.golang.org/genproto v0.0.0-20210429181445-86c259c2b4ab
+	google.golang.org/api v0.47.0
+	google.golang.org/genproto v0.0.0-20210513213006-bf773b8c8384
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 )
