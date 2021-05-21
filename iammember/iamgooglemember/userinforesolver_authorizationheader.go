@@ -2,6 +2,7 @@ package iamgooglemember
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"go.einride.tech/iam/iammember"
@@ -20,6 +21,7 @@ type authorizationHeaderResolver struct {
 
 // ResolveIAMMembers implements iammember.Resolver.
 func (a authorizationHeaderResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
+	const header = "authorization"
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return ctx, nil, nil
@@ -38,7 +40,11 @@ func (a authorizationHeaderResolver) ResolveIAMMembers(ctx context.Context) (con
 	}
 	var userInfo UserInfo
 	if err := userInfo.UnmarshalJWT(authorization[indexOfSpace+1:]); err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("resolve IAM members from '%s' header: %w", header, err)
 	}
-	return a.userInfoResolver.ResolveIAMMembersFromGoogleUserInfo(ctx, &userInfo)
+	ctx, members, err := a.userInfoResolver.ResolveIAMMembersFromGoogleUserInfo(ctx, &userInfo)
+	if err != nil {
+		return nil, nil, fmt.Errorf("resolve IAM members from '%s' header: %w", header, err)
+	}
+	return ctx, members, nil
 }

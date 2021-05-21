@@ -2,7 +2,6 @@ package iamexample
 
 import (
 	"context"
-	"log"
 	"testing"
 
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
@@ -22,12 +21,10 @@ func (ts *serverTestSuite) testCreateShipper(t *testing.T) {
 				shipperID = "1234"
 			)
 			fx := ts.newTestFixture(t)
-			log.Println("add policy")
 			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			input := &iamexamplev1.Shipper{
 				DisplayName: "Test Shipper",
 			}
-			log.Println("create shipper")
 			got, err := fx.client.CreateShipper(
 				WithOutgoingMembers(ctx, member),
 				&iamexamplev1.CreateShipperRequest{

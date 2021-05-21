@@ -272,9 +272,13 @@ func (s *IAMServer) ReadRolesBoundToMembersAndResourcesInTransaction(
 		if resource == iamresource.Root {
 			continue
 		}
-		resourcesAndParents[resource] = struct{}{}
+		if !resourcename.ContainsWildcard(resource) {
+			resourcesAndParents[resource] = struct{}{}
+		}
 		resourcename.RangeParents(resource, func(parent string) bool {
-			resourcesAndParents[parent] = struct{}{}
+			if !resourcename.ContainsWildcard(parent) {
+				resourcesAndParents[parent] = struct{}{}
+			}
 			return true
 		})
 	}
