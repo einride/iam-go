@@ -2,6 +2,7 @@ package iamgooglemember
 
 import (
 	"context"
+	"fmt"
 
 	"go.einride.tech/iam/iammember"
 	"google.golang.org/grpc/metadata"
@@ -42,7 +43,11 @@ func (u userInfoHeaderResolver) ResolveIAMMembers(ctx context.Context) (context.
 	}
 	var userInfo UserInfo
 	if err := userInfo.UnmarshalBase64(values[0]); err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("resolve IAM members from '%s' header: %w", u.header, err)
 	}
-	return u.userInfoResolver.ResolveIAMMembersFromGoogleUserInfo(ctx, &userInfo)
+	ctx, members, err := u.userInfoResolver.ResolveIAMMembersFromGoogleUserInfo(ctx, &userInfo)
+	if err != nil {
+		return nil, nil, fmt.Errorf("resolve IAM members from '%s' header: %w", u.header, err)
+	}
+	return ctx, members, nil
 }
