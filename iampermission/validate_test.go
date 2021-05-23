@@ -36,9 +36,8 @@ func TestValidate(t *testing.T) {
 		},
 
 		{
-			name:          "camelCase segment",
-			permission:    "pubsub.awesomeStuff.consume",
-			errorContains: "invalid resource segment",
+			name:       "camelCase segment",
+			permission: "pubsub.awesomeStuff.consume",
 		},
 
 		{

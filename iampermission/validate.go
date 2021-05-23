@@ -78,7 +78,7 @@ func isValidSegment(segment string) bool {
 				return false
 			}
 		default:
-			if !unicode.In(r, unicode.Lower, unicode.Digit) {
+			if !unicode.In(r, unicode.Lower, unicode.Upper, unicode.Digit) {
 				return false
 			}
 		}
