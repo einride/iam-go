@@ -75,6 +75,13 @@ func TestMatch(t *testing.T) {
 			rhs:      "pubsub.subscriptions.foo",
 			expected: false,
 		},
+
+		{
+			name:     "camelCase",
+			lhs:      "pubsub.fooSubscriptions.create",
+			rhs:      "pubsub.fooSubscriptions.create",
+			expected: true,
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.expected, Match(tt.lhs, tt.rhs))
