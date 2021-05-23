@@ -1,5 +1,7 @@
 version: v1beta1
 
+managed: true
+
 plugins:
   - name: go
     out: proto/gen

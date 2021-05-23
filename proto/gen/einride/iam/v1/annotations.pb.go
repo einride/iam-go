@@ -7,9 +7,9 @@
 package iamv1
 
 import (
-	annotations "google.golang.org/genproto/googleapis/api/annotations"
-	v1 "google.golang.org/genproto/googleapis/iam/admin/v1"
-	expr "google.golang.org/genproto/googleapis/type/expr"
+	api "go.einride.tech/iam/proto/gen/google/api"
+	v1 "go.einride.tech/iam/proto/gen/google/iam/admin/v1"
+	_type "go.einride.tech/iam/proto/gen/google/type"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	descriptorpb "google.golang.org/protobuf/types/descriptorpb"
@@ -154,14 +154,14 @@ func (m *MethodAuthorizationOptions) GetStrategy() isMethodAuthorizationOptions_
 	return nil
 }
 
-func (x *MethodAuthorizationOptions) GetBefore() *expr.Expr {
+func (x *MethodAuthorizationOptions) GetBefore() *_type.Expr {
 	if x, ok := x.GetStrategy().(*MethodAuthorizationOptions_Before); ok {
 		return x.Before
 	}
 	return nil
 }
 
-func (x *MethodAuthorizationOptions) GetAfter() *expr.Expr {
+func (x *MethodAuthorizationOptions) GetAfter() *_type.Expr {
 	if x, ok := x.GetStrategy().(*MethodAuthorizationOptions_After); ok {
 		return x.After
 	}
@@ -206,12 +206,12 @@ type isMethodAuthorizationOptions_Strategy interface {
 
 type MethodAuthorizationOptions_Before struct {
 	// Expression that decides before the request if the caller is authorized.
-	Before *expr.Expr `protobuf:"bytes,3,opt,name=before,proto3,oneof"`
+	Before *_type.Expr `protobuf:"bytes,3,opt,name=before,proto3,oneof"`
 }
 
 type MethodAuthorizationOptions_After struct {
 	// Expression that decides after the request if the caller is authorized.
-	After *expr.Expr `protobuf:"bytes,4,opt,name=after,proto3,oneof"`
+	After *_type.Expr `protobuf:"bytes,4,opt,name=after,proto3,oneof"`
 }
 
 type MethodAuthorizationOptions_Custom struct {
@@ -289,7 +289,7 @@ type ResourcePermission struct {
 
 	// The resource.
 	// When used for authorization method options, only the type must be provided.
-	Resource *annotations.ResourceDescriptor `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Resource *api.ResourceDescriptor `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	// The permission.
 	Permission string `protobuf:"bytes,2,opt,name=permission,proto3" json:"permission,omitempty"`
 }
@@ -326,7 +326,7 @@ func (*ResourcePermission) Descriptor() ([]byte, []int) {
 	return file_einride_iam_v1_annotations_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ResourcePermission) GetResource() *annotations.ResourceDescriptor {
+func (x *ResourcePermission) GetResource() *api.ResourceDescriptor {
 	if x != nil {
 		return x.Resource
 	}
@@ -456,7 +456,7 @@ type LongRunningOperationPermissions struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The long-running operation resource. The type field is required.
-	Operation *annotations.ResourceDescriptor `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	Operation *api.ResourceDescriptor `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
 	// Permission for listing operations.
 	List string `protobuf:"bytes,2,opt,name=list,proto3" json:"list,omitempty"`
 	// Permission for getting an operation.
@@ -501,7 +501,7 @@ func (*LongRunningOperationPermissions) Descriptor() ([]byte, []int) {
 	return file_einride_iam_v1_annotations_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *LongRunningOperationPermissions) GetOperation() *annotations.ResourceDescriptor {
+func (x *LongRunningOperationPermissions) GetOperation() *api.ResourceDescriptor {
 	if x != nil {
 		return x.Operation
 	}
@@ -692,15 +692,15 @@ var file_einride_iam_v1_annotations_proto_rawDesc = []byte{
 	0x69, 0x64, 0x65, 0x2e, 0x69, 0x61, 0x6d, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x65, 0x74, 0x68, 0x6f,
 	0x64, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4f, 0x70,
 	0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x13, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x41, 0x75, 0x74,
-	0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x75, 0x0a, 0x13, 0x74, 0x65,
-	0x63, 0x68, 0x2e, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65, 0x2e, 0x69, 0x61, 0x6d, 0x2e, 0x76,
-	0x31, 0x42, 0x10, 0x41, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x50, 0x72,
-	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x32, 0x67, 0x6f, 0x2e, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64,
-	0x65, 0x2e, 0x74, 0x65, 0x63, 0x68, 0x2f, 0x69, 0x61, 0x6d, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65, 0x2f, 0x69, 0x61, 0x6d,
-	0x2f, 0x76, 0x31, 0x3b, 0x69, 0x61, 0x6d, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x49, 0x58, 0x58, 0xaa,
-	0x02, 0x06, 0x49, 0x61, 0x6d, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x06, 0x49, 0x61, 0x6d, 0x5c, 0x56,
-	0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x74, 0x0a, 0x12, 0x63, 0x6f,
+	0x6d, 0x2e, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65, 0x2e, 0x69, 0x61, 0x6d, 0x2e, 0x76, 0x31,
+	0x42, 0x10, 0x41, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x50, 0x72, 0x6f,
+	0x74, 0x6f, 0x50, 0x01, 0x5a, 0x32, 0x67, 0x6f, 0x2e, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65,
+	0x2e, 0x74, 0x65, 0x63, 0x68, 0x2f, 0x69, 0x61, 0x6d, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f,
+	0x67, 0x65, 0x6e, 0x2f, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65, 0x2f, 0x69, 0x61, 0x6d, 0x2f,
+	0x76, 0x31, 0x3b, 0x69, 0x61, 0x6d, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x49, 0x58, 0x58, 0xaa, 0x02,
+	0x06, 0x49, 0x61, 0x6d, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x06, 0x49, 0x61, 0x6d, 0x5c, 0x56, 0x31,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -724,8 +724,8 @@ var file_einride_iam_v1_annotations_proto_goTypes = []interface{}{
 	(*LongRunningOperationsAuthorization)(nil), // 4: einride.iam.v1.LongRunningOperationsAuthorization
 	(*LongRunningOperationPermissions)(nil),    // 5: einride.iam.v1.LongRunningOperationPermissions
 	(*v1.Role)(nil),                            // 6: google.iam.admin.v1.Role
-	(*expr.Expr)(nil),                          // 7: google.type.Expr
-	(*annotations.ResourceDescriptor)(nil),     // 8: google.api.ResourceDescriptor
+	(*_type.Expr)(nil),                         // 7: google.type.Expr
+	(*api.ResourceDescriptor)(nil),             // 8: google.api.ResourceDescriptor
 	(*descriptorpb.ServiceOptions)(nil),        // 9: google.protobuf.ServiceOptions
 	(*descriptorpb.MethodOptions)(nil),         // 10: google.protobuf.MethodOptions
 }

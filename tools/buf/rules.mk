@@ -1,5 +1,5 @@
 buf_cwd := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-buf_version := 0.41.0
+buf_version := 0.42.0
 buf := $(buf_cwd)/$(buf_version)/bin/buf
 export PATH := $(dir $(buf)):$(PATH)
 
