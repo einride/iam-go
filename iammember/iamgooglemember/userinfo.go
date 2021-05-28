@@ -82,8 +82,8 @@ func (u *UserInfo) Validate() error {
 }
 
 // UnmarshalBase64 unmarshals the UserInfo from the provided Base64-URL-encoded string.
-func (u *UserInfo) UnmarshalBase64(value string) error {
-	decoder := json.NewDecoder(base64.NewDecoder(base64.URLEncoding, strings.NewReader(value)))
+func (u *UserInfo) UnmarshalBase64(value string, encoding *base64.Encoding) error {
+	decoder := json.NewDecoder(base64.NewDecoder(encoding, strings.NewReader(value)))
 	if err := decoder.Decode(u); err != nil {
 		return fmt.Errorf("unmarshal Google user info from base64: %w", err)
 	}
@@ -99,8 +99,20 @@ func (u *UserInfo) UnmarshalJWT(token string) error {
 	if len(s) < 2 {
 		return fmt.Errorf("unmarshal user info from JWT: invalid token")
 	}
-	if err := u.UnmarshalBase64(s[1]); err != nil {
+	if err := u.UnmarshalBase64(s[1], base64.RawURLEncoding); err != nil {
 		return fmt.Errorf("unmarshal user info from JWT: %w", err)
+	}
+	return nil
+}
+
+// UnmarshalAuthorization unmarshals the UserInfo from the provided authorization header value.
+func (u *UserInfo) UnmarshalAuthorization(authorization string) error {
+	const bearerTokenPrefix = "bearer "
+	if !strings.HasPrefix(authorization, bearerTokenPrefix) {
+		return fmt.Errorf("unmarshal Google user info from authorization: not a bearer token")
+	}
+	if err := u.UnmarshalJWT(strings.TrimPrefix(authorization, bearerTokenPrefix)); err != nil {
+		return fmt.Errorf("unmarshal Google user info from authorization: %w", err)
 	}
 	return nil
 }

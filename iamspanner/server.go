@@ -110,7 +110,7 @@ func (s *IAMServer) TestIamPermissions(
 	ctx context.Context,
 	request *iam.TestIamPermissionsRequest,
 ) (*iam.TestIamPermissionsResponse, error) {
-	ctx, members, err := s.memberResolver.ResolveIAMMembers(ctx)
+	members, _, err := s.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (s *IAMServer) TestPermissionOnResources(
 	permission string,
 	resources []string,
 ) (map[string]bool, error) {
-	ctx, members, err := s.memberResolver.ResolveIAMMembers(ctx)
+	members, _, err := s.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}

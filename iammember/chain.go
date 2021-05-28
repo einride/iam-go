@@ -6,10 +6,6 @@ import "context"
 //
 // The resulting resolved members will be the union of the members resolved by each resolver.
 //
-// Execution is done in left-to-right order, including passing of context.
-// For example ChainResolvers(one, two, three) will execute one before two before three, and three
-// will see context changes of one and two.
-//
 // If any resolver returns an error, that error is immediately returned and no further resolvers are called.
 func ChainResolvers(resolvers ...Resolver) Resolver {
 	return chainResolver{resolvers: resolvers}
@@ -19,26 +15,40 @@ type chainResolver struct {
 	resolvers []Resolver
 }
 
-func (c chainResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
-	var result, members []string
-	var err error
+func (c chainResolver) ResolveIAMMembers(ctx context.Context) ([]string, Metadata, error) {
+	resultMembers := make([]string, 0, len(c.resolvers))
+	resultMetadata := make(map[string][]string, len(c.resolvers))
 	for _, resolver := range c.resolvers {
-		ctx, members, err = resolver.ResolveIAMMembers(ctx)
+		members, metadata, err := resolver.ResolveIAMMembers(ctx)
 		if err != nil {
 			return nil, nil, err
 		}
 		for _, member := range members {
 			var hasMember bool
-			for _, resultMember := range result {
+			for _, resultMember := range resultMembers {
 				if member == resultMember {
 					hasMember = true
 					break
 				}
 			}
 			if !hasMember {
-				result = append(result, member)
+				resultMembers = append(resultMembers, member)
+			}
+		}
+		for key, keyMembers := range metadata {
+			for _, keyMember := range keyMembers {
+				var hasKeyMember bool
+				for _, resultMember := range resultMetadata[key] {
+					if keyMember == resultMember {
+						hasKeyMember = true
+						break
+					}
+				}
+				if !hasKeyMember {
+					resultMetadata[key] = append(resultMetadata[key], keyMember)
+				}
 			}
 		}
 	}
-	return ctx, result, nil
+	return resultMembers, resultMetadata, nil
 }

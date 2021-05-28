@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"cloud.google.com/go/spanner"
+	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamresource"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
@@ -76,8 +77,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -98,8 +99,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -133,8 +134,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -163,8 +164,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -202,8 +203,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -244,8 +245,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -271,8 +272,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -310,8 +311,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -350,8 +351,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user2}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user2}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -389,8 +390,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -429,8 +430,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -469,8 +470,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -492,8 +493,8 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) (context.Context, []string, error) {
-				return ctx, []string{user1}, nil
+			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
+				return []string{user1}, nil, nil
 			}),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
@@ -528,8 +529,8 @@ func TestServer(t *testing.T) {
 	})
 }
 
-type iamMemberResolver func(context.Context) (context.Context, []string, error)
+type iamMemberResolver func(context.Context) ([]string, iammember.Metadata, error)
 
-func (r iamMemberResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
+func (r iamMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
 	return r(ctx)
 }

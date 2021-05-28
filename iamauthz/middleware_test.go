@@ -5,20 +5,18 @@ import (
 	"net"
 	"testing"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
-	"gotest.tools/v3/assert"
-
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/status"
+	"gotest.tools/v3/assert"
 )
 
 func TestRequireUnaryAuthorization(t *testing.T) {
 	t.Run("authorized", func(t *testing.T) {
 		lis, err := net.Listen("tcp", "localhost:0")
 		assert.NilError(t, err)
-		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(RequireUnaryAuthorization))
+		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(RequireAuthorizationUnaryInterceptor))
 		healthpb.RegisterHealthServer(grpcServer, &authorizedHealthServer{})
 		errChan := make(chan error)
 		go func() {
@@ -46,7 +44,7 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 	t.Run("not authorized", func(t *testing.T) {
 		lis, err := net.Listen("tcp", "localhost:0")
 		assert.NilError(t, err)
-		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(RequireUnaryAuthorization))
+		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(RequireAuthorizationUnaryInterceptor))
 		healthpb.RegisterHealthServer(grpcServer, &healthServer{})
 		errChan := make(chan error)
 		go func() {

@@ -22,12 +22,12 @@ func Authorize(ctx context.Context) {
 	}
 }
 
-// RequireUnaryAuthorization is a grpc.UnaryServerInterceptor that requires authorization
+// RequireAuthorizationUnaryInterceptor is a grpc.UnaryServerInterceptor that requires authorization
 // to be performed on all incoming requests.
 //
 // To mark the request as processed by authorization checks, the method implementing authorization should call
 // Authorize on the request context as soon as authorization starts.
-func RequireUnaryAuthorization(
+func RequireAuthorizationUnaryInterceptor(
 	ctx context.Context,
 	req interface{},
 	_ *grpc.UnaryServerInfo,
@@ -48,11 +48,11 @@ func RequireUnaryAuthorization(
 	return resp, err
 }
 
-var _ grpc.UnaryServerInterceptor = RequireUnaryAuthorization
+var _ grpc.UnaryServerInterceptor = RequireAuthorizationUnaryInterceptor
 
-// RequireStreamAuthorization is a grpc.StreamServerInterceptor that aborts all incoming streams, pending implementation
+// RequireAuthorizationStreamInterceptor is a grpc.StreamServerInterceptor that aborts all incoming streams, pending implementation
 // of stream support in this package.
-func RequireStreamAuthorization(
+func RequireAuthorizationStreamInterceptor(
 	_ interface{},
 	_ grpc.ServerStream,
 	_ *grpc.StreamServerInfo,
@@ -61,7 +61,7 @@ func RequireStreamAuthorization(
 	return status.Error(codes.Internal, "server has not implemented stream authorization")
 }
 
-var _ grpc.StreamServerInterceptor = RequireStreamAuthorization
+var _ grpc.StreamServerInterceptor = RequireAuthorizationStreamInterceptor
 
 // WithAuthorization adds authorization to the current request context.
 func WithAuthorization(ctx context.Context) context.Context {

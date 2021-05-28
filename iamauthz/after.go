@@ -70,7 +70,7 @@ func (a *AfterMethodAuthorization) AuthorizeRequestAndResponse(
 	response proto.Message,
 ) (context.Context, error) {
 	Authorize(ctx)
-	ctx, members, err := a.memberResolver.ResolveIAMMembers(ctx)
+	members, _, err := a.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}

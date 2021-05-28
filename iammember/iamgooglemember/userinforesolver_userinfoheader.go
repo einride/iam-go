@@ -2,6 +2,7 @@ package iamgooglemember
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"go.einride.tech/iam/iammember"
@@ -15,39 +16,39 @@ const (
 )
 
 // ResolveUserInfoHeader returns an iammember.Resolver that uses the provided UserInfoResolver
-// to resolve IAM members from a UserInfo header.
-func ResolveUserInfoHeader(header string, userInfoResolver UserInfoResolver) iammember.Resolver {
+// to resolve IAM members from a UserInfo key.
+func ResolveUserInfoHeader(key string, userInfoResolver UserInfoResolver) iammember.Resolver {
 	return userInfoHeaderResolver{
-		header:           header,
+		key:              key,
 		userInfoResolver: userInfoResolver,
 	}
 }
 
 type userInfoHeaderResolver struct {
-	header           string
+	key              string
 	userInfoResolver UserInfoResolver
 }
 
 // ResolveIAMMembers implements iammember.Resolver.
-func (u userInfoHeaderResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
+func (u userInfoHeaderResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return ctx, nil, nil
+		return nil, iammember.Metadata{u.key: nil}, nil
 	}
 	if !ok {
-		return ctx, nil, nil
+		return nil, iammember.Metadata{u.key: nil}, nil
 	}
-	values := md.Get(u.header)
+	values := md.Get(u.key)
 	if len(values) == 0 {
-		return ctx, nil, nil
+		return nil, iammember.Metadata{u.key: nil}, nil
 	}
 	var userInfo UserInfo
-	if err := userInfo.UnmarshalBase64(values[0]); err != nil {
-		return nil, nil, fmt.Errorf("resolve IAM members from '%s' header: %w", u.header, err)
+	if err := userInfo.UnmarshalBase64(values[0], base64.URLEncoding); err != nil {
+		return nil, nil, fmt.Errorf("resolve IAM members from '%s' key: %w", u.key, err)
 	}
-	ctx, members, err := u.userInfoResolver.ResolveIAMMembersFromGoogleUserInfo(ctx, &userInfo)
+	members, err := u.userInfoResolver.ResolveIAMMembersFromGoogleUserInfo(ctx, &userInfo)
 	if err != nil {
-		return nil, nil, fmt.Errorf("resolve IAM members from '%s' header: %w", u.header, err)
+		return nil, nil, fmt.Errorf("resolve IAM members from '%s' key: %w", u.key, err)
 	}
-	return ctx, members, nil
+	return members, iammember.Metadata{u.key: members}, nil
 }

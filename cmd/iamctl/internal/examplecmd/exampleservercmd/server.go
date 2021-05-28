@@ -28,26 +28,10 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 	if err != nil {
 		return nil, err
 	}
-	memberResolver := iammember.ChainResolvers(
-		// Resolve members from the example members header.
-		iamexample.NewIAMMemberHeaderResolver(),
-		// Resolve members from the authorization header.
-		iamgooglemember.ResolveAuthorizationHeader(googleUserInfoMemberResolver{}),
-		// Resolve members from the Cloud Endpoint UserInfo header.
-		iamgooglemember.ResolveUserInfoHeader(
-			iamgooglemember.GoogleCloudEndpointUserInfoHeader,
-			googleUserInfoMemberResolver{},
-		),
-		// Resolve members from the API Gateway UserInfo header.
-		iamgooglemember.ResolveUserInfoHeader(
-			iamgooglemember.GoogleCloudAPIGatewayUserInfoHeader,
-			googleUserInfoMemberResolver{},
-		),
-	)
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
 		roles,
-		memberResolver,
+		iammember.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {
 				log.Println(err)
@@ -66,7 +50,9 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 			},
 		},
 	}
-	authorization, err := iamexamplev1.NewFreightServiceAuthorization(freightServer, iamServer, memberResolver)
+	authorization, err := iamexamplev1.NewFreightServiceAuthorization(
+		freightServer, iamServer, iammember.FromContextResolver(),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -79,25 +65,37 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 	return freightServerAuthorization, nil
 }
 
-type googleUserInfoMemberResolver struct{}
-
-func (g googleUserInfoMemberResolver) ResolveIAMMembersFromGoogleUserInfo(
+func runServer(
 	ctx context.Context,
-	info *iamgooglemember.UserInfo,
-) (context.Context, []string, error) {
-	if info.HostedDomain != "" && info.Email != "" {
-		return ctx, []string{fmt.Sprintf("%s:%s", info.HostedDomain, info.Email)}, nil
-	}
-	return ctx, nil, nil
-}
+	server *iamexample.Authorization,
+	address string,
 
-func runServer(ctx context.Context, server *iamexample.Authorization, address string) error {
+) error {
+	memberResolver := loggingIAMMemberResolver{
+		next: iammember.ChainResolvers(
+			// Resolve members from the example members header.
+			iamexample.NewIAMMemberHeaderResolver(),
+			// Resolve members from the authorization header.
+			iamgooglemember.ResolveAuthorizationHeader(googleUserInfoMemberResolver{}),
+			// Resolve members from the Cloud Endpoint UserInfo header.
+			iamgooglemember.ResolveUserInfoHeader(
+				iamgooglemember.GoogleCloudEndpointUserInfoHeader,
+				googleUserInfoMemberResolver{},
+			),
+			// Resolve members from the API Gateway UserInfo header.
+			iamgooglemember.ResolveUserInfoHeader(
+				iamgooglemember.GoogleCloudAPIGatewayUserInfoHeader,
+				googleUserInfoMemberResolver{},
+			),
+		),
+	}
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			logUnary,
-			iamauthz.RequireUnaryAuthorization,
+			logRequestUnaryInterceptor,
+			iammember.ResolveContextUnaryInterceptor(memberResolver),
+			iamauthz.RequireAuthorizationUnaryInterceptor,
 		),
-		grpc.StreamInterceptor(iamauthz.RequireStreamAuthorization),
+		grpc.StreamInterceptor(iamauthz.RequireAuthorizationStreamInterceptor),
 	)
 	iammixin.Register(grpcServer, server)
 	longrunning.RegisterOperationsServer(grpcServer, server)
@@ -117,17 +115,47 @@ func runServer(ctx context.Context, server *iamexample.Authorization, address st
 	return nil
 }
 
-func logUnary(
+func logRequestUnaryInterceptor(
 	ctx context.Context,
-	req interface{},
+	request interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
-	resp, err := handler(ctx, req)
+	log.Printf("%s\n[REQ]\t%s", info.FullMethod, request)
+	response, err := handler(ctx, request)
 	if err != nil {
-		log.Printf("%s\n->\t%s\n<-\t%s", info.FullMethod, req, err)
+		log.Printf("[ERR]\t%s", err)
 	} else {
-		log.Printf("%s\n->\t%s\n<-\t%s", info.FullMethod, req, resp)
+		log.Printf("[RES]\t%s", response)
 	}
-	return resp, err
+	return response, err
+}
+
+type googleUserInfoMemberResolver struct{}
+
+func (g googleUserInfoMemberResolver) ResolveIAMMembersFromGoogleUserInfo(
+	_ context.Context,
+	info *iamgooglemember.UserInfo,
+) ([]string, error) {
+	members := make([]string, 0, 2)
+	if info.Email != "" && info.EmailVerified {
+		members = append(members, fmt.Sprintf("email:%s", info.Email))
+	}
+	if info.HostedDomain != "" {
+		members = append(members, fmt.Sprintf("domain:%s", info.HostedDomain))
+	}
+	return members, nil
+}
+
+type loggingIAMMemberResolver struct {
+	next iammember.Resolver
+}
+
+func (l loggingIAMMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
+	members, memberMetadata, err := l.next.ResolveIAMMembers(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	log.Printf("[IAM]\t%v %v", members, memberMetadata)
+	return members, memberMetadata, nil
 }

@@ -6,10 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.einride.tech/iam/iamexample"
 	"go.einride.tech/iam/iamexample/iamexampledata"
+	"go.einride.tech/iam/iammember"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 // Command contains sub-commands for the IAM example server.
@@ -65,9 +64,10 @@ func runStartCommand(ctx context.Context, cfg *startFlags) error {
 	}
 	log.Println("initializing example resources...")
 	if err := iamexampledata.InitializeResources(
-		metadata.NewIncomingContext(
+		iammember.WithResolvedContext(
 			ctx,
-			metadata.MD{iamexample.MemberHeader: []string{iamexampledata.RootAdminMember}},
+			[]string{iamexampledata.RootAdminMember},
+			iammember.Metadata{"x-example-data-init": {iamexampledata.RootAdminMember}},
 		),
 		server,
 	); err != nil {
