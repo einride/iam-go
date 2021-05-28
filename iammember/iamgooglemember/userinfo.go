@@ -83,7 +83,7 @@ func (u *UserInfo) Validate() error {
 
 // UnmarshalBase64 unmarshals the UserInfo from the provided Base64-URL-encoded string.
 func (u *UserInfo) UnmarshalBase64(value string) error {
-	decoder := json.NewDecoder(base64.NewDecoder(base64.RawURLEncoding, strings.NewReader(value)))
+	decoder := json.NewDecoder(base64.NewDecoder(base64.URLEncoding, strings.NewReader(value)))
 	if err := decoder.Decode(u); err != nil {
 		return fmt.Errorf("unmarshal Google user info from base64: %w", err)
 	}
