@@ -20,12 +20,12 @@ var _ iammember.Resolver = &iamMemberHeaderResolver{}
 type iamMemberHeaderResolver struct{}
 
 // ResolveIAMMembers implements iammember.Resolver.
-func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
+func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return ctx, nil, nil
+		return nil, iammember.Metadata{MemberHeader: nil}, nil
 	}
-	return ctx, md.Get(MemberHeader), nil
+	return md.Get(MemberHeader), iammember.Metadata{MemberHeader: md.Get(MemberHeader)}, nil
 }
 
 // WithOutgoingMembers appends the provided members to the outgoing gRPC context.

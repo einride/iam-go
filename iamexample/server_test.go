@@ -9,6 +9,7 @@ import (
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamauthz"
+	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	"go.einride.tech/iam/iamtest"
@@ -57,11 +58,10 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	roles, err := iamregistry.NewRoles(iamDescriptor.PredefinedRoles)
 	assert.NilError(t, err)
 	spannerClient := ts.spanner.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
-	memberResolver := NewIAMMemberHeaderResolver()
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
 		roles,
-		memberResolver,
+		iammember.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {
 				t.Log(err)
@@ -78,7 +78,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 			},
 		},
 	}
-	authorization, err := iamexamplev1.NewFreightServiceAuthorization(server, iamServer, memberResolver)
+	authorization, err := iamexamplev1.NewFreightServiceAuthorization(server, iamServer, iammember.FromContextResolver())
 	assert.NilError(t, err)
 	serverWithAuthorization := &Authorization{
 		Next:                        server,
@@ -88,7 +88,12 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	}
 	lis, err := net.Listen("tcp", "localhost:0")
 	assert.NilError(t, err)
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(iamauthz.RequireUnaryAuthorization))
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			iammember.ResolveContextUnaryInterceptor(NewIAMMemberHeaderResolver()),
+			iamauthz.RequireAuthorizationUnaryInterceptor,
+		),
+	)
 	iamexamplev1.RegisterFreightServiceServer(grpcServer, serverWithAuthorization)
 	longrunning.RegisterOperationsServer(grpcServer, serverWithAuthorization)
 	errChan := make(chan error)

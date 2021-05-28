@@ -10,65 +10,102 @@ import (
 
 func TestChainResolvers(t *testing.T) {
 	t.Run("no resolvers", func(t *testing.T) {
-		ctx, members, err := ChainResolvers().ResolveIAMMembers(context.Background())
-		assert.Equal(t, ctx, context.Background())
-		assert.Assert(t, members == nil)
+		actualMembers, actualMetadata, err := ChainResolvers().ResolveIAMMembers(context.Background())
+		assert.Assert(t, len(actualMembers) == 0)
+		assert.Assert(t, len(actualMetadata) == 0)
 		assert.NilError(t, err)
 	})
 
 	t.Run("single", func(t *testing.T) {
-		expected := []string{"foo", "bar"}
-		ctx, actual, err := ChainResolvers(constantResolver{expected}).ResolveIAMMembers(context.Background())
-		assert.Equal(t, ctx, context.Background())
-		assert.DeepEqual(t, expected, actual)
+		expectedMembers := []string{"foo", "bar"}
+		expectedMetadata := Metadata{
+			"key1": {"foo"},
+			"key2": {"bar"},
+		}
+		actualMembers, actualMetadata, err := ChainResolvers(constantResolver{
+			members:  expectedMembers,
+			metadata: expectedMetadata,
+		}).ResolveIAMMembers(context.Background())
+		assert.DeepEqual(t, expectedMembers, actualMembers)
+		assert.DeepEqual(t, expectedMetadata, actualMetadata)
 		assert.NilError(t, err)
 	})
 
 	t.Run("multi", func(t *testing.T) {
-		expected := []string{"foo", "bar", "baz"}
-		ctx, actual, err := ChainResolvers(
-			constantResolver{members: []string{"foo", "bar"}},
-			constantResolver{members: []string{"baz"}},
+		expectedMembers := []string{"foo", "bar", "baz"}
+		expectedMetadata := Metadata{
+			"key1": {"foo", "bar"},
+			"key2": {"baz"},
+		}
+		actualMembers, actualMetadata, err := ChainResolvers(
+			constantResolver{
+				members: []string{"foo", "bar"},
+				metadata: Metadata{
+					"key1": {"foo", "bar"},
+				},
+			},
+			constantResolver{
+				members: []string{"baz"},
+				metadata: Metadata{
+					"key2": {"baz"},
+				},
+			},
 		).ResolveIAMMembers(context.Background())
-		assert.Equal(t, ctx, context.Background())
-		assert.DeepEqual(t, expected, actual)
+		assert.DeepEqual(t, expectedMembers, actualMembers)
+		assert.DeepEqual(t, expectedMetadata, actualMetadata)
 		assert.NilError(t, err)
 	})
 
 	t.Run("multi duplicates", func(t *testing.T) {
-		expected := []string{"foo", "bar", "baz"}
-		ctx, actual, err := ChainResolvers(
-			constantResolver{members: []string{"foo", "bar"}},
-			constantResolver{members: []string{"bar", "baz"}},
+		expectedMembers := []string{"foo", "bar", "baz"}
+		expectedMetadata := Metadata{
+			"key1": {"foo", "bar", "baz"},
+			"key2": {"bar", "baz"},
+		}
+		actualMembers, actualMetadata, err := ChainResolvers(
+			constantResolver{
+				members: []string{"foo", "bar"},
+				metadata: Metadata{
+					"key1": {"foo", "bar"},
+				},
+			},
+			constantResolver{
+				members: []string{"bar", "baz"},
+				metadata: Metadata{
+					"key1": {"baz"},
+					"key2": {"bar", "baz"},
+				},
+			},
 		).ResolveIAMMembers(context.Background())
-		assert.Equal(t, ctx, context.Background())
-		assert.DeepEqual(t, expected, actual)
+		assert.DeepEqual(t, expectedMembers, actualMembers)
+		assert.DeepEqual(t, expectedMetadata, actualMetadata)
 		assert.NilError(t, err)
 	})
 
 	t.Run("error", func(t *testing.T) {
-		ctx, actual, err := ChainResolvers(
+		actualMembers, actualMetadata, err := ChainResolvers(
 			constantResolver{members: []string{"foo", "bar"}},
 			errorResolver{err: errors.New("boom")},
 		).ResolveIAMMembers(context.Background())
-		assert.Assert(t, ctx == nil)
-		assert.Assert(t, actual == nil)
+		assert.Assert(t, actualMembers == nil)
+		assert.Assert(t, actualMetadata == nil)
 		assert.Error(t, err, "boom")
 	})
 }
 
 type constantResolver struct {
-	members []string
+	members  []string
+	metadata Metadata
 }
 
-func (c constantResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
-	return ctx, c.members, nil
+func (c constantResolver) ResolveIAMMembers(ctx context.Context) ([]string, Metadata, error) {
+	return c.members, c.metadata, nil
 }
 
 type errorResolver struct {
 	err error
 }
 
-func (e errorResolver) ResolveIAMMembers(ctx context.Context) (context.Context, []string, error) {
+func (e errorResolver) ResolveIAMMembers(ctx context.Context) ([]string, Metadata, error) {
 	return nil, nil, e.err
 }
