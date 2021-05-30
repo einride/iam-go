@@ -66,8 +66,10 @@ func runStartCommand(ctx context.Context, cfg *startFlags) error {
 	if err := iamexampledata.InitializeResources(
 		iammember.WithResolvedContext(
 			ctx,
-			[]string{iamexampledata.RootAdminMember},
-			iammember.Metadata{"x-example-data-init": {iamexampledata.RootAdminMember}},
+			iammember.ResolveResult{
+				Members:  []string{iamexampledata.RootAdminMember},
+				Metadata: iammember.Metadata{"x-example-data-init": {iamexampledata.RootAdminMember}},
+			},
 		),
 		server,
 	); err != nil {

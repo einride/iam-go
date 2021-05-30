@@ -15,40 +15,15 @@ type chainResolver struct {
 	resolvers []Resolver
 }
 
-func (c chainResolver) ResolveIAMMembers(ctx context.Context) ([]string, Metadata, error) {
-	resultMembers := make([]string, 0, len(c.resolvers))
-	resultMetadata := make(map[string][]string, len(c.resolvers))
+// ResolveIAMMembers implements Resolver.
+func (c chainResolver) ResolveIAMMembers(ctx context.Context) (ResolveResult, error) {
+	var result ResolveResult
 	for _, resolver := range c.resolvers {
-		members, metadata, err := resolver.ResolveIAMMembers(ctx)
+		nextResult, err := resolver.ResolveIAMMembers(ctx)
 		if err != nil {
-			return nil, nil, err
+			return ResolveResult{}, err
 		}
-		for _, member := range members {
-			var hasMember bool
-			for _, resultMember := range resultMembers {
-				if member == resultMember {
-					hasMember = true
-					break
-				}
-			}
-			if !hasMember {
-				resultMembers = append(resultMembers, member)
-			}
-		}
-		for key, keyMembers := range metadata {
-			for _, keyMember := range keyMembers {
-				var hasKeyMember bool
-				for _, resultMember := range resultMetadata[key] {
-					if keyMember == resultMember {
-						hasKeyMember = true
-						break
-					}
-				}
-				if !hasKeyMember {
-					resultMetadata[key] = append(resultMetadata[key], keyMember)
-				}
-			}
-		}
+		result.AddAll(nextResult)
 	}
-	return resultMembers, resultMetadata, nil
+	return result, nil
 }

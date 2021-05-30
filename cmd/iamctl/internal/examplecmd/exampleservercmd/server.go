@@ -124,47 +124,42 @@ func logRequestUnaryInterceptor(
 
 type authorizationIDTokenMemberResolver struct{}
 
-func (authorizationIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
+func (authorizationIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iammember.ResolveResult, error) {
+	const authorizationKey = "authorization"
+	var result iammember.ResolveResult
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, nil, nil
+		return result, nil
 	}
-	authorizationValues := md.Get("authorization")
+	authorizationValues := md.Get(authorizationKey)
 	if len(authorizationValues) == 0 {
-		return nil, nil, nil
+		return result, nil
 	}
 	authorization := authorizationValues[0]
 	var idToken iamgoogle.IDToken
 	if err := idToken.UnmarshalAuthorization(authorization); err != nil {
-		return nil, nil, err
+		return iammember.ResolveResult{}, err
 	}
 	if err := idToken.Validate(); err != nil {
-		return nil, nil, err
+		return iammember.ResolveResult{}, err
 	}
-	members := make([]string, 0, 2)
-	memberMetadata := make(iammember.Metadata)
 	if idToken.EmailVerified && idToken.Email != "" {
-		member := fmt.Sprintf("email:%s", idToken.Email)
-		members = append(members, member)
-		memberMetadata.Add("authorization", member)
+		result.Add(authorizationKey, fmt.Sprintf("email:%s", idToken.Email))
 	}
 	if idToken.HostedDomain != "" {
-		member := fmt.Sprintf("email:%s", idToken.Email)
-		members = append(members, member)
-		memberMetadata.Add("authorization", member)
+		result.Add(authorizationKey, fmt.Sprintf("domain:%s", idToken.HostedDomain))
 	}
-	return members, memberMetadata, nil
+	return result, nil
 }
 
 type loggingIAMMemberResolver struct {
 	next iammember.Resolver
 }
 
-func (l loggingIAMMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
-	members, memberMetadata, err := l.next.ResolveIAMMembers(ctx)
-	if err != nil {
-		return nil, nil, err
+func (l loggingIAMMemberResolver) ResolveIAMMembers(ctx context.Context) (iammember.ResolveResult, error) {
+	result, err := l.next.ResolveIAMMembers(ctx)
+	if err == nil {
+		log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
 	}
-	log.Printf("[IAM]\t%v %v", members, memberMetadata)
-	return members, memberMetadata, nil
+	return result, err
 }

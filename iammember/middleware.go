@@ -8,27 +8,17 @@ import (
 )
 
 // FromResolvedContext returns the resolved IAM members and metadata from the provided context.
-func FromResolvedContext(ctx context.Context) ([]string, Metadata, bool) {
-	value, ok := ctx.Value(resolvedContextKey{}).(resolvedContextValue)
-	if !ok {
-		return nil, nil, false
-	}
-	return value.members, value.metadata, true
+func FromResolvedContext(ctx context.Context) (ResolveResult, bool) {
+	value, ok := ctx.Value(resolvedContextKey{}).(ResolveResult)
+	return value, ok
 }
 
-// WithResolvedContext returns a new context with cached resolved IAM members and metadata.
-func WithResolvedContext(ctx context.Context, members []string, memberMetadata Metadata) context.Context {
-	return context.WithValue(
-		ctx, resolvedContextKey{}, resolvedContextValue{members: members, metadata: memberMetadata},
-	)
+// WithResolvedContext returns a new context with cached IAM member resolve result.
+func WithResolvedContext(ctx context.Context, resolveResult ResolveResult) context.Context {
+	return context.WithValue(ctx, resolvedContextKey{}, resolveResult)
 }
 
 type resolvedContextKey struct{}
-
-type resolvedContextValue struct {
-	members  []string
-	metadata Metadata
-}
 
 // FromContextResolver returns a Resolver that resolves cached IAM members and metadata from the current context.
 func FromContextResolver() Resolver {
@@ -38,12 +28,12 @@ func FromContextResolver() Resolver {
 type contextResolver struct{}
 
 // ResolveIAMMembers implements Resolver.
-func (contextResolver) ResolveIAMMembers(ctx context.Context) ([]string, Metadata, error) {
-	members, memberMetadata, ok := FromResolvedContext(ctx)
+func (contextResolver) ResolveIAMMembers(ctx context.Context) (ResolveResult, error) {
+	result, ok := FromResolvedContext(ctx)
 	if !ok {
-		return nil, nil, fmt.Errorf("unresolved IAM member context")
+		return ResolveResult{}, fmt.Errorf("unresolved IAM member context")
 	}
-	return members, memberMetadata, nil
+	return result, nil
 }
 
 // ResolveContextUnaryInterceptor returns a gRPC server middleware that resolves IAM members with the provided resolver.
@@ -54,10 +44,10 @@ func ResolveContextUnaryInterceptor(resolver Resolver) grpc.UnaryServerIntercept
 		_ *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		members, memberMetadata, err := resolver.ResolveIAMMembers(ctx)
+		result, err := resolver.ResolveIAMMembers(ctx)
 		if err != nil {
 			return nil, err
 		}
-		return handler(WithResolvedContext(ctx, members, memberMetadata), request)
+		return handler(WithResolvedContext(ctx, result), request)
 	}
 }

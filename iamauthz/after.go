@@ -70,12 +70,12 @@ func (a *AfterMethodAuthorization) AuthorizeRequestAndResponse(
 	response proto.Message,
 ) (context.Context, error) {
 	Authorize(ctx)
-	members, _, err := a.memberResolver.ResolveIAMMembers(ctx)
+	memberResolveResult, err := a.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
 	val, _, err := a.program.Eval(map[string]interface{}{
-		"caller":   &iamv1.Caller{Members: members},
+		"caller":   &iamv1.Caller{Members: memberResolveResult.Members},
 		"request":  request,
 		"response": response,
 	})
