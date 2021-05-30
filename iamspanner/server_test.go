@@ -77,9 +77,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -89,7 +87,10 @@ func TestServer(t *testing.T) {
 		expected := &iam.Policy{
 			Etag: []byte("W/0-00000000"),
 		}
-		actual, err := server.GetIamPolicy(ctx, &iam.GetIamPolicyRequest{Resource: "resources/1"})
+		actual, err := server.GetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.GetIamPolicyRequest{Resource: "resources/1"},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
@@ -99,9 +100,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -121,10 +120,13 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/104-14AAE092"),
 		}
-		actual, err := server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		actual, err := server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
@@ -134,9 +136,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -151,10 +151,13 @@ func TestServer(t *testing.T) {
 			// stale etag
 			Etag: []byte("W/1234"),
 		}
-		actual, err := server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		actual, err := server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.Equal(t, codes.Aborted, status.Code(err))
 		assert.Assert(t, actual == nil)
 	})
@@ -164,9 +167,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -187,13 +188,19 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/104-14AAE092"),
 		}
-		actual, err := server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		actual, err := server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
-		got, err := server.GetIamPolicy(ctx, &iam.GetIamPolicyRequest{Resource: "resources/1"})
+		got, err := server.GetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.GetIamPolicyRequest{Resource: "resources/1"},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, got, protocmp.Transform())
 	})
@@ -203,9 +210,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -226,16 +231,22 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/104-14AAE092"),
 		}
-		actual, err := server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		actual, err := server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 		emptyPolicy := &iam.Policy{
 			Etag: []byte("W/0-00000000"),
 		}
-		got, err := server.GetIamPolicy(ctx, &iam.GetIamPolicyRequest{Resource: "resources/2"})
+		got, err := server.GetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.GetIamPolicyRequest{Resource: "resources/2"},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, emptyPolicy, got, protocmp.Transform())
 	})
@@ -245,24 +256,25 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
 			})
 		assert.NilError(t, err)
-		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource: "resources/1",
-			Permissions: []string{
-				"test.resources.create",
-				"test.resources.get",
-				"test.resources.update",
-				"test.resources.delete",
+		response, err := server.TestIamPermissions(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.TestIamPermissionsRequest{
+				Resource: "resources/1",
+				Permissions: []string{
+					"test.resources.create",
+					"test.resources.get",
+					"test.resources.update",
+					"test.resources.delete",
+				},
 			},
-		})
+		)
 		assert.NilError(t, err)
 		assert.Assert(t, cmp.Len(response.Permissions, 0))
 	})
@@ -272,9 +284,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -287,10 +297,13 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		_, err = server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		permissions := []string{
 			"test.resources.create",
@@ -298,10 +311,13 @@ func TestServer(t *testing.T) {
 			"test.resources.update",
 			"test.resources.delete",
 		}
-		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource:    "resources/1",
-			Permissions: permissions,
-		})
+		response, err := server.TestIamPermissions(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.TestIamPermissionsRequest{
+				Resource:    "resources/1",
+				Permissions: permissions,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, permissions, response.Permissions)
 	})
@@ -311,9 +327,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -326,10 +340,13 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		_, err = server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		permissions := []string{
 			"test.resources.create",
@@ -338,10 +355,13 @@ func TestServer(t *testing.T) {
 			"test.resources.delete",
 		}
 		expected := []string{"test.resources.get"}
-		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource:    "resources/1",
-			Permissions: permissions,
-		})
+		response, err := server.TestIamPermissions(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.TestIamPermissionsRequest{
+				Resource:    "resources/1",
+				Permissions: permissions,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, response.Permissions)
 	})
@@ -351,9 +371,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user2}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -366,10 +384,13 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "resources/1",
-			Policy:   policy,
-		})
+		_, err = server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		permissions := []string{
 			"test.resources.create",
@@ -377,10 +398,13 @@ func TestServer(t *testing.T) {
 			"test.resources.update",
 			"test.resources.delete",
 		}
-		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource:    "resources/1",
-			Permissions: permissions,
-		})
+		response, err := server.TestIamPermissions(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user2}}),
+			&iam.TestIamPermissionsRequest{
+				Resource:    "resources/1",
+				Permissions: permissions,
+			},
+		)
 		assert.NilError(t, err)
 		assert.Assert(t, cmp.Len(response.Permissions, 0))
 	})
@@ -390,9 +414,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -405,10 +427,13 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: "parents/1",
-			Policy:   policy,
-		})
+		_, err = server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: "parents/1",
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		permissions := []string{
 			"test.resources.create",
@@ -417,10 +442,13 @@ func TestServer(t *testing.T) {
 			"test.resources.delete",
 		}
 		expected := []string{"test.resources.get"}
-		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource:    "parents/1/resources/1",
-			Permissions: permissions,
-		})
+		response, err := server.TestIamPermissions(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.TestIamPermissionsRequest{
+				Resource:    "parents/1/resources/1",
+				Permissions: permissions,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, response.Permissions)
 	})
@@ -430,9 +458,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -445,10 +471,13 @@ func TestServer(t *testing.T) {
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		_, err = server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
-			Resource: iamresource.Root,
-			Policy:   policy,
-		})
+		_, err = server.SetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.SetIamPolicyRequest{
+				Resource: iamresource.Root,
+				Policy:   policy,
+			},
+		)
 		assert.NilError(t, err)
 		permissions := []string{
 			"test.resources.create",
@@ -457,10 +486,13 @@ func TestServer(t *testing.T) {
 			"test.resources.delete",
 		}
 		expected := []string{"test.resources.get"}
-		response, err := server.TestIamPermissions(ctx, &iam.TestIamPermissionsRequest{
-			Resource:    "parents/1/resources/1",
-			Permissions: permissions,
-		})
+		response, err := server.TestIamPermissions(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.TestIamPermissionsRequest{
+				Resource:    "parents/1/resources/1",
+				Permissions: permissions,
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, response.Permissions)
 	})
@@ -470,9 +502,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -481,9 +511,12 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		expected, ok := roles.FindRoleByName("roles/admin")
 		assert.Assert(t, ok)
-		actual, err := server.GetRole(ctx, &admin.GetRoleRequest{
-			Name: "roles/admin",
-		})
+		actual, err := server.GetRole(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&admin.GetRoleRequest{
+				Name: "roles/admin",
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
@@ -493,9 +526,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(),
 			roles,
-			iamMemberResolver(func(ctx context.Context) ([]string, iammember.Metadata, error) {
-				return []string{user1}, nil, nil
-			}),
+			iammember.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -513,11 +544,14 @@ func TestServer(t *testing.T) {
 		actual := make([]*admin.Role, 0, roles.Count())
 		var nextPageToken string
 		for {
-			response, err := server.ListRoles(ctx, &admin.ListRolesRequest{
-				PageSize:  1,
-				PageToken: nextPageToken,
-				View:      admin.RoleView_FULL,
-			})
+			response, err := server.ListRoles(
+				iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+				&admin.ListRolesRequest{
+					PageSize:  1,
+					PageToken: nextPageToken,
+					View:      admin.RoleView_FULL,
+				},
+			)
 			assert.NilError(t, err)
 			actual = append(actual, response.Roles...)
 			nextPageToken = response.NextPageToken
@@ -527,10 +561,4 @@ func TestServer(t *testing.T) {
 		}
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
-}
-
-type iamMemberResolver func(context.Context) ([]string, iammember.Metadata, error)
-
-func (r iamMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
-	return r(ctx)
 }

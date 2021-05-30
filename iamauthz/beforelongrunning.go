@@ -37,11 +37,13 @@ func (a *BeforeLongRunningOperationMethodAuthorization) AuthorizeRequest(
 	if !ok {
 		return nil, status.Error(codes.PermissionDenied, "no permission configured for long-running operation request")
 	}
-	members, _, err := a.memberResolver.ResolveIAMMembers(ctx)
+	memberResolveResult, err := a.memberResolver.ResolveIAMMembers(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result, err := a.permissionTester.TestResourcePermission(ctx, members, request.GetName(), permission)
+	result, err := a.permissionTester.TestResourcePermission(
+		ctx, memberResolveResult.Members, request.GetName(), permission,
+	)
 	if err != nil {
 		return nil, err
 	}
