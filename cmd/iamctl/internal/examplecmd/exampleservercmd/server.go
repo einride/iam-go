@@ -7,17 +7,20 @@ import (
 	"net"
 
 	"cloud.google.com/go/spanner"
+	firebase "firebase.google.com/go/v4"
 	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iamexample"
+	"go.einride.tech/iam/iamfirebase"
 	"go.einride.tech/iam/iamgoogle"
+	"go.einride.tech/iam/iamjwt"
 	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iammixin"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
+	"google.golang.org/api/idtoken"
 	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error) {
@@ -72,14 +75,12 @@ func runServer(
 	address string,
 
 ) error {
-	memberResolver := loggingIAMMemberResolver{
-		next: iammember.ChainResolvers(
-			// Resolve members from the example members header.
-			iamexample.NewIAMMemberHeaderResolver(),
-			// Resolve members from ID tokens in the authorization header.
-			authorizationIDTokenMemberResolver{},
-		),
-	}
+	memberResolver := iammember.ChainResolvers(
+		// Resolve members from the example members header.
+		iamexample.NewIAMMemberHeaderResolver(),
+		// Resolve members from ID tokens in the authorization header.
+		googleIDTokenMemberResolver{},
+	)
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logRequestUnaryInterceptor,
@@ -122,44 +123,53 @@ func logRequestUnaryInterceptor(
 	return response, err
 }
 
-type authorizationIDTokenMemberResolver struct{}
+type googleIDTokenMemberResolver struct{}
 
-func (authorizationIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iammember.ResolveResult, error) {
+func (googleIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iammember.ResolveResult, error) {
 	const authorizationKey = "authorization"
 	var result iammember.ResolveResult
-	md, ok := metadata.FromIncomingContext(ctx)
+	token, ok := iamjwt.FromIncomingContext(ctx, authorizationKey)
 	if !ok {
 		return result, nil
 	}
-	authorizationValues := md.Get(authorizationKey)
-	if len(authorizationValues) == 0 {
-		return result, nil
-	}
-	authorization := authorizationValues[0]
-	var idToken iamgoogle.IDToken
-	if err := idToken.UnmarshalAuthorization(authorization); err != nil {
+	var payload iamjwt.Payload
+	if err := payload.UnmarshalToken(token); err != nil {
 		return iammember.ResolveResult{}, err
 	}
-	if err := idToken.Validate(); err != nil {
-		return iammember.ResolveResult{}, err
+	switch {
+	case iamgoogle.IsGoogleIDToken(payload):
+		googlePayload, err := idtoken.Validate(ctx, token, "")
+		if err != nil {
+			return iammember.ResolveResult{}, err
+		}
+		if iamgoogle.IsEmailVerified(googlePayload) {
+			if email, ok := iamgoogle.Email(googlePayload); ok {
+				result.Add(authorizationKey, fmt.Sprintf("email:%s", email))
+			}
+		}
+		if hostedDomain, ok := iamgoogle.HostedDomain(googlePayload); ok {
+			result.Add(authorizationKey, fmt.Sprintf("domain:%s", hostedDomain))
+		}
+	case iamfirebase.IsFirebaseIDToken(payload):
+		app, err := firebase.NewApp(ctx, &firebase.Config{
+			ProjectID: iamfirebase.ProjectID(payload),
+		})
+		if err != nil {
+			return iammember.ResolveResult{}, err
+		}
+		authClient, err := app.Auth(ctx)
+		if err != nil {
+			return iammember.ResolveResult{}, err
+		}
+		payload, err := authClient.VerifyIDToken(ctx, token)
+		if err != nil {
+			return iammember.ResolveResult{}, err
+		}
+		result.Add(authorizationKey, fmt.Sprintf("user:%s", payload.Subject))
+		if payload.Firebase.Tenant != "" {
+			result.Add(authorizationKey, fmt.Sprintf("tenant:%s", payload.Firebase.Tenant))
+		}
 	}
-	if idToken.EmailVerified && idToken.Email != "" {
-		result.Add(authorizationKey, fmt.Sprintf("email:%s", idToken.Email))
-	}
-	if idToken.HostedDomain != "" {
-		result.Add(authorizationKey, fmt.Sprintf("domain:%s", idToken.HostedDomain))
-	}
+	log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
 	return result, nil
-}
-
-type loggingIAMMemberResolver struct {
-	next iammember.Resolver
-}
-
-func (l loggingIAMMemberResolver) ResolveIAMMembers(ctx context.Context) (iammember.ResolveResult, error) {
-	result, err := l.next.ResolveIAMMembers(ctx)
-	if err == nil {
-		log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
-	}
-	return result, err
 }
