@@ -9,14 +9,15 @@ import (
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iamexample"
+	"go.einride.tech/iam/iamgoogle"
 	"go.einride.tech/iam/iammember"
-	"go.einride.tech/iam/iammember/iamgooglemember"
 	"go.einride.tech/iam/iammixin"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error) {
@@ -75,18 +76,8 @@ func runServer(
 		next: iammember.ChainResolvers(
 			// Resolve members from the example members header.
 			iamexample.NewIAMMemberHeaderResolver(),
-			// Resolve members from the authorization header.
-			iamgooglemember.ResolveAuthorizationHeader(googleUserInfoMemberResolver{}),
-			// Resolve members from the Cloud Endpoint UserInfo header.
-			iamgooglemember.ResolveUserInfoHeader(
-				iamgooglemember.GoogleCloudEndpointUserInfoHeader,
-				googleUserInfoMemberResolver{},
-			),
-			// Resolve members from the API Gateway UserInfo header.
-			iamgooglemember.ResolveUserInfoHeader(
-				iamgooglemember.GoogleCloudAPIGatewayUserInfoHeader,
-				googleUserInfoMemberResolver{},
-			),
+			// Resolve members from ID tokens in the authorization header.
+			authorizationIDTokenMemberResolver{},
 		),
 	}
 	grpcServer := grpc.NewServer(
@@ -131,20 +122,38 @@ func logRequestUnaryInterceptor(
 	return response, err
 }
 
-type googleUserInfoMemberResolver struct{}
+type authorizationIDTokenMemberResolver struct{}
 
-func (g googleUserInfoMemberResolver) ResolveIAMMembersFromGoogleUserInfo(
-	_ context.Context,
-	info *iamgooglemember.UserInfo,
-) ([]string, error) {
+func (authorizationIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) ([]string, iammember.Metadata, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, nil, nil
+	}
+	authorizationValues := md.Get("authorization")
+	if len(authorizationValues) == 0 {
+		return nil, nil, nil
+	}
+	authorization := authorizationValues[0]
+	var idToken iamgoogle.IDToken
+	if err := idToken.UnmarshalAuthorization(authorization); err != nil {
+		return nil, nil, err
+	}
+	if err := idToken.Validate(); err != nil {
+		return nil, nil, err
+	}
 	members := make([]string, 0, 2)
-	if info.Email != "" && info.EmailVerified {
-		members = append(members, fmt.Sprintf("email:%s", info.Email))
+	memberMetadata := make(iammember.Metadata)
+	if idToken.EmailVerified && idToken.Email != "" {
+		member := fmt.Sprintf("email:%s", idToken.Email)
+		members = append(members, member)
+		memberMetadata.Add("authorization", member)
 	}
-	if info.HostedDomain != "" {
-		members = append(members, fmt.Sprintf("domain:%s", info.HostedDomain))
+	if idToken.HostedDomain != "" {
+		member := fmt.Sprintf("email:%s", idToken.Email)
+		members = append(members, member)
+		memberMetadata.Add("authorization", member)
 	}
-	return members, nil
+	return members, memberMetadata, nil
 }
 
 type loggingIAMMemberResolver struct {
