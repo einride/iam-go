@@ -1,4 +1,4 @@
-package iamgooglemember
+package iamgoogle
 
 import (
 	"encoding/base64"
@@ -7,16 +7,23 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func TestUserInfo_UnmarshalBase64(t *testing.T) {
+func TestIDToken_UnmarshalBase64(t *testing.T) {
 	const input = `eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI0Nzk0NzQwMjEzNi1samxiNDAyaXA4MnQ5MnNvYzc0Y29mMnQ5ZTdrdm4ycC5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6IjQ3OTQ3NDAyMTM2LWxqbGI0MDJpcDgydDkyc29jNzRjb2YydDllN2t2bjJwLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0MDIyOTgxMjU1Nzk5OTk3NzgxIiwiaGQiOiJlaW5yaWRlLnRlY2giLCJlbWFpbCI6ImpvaGFubmVzLndpdHRlbnN0YW1AZWlucmlkZS50ZWNoIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJaS01zbExUTnEzRFJfamlxM0w5QnVnIiwibmFtZSI6IkpvaGFubmVzIFdpdHRlbnN0YW0iLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2dfblJHNFcwS1E3LVRTdlpuUWdzLTlfRmVfMmNLT1NkaVppbVVaPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IkpvaGFubmVzIiwiZmFtaWx5X25hbWUiOiJXaXR0ZW5zdGFtIiwibG9jYWxlIjoiZW4iLCJpYXQiOjE2MjIxNzgzMjIsImV4cCI6MTYyMjE4MTkyMn0=`
-	var ui UserInfo
+	var ui IDToken
 	assert.NilError(t, ui.UnmarshalBase64(input, base64.URLEncoding))
 	assert.Equal(t, "https://accounts.google.com", ui.Issuer)
 }
 
-func TestUserInfo_UnmarshalAuthorization(t *testing.T) {
+func TestIDToken_UnmarshalAuthorization(t *testing.T) {
 	const input = `bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjE3MTllYjk1N2Y2OTU2YjU4MThjMTk2OGZmMTZkZmY3NzRlNzA4ZGUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzMjU1NTk0MDU1OS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6IjMyNTU1OTQwNTU5LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTEyNzExMzIzNDA5NTc2OTI0NTgwIiwiaGQiOiJlaW5yaWRlLnRlY2giLCJlbWFpbCI6Im9zY2FyLnNvZGVybHVuZEBlaW5yaWRlLnRlY2giLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6ImlyMnhQemlQakhnVWFZbDBxNE5SdXciLCJpYXQiOjE2MjIzNzQ5MzAsImV4cCI6MTYyMjM3ODUzMH0.b2LKOgArtIIZYTPdPbdLNCit2KYEqg8Hdg0LGzCUwMye0bV6db7gsCp0ZV-6gY3wWATmkqJDu1HmtWV2t8UTISZmlUsM0Ja1tvDGQmBzzvDvK7QpVamEZTMFmRAYvXLAWVXshMPCnAVXv6_p4Ebj3tSksJtTeJKRQATFtC_16iwmR5_mvMJ2mbLRiDldy7P1jWGzcVJ7LCIcV3a8eevnZnuOnisFFMCGw6nACWKxax2wiFYn99CbZji5jdiFPdNF7fl3e49cc6mPjoz8gx0_3CS2kBRcMDPVwhzA8RSpMRIS2r4hc2Oq7kuwG2rfmcZHWN2S3zo5skRgAynrbrF_1A`
-	var ui UserInfo
+	var ui IDToken
 	assert.NilError(t, ui.UnmarshalAuthorization(input))
 	assert.Equal(t, "https://accounts.google.com", ui.Issuer)
+}
+
+func TestIDToken_IsFirebaseIDToken(t *testing.T) {
+	assert.Assert(t, (&IDToken{
+		Issuer:   "https://securetoken.google.com/test",
+		Audience: "test",
+	}).IsFirebaseIDToken())
 }

@@ -1,4 +1,4 @@
-package iamgooglemember
+package iamgoogle
 
 import (
 	"encoding/base64"
@@ -7,10 +7,16 @@ import (
 	"strings"
 )
 
-// UserInfo from a Google ID token.
+// Known issuers of Google ID tokens.
+const (
+	IDTokenIssuerGoogle   = "https://accounts.google.com"
+	IDTokenIssuerFirebase = "https://securetoken.google.com"
+)
+
+// IDToken is a Google ID token.
 //
 // See: https://developers.google.com/identity/protocols/oauth2/openid-connect
-type UserInfo struct {
+type IDToken struct {
 	// Issuer is an identifier for the Issuer of the response.
 	// Always https://accounts.google.com or accounts.google.com for Google ID tokens.
 	Issuer string `json:"iss,omitempty"`
@@ -56,62 +62,112 @@ type UserInfo struct {
 	Expires int64 `json:"exp,omitempty"`
 	// JWTID is the JWT ID of the ID token.
 	JWTID string `json:"jti,omitempty"`
+	// Firebase contains Firebase-specific claims, when the token is firebase-issued.
+	Firebase FirebaseClaims `json:"firebase,omitempty"`
+	// Claims contains the remaining custom claims of the token.
+	Claims map[string]interface{} `json:"-"`
 }
 
-// Validate returns an error if the UserInfo is missing any required fields or has invalid values for known fields.
-func (u *UserInfo) Validate() error {
-	if u.Issuer == "" {
+// FirebaseClaims contains Firebase specific token claims.
+// See: https://firebase.google.com/docs/rules/rules-and-auth
+type FirebaseClaims struct {
+	// Identities is a dictionary of all the identities that are associated with this user's account.
+	//
+	// The values of the dictionary are arrays of unique identifiers for each identity provider associated with
+	// the account.
+	//
+	// The keys of the dictionary can be any of the following:
+	// - email
+	// - phone
+	// - google.com
+	// - facebook.com
+	// - github.com
+	// - twitter.com
+	Identities map[string][]string
+	// The sign-in provider used to obtain this token.
+	//
+	// Can be one of the following strings:
+	// - custom
+	// - password
+	// - phone
+	// - anonymous
+	// - google.com
+	// - facebook.com
+	// - github.com
+	// - twitter.com
+	SignInProvider string `json:"sign_in_provider,omitempty"`
+	// Tenant contains the tenant ID of the authenticated user, if the user belongs to a Firebase tenant.
+	Tenant string `json:"tenant,omitempty"`
+}
+
+// IsFirebaseIDToken returns true if the token was issued by the Firebase ID token issuer.
+// See: https://firebase.google.com/docs/auth/admin/verify-id-tokens
+func (t *IDToken) IsFirebaseIDToken() bool {
+	return t.Issuer == IDTokenIssuerFirebase+"/"+t.Audience
+}
+
+// IsGoogleIDToken returns true if the token was issued by the Google ID token issuer.
+// See: https://developers.google.com/identity/protocols/oauth2/openid-connect
+func (t *IDToken) IsGoogleIDToken() bool {
+	return t.Issuer == IDTokenIssuerGoogle
+}
+
+// Validate returns an error if the IDToken is missing any required fields or has invalid values for known fields.
+func (t *IDToken) Validate() error {
+	if t.Issuer == "" {
 		return fmt.Errorf("validate user info: missing required field: 'iss'")
 	}
-	if u.Audience == "" {
+	if t.Audience == "" {
 		return fmt.Errorf("validate user info: missing required field: 'aud'")
 	}
-	if u.Expires == 0 {
+	if t.Expires == 0 {
 		return fmt.Errorf("validate user info: missing required field: 'exp'")
 	}
-	if u.IssuedAt == 0 {
+	if t.IssuedAt == 0 {
 		return fmt.Errorf("validate user info: missing required field: 'iat'")
 	}
-	if u.Subject == "" {
+	if t.Subject == "" {
 		return fmt.Errorf("validate user info: missing required field: 'sub'")
 	}
-	if strings.TrimPrefix(u.Issuer, "https://") != Issuer {
-		return fmt.Errorf("validate: unsupported issuer '%s'", u.Issuer)
+	if !(t.IsGoogleIDToken() || t.IsFirebaseIDToken()) {
+		return fmt.Errorf("validate: unsupported issuer '%s'", t.Issuer)
 	}
 	return nil
 }
 
-// UnmarshalBase64 unmarshals the UserInfo from the provided Base64-URL-encoded string.
-func (u *UserInfo) UnmarshalBase64(value string, encoding *base64.Encoding) error {
+// UnmarshalBase64 unmarshals the IDToken from the provided Base64-URL-encoded string.
+func (t *IDToken) UnmarshalBase64(value string, encoding *base64.Encoding) error {
 	decoder := json.NewDecoder(base64.NewDecoder(encoding, strings.NewReader(value)))
-	if err := decoder.Decode(u); err != nil {
+	if err := decoder.Decode(t); err != nil {
 		return fmt.Errorf("unmarshal Google user info from base64: %w", err)
 	}
-	if err := u.Validate(); err != nil {
+	if err := t.Validate(); err != nil {
 		return fmt.Errorf("unmarshal Google user info from base64: %w", err)
 	}
 	return nil
 }
 
-// UnmarshalJWT unmarshals the UserInfo from the provided JWT token.
-func (u *UserInfo) UnmarshalJWT(token string) error {
+// UnmarshalJWT unmarshals the IDToken from the provided JWT token.
+func (t *IDToken) UnmarshalJWT(token string) error {
 	s := strings.Split(token, ".")
 	if len(s) < 2 {
 		return fmt.Errorf("unmarshal user info from JWT: invalid token")
 	}
-	if err := u.UnmarshalBase64(s[1], base64.RawURLEncoding); err != nil {
+	if err := t.UnmarshalBase64(s[1], base64.RawURLEncoding); err != nil {
 		return fmt.Errorf("unmarshal user info from JWT: %w", err)
 	}
 	return nil
 }
 
-// UnmarshalAuthorization unmarshals the UserInfo from the provided authorization header value.
-func (u *UserInfo) UnmarshalAuthorization(authorization string) error {
+// UnmarshalAuthorization unmarshals the IDToken from the provided authorization header value.
+func (t *IDToken) UnmarshalAuthorization(authorization string) error {
 	const bearerTokenPrefix = "bearer "
-	if !strings.HasPrefix(authorization, bearerTokenPrefix) {
+	isBearerToken := len(authorization) > len(bearerTokenPrefix) &&
+		strings.EqualFold(authorization[:len(bearerTokenPrefix)], bearerTokenPrefix)
+	if !isBearerToken {
 		return fmt.Errorf("unmarshal Google user info from authorization: not a bearer token")
 	}
-	if err := u.UnmarshalJWT(strings.TrimPrefix(authorization, bearerTokenPrefix)); err != nil {
+	if err := t.UnmarshalJWT(strings.TrimPrefix(authorization, bearerTokenPrefix)); err != nil {
 		return fmt.Errorf("unmarshal Google user info from authorization: %w", err)
 	}
 	return nil

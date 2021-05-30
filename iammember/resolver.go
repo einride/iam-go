@@ -9,3 +9,13 @@ type Resolver interface {
 
 // Metadata contains IAM members partitioned by which gRPC metadata key they were resolved from.
 type Metadata map[string][]string
+
+// Add a member to the provided metadata key.
+func (m Metadata) Add(key, member string) {
+	for _, existingMember := range m[key] {
+		if member == existingMember {
+			return
+		}
+	}
+	m[key] = append(m[key], member)
+}
