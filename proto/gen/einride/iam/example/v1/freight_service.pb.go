@@ -1746,7 +1746,7 @@ var file_einride_iam_example_v1_freight_service_proto_rawDesc = []byte{
 	0x6e, 0x64, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
 	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
 	0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x07, 0x65, 0x6e, 0x64, 0x54, 0x69,
-	0x6d, 0x65, 0x32, 0xd7, 0x41, 0x0a, 0x0e, 0x46, 0x72, 0x65, 0x69, 0x67, 0x68, 0x74, 0x53, 0x65,
+	0x6d, 0x65, 0x32, 0xa7, 0x43, 0x0a, 0x0e, 0x46, 0x72, 0x65, 0x69, 0x67, 0x68, 0x74, 0x53, 0x65,
 	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0xec, 0x01, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x53, 0x68, 0x69,
 	0x70, 0x70, 0x65, 0x72, 0x12, 0x29, 0x2e, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65, 0x2e, 0x69,
 	0x61, 0x6d, 0x2e, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65,
@@ -2216,7 +2216,20 @@ var file_einride_iam_example_v1_freight_service_proto_rawDesc = []byte{
 	0x69, 0x73, 0x74, 0x20, 0x74, 0x68, 0x65, 0x20, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x27,
 	0x73, 0x20, 0x70, 0x72, 0x65, 0x64, 0x65, 0x66, 0x69, 0x6e, 0x65, 0x64, 0x20, 0x72, 0x6f, 0x6c,
 	0x65, 0x73, 0x2e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x0b, 0x12, 0x09, 0x2f, 0x76, 0x31, 0x2f, 0x72,
-	0x6f, 0x6c, 0x65, 0x73, 0x1a, 0xf5, 0x06, 0xca, 0x41, 0x18, 0x69, 0x61, 0x6d, 0x2d, 0x65, 0x78,
+	0x6f, 0x6c, 0x65, 0x73, 0x12, 0xcd, 0x01, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x52, 0x6f, 0x6c, 0x65,
+	0x12, 0x23, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x69, 0x61, 0x6d, 0x2e, 0x61, 0x64,
+	0x6d, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x69,
+	0x61, 0x6d, 0x2e, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x6f, 0x6c, 0x65,
+	0x22, 0x81, 0x01, 0x82, 0xb8, 0x62, 0x63, 0x0a, 0x11, 0x66, 0x72, 0x65, 0x69, 0x67, 0x68, 0x74,
+	0x2e, 0x72, 0x6f, 0x6c, 0x65, 0x73, 0x2e, 0x67, 0x65, 0x74, 0x1a, 0x4e, 0x0a, 0x1a, 0x74, 0x65,
+	0x73, 0x74, 0x28, 0x63, 0x61, 0x6c, 0x6c, 0x65, 0x72, 0x2c, 0x20, 0x72, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x2e, 0x6e, 0x61, 0x6d, 0x65, 0x29, 0x1a, 0x30, 0x54, 0x68, 0x65, 0x20, 0x63, 0x61,
+	0x6c, 0x6c, 0x65, 0x72, 0x20, 0x6d, 0x75, 0x73, 0x74, 0x20, 0x68, 0x61, 0x76, 0x65, 0x20, 0x70,
+	0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x20, 0x74, 0x6f, 0x20, 0x67, 0x65, 0x74,
+	0x20, 0x74, 0x68, 0x65, 0x20, 0x72, 0x6f, 0x6c, 0x65, 0x2e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x14,
+	0x12, 0x12, 0x2f, 0x76, 0x31, 0x2f, 0x7b, 0x6e, 0x61, 0x6d, 0x65, 0x3d, 0x72, 0x6f, 0x6c, 0x65,
+	0x73, 0x2f, 0x2a, 0x7d, 0x1a, 0xf5, 0x06, 0xca, 0x41, 0x18, 0x69, 0x61, 0x6d, 0x2d, 0x65, 0x78,
 	0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x65, 0x69, 0x6e, 0x72, 0x69, 0x64, 0x65, 0x2e, 0x74, 0x65,
 	0x63, 0x68, 0x8a, 0xb8, 0x62, 0xfb, 0x04, 0x0a, 0x53, 0x0a, 0x13, 0x72, 0x6f, 0x6c, 0x65, 0x73,
 	0x2f, 0x66, 0x72, 0x65, 0x69, 0x67, 0x68, 0x74, 0x2e, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x12, 0x0d,
@@ -2338,10 +2351,12 @@ var file_einride_iam_example_v1_freight_service_proto_goTypes = []interface{}{
 	(*v1.GetIamPolicyRequest)(nil),         // 31: google.iam.v1.GetIamPolicyRequest
 	(*v1.TestIamPermissionsRequest)(nil),   // 32: google.iam.v1.TestIamPermissionsRequest
 	(*v11.ListRolesRequest)(nil),           // 33: google.iam.admin.v1.ListRolesRequest
-	(*longrunning.Operation)(nil),          // 34: google.longrunning.Operation
-	(*v1.Policy)(nil),                      // 35: google.iam.v1.Policy
-	(*v1.TestIamPermissionsResponse)(nil),  // 36: google.iam.v1.TestIamPermissionsResponse
-	(*v11.ListRolesResponse)(nil),          // 37: google.iam.admin.v1.ListRolesResponse
+	(*v11.GetRoleRequest)(nil),             // 34: google.iam.admin.v1.GetRoleRequest
+	(*longrunning.Operation)(nil),          // 35: google.longrunning.Operation
+	(*v1.Policy)(nil),                      // 36: google.iam.v1.Policy
+	(*v1.TestIamPermissionsResponse)(nil),  // 37: google.iam.v1.TestIamPermissionsResponse
+	(*v11.ListRolesResponse)(nil),          // 38: google.iam.admin.v1.ListRolesResponse
+	(*v11.Role)(nil),                       // 39: google.iam.admin.v1.Role
 }
 var file_einride_iam_example_v1_freight_service_proto_depIdxs = []int32{
 	25, // 0: einride.iam.example.v1.ListShippersResponse.shippers:type_name -> einride.iam.example.v1.Shipper
@@ -2383,30 +2398,32 @@ var file_einride_iam_example_v1_freight_service_proto_depIdxs = []int32{
 	31, // 36: einride.iam.example.v1.FreightService.GetIamPolicy:input_type -> google.iam.v1.GetIamPolicyRequest
 	32, // 37: einride.iam.example.v1.FreightService.TestIamPermissions:input_type -> google.iam.v1.TestIamPermissionsRequest
 	33, // 38: einride.iam.example.v1.FreightService.ListRoles:input_type -> google.iam.admin.v1.ListRolesRequest
-	25, // 39: einride.iam.example.v1.FreightService.GetShipper:output_type -> einride.iam.example.v1.Shipper
-	2,  // 40: einride.iam.example.v1.FreightService.ListShippers:output_type -> einride.iam.example.v1.ListShippersResponse
-	25, // 41: einride.iam.example.v1.FreightService.CreateShipper:output_type -> einride.iam.example.v1.Shipper
-	25, // 42: einride.iam.example.v1.FreightService.UpdateShipper:output_type -> einride.iam.example.v1.Shipper
-	34, // 43: einride.iam.example.v1.FreightService.DeleteShipper:output_type -> google.longrunning.Operation
-	27, // 44: einride.iam.example.v1.FreightService.GetSite:output_type -> einride.iam.example.v1.Site
-	8,  // 45: einride.iam.example.v1.FreightService.ListSites:output_type -> einride.iam.example.v1.ListSitesResponse
-	27, // 46: einride.iam.example.v1.FreightService.CreateSite:output_type -> einride.iam.example.v1.Site
-	27, // 47: einride.iam.example.v1.FreightService.UpdateSite:output_type -> einride.iam.example.v1.Site
-	27, // 48: einride.iam.example.v1.FreightService.DeleteSite:output_type -> einride.iam.example.v1.Site
-	13, // 49: einride.iam.example.v1.FreightService.BatchGetSites:output_type -> einride.iam.example.v1.BatchGetSitesResponse
-	15, // 50: einride.iam.example.v1.FreightService.SearchSites:output_type -> einride.iam.example.v1.SearchSitesResponse
-	28, // 51: einride.iam.example.v1.FreightService.GetShipment:output_type -> einride.iam.example.v1.Shipment
-	18, // 52: einride.iam.example.v1.FreightService.ListShipments:output_type -> einride.iam.example.v1.ListShipmentsResponse
-	28, // 53: einride.iam.example.v1.FreightService.CreateShipment:output_type -> einride.iam.example.v1.Shipment
-	28, // 54: einride.iam.example.v1.FreightService.UpdateShipment:output_type -> einride.iam.example.v1.Shipment
-	28, // 55: einride.iam.example.v1.FreightService.DeleteShipment:output_type -> einride.iam.example.v1.Shipment
-	23, // 56: einride.iam.example.v1.FreightService.BatchGetShipments:output_type -> einride.iam.example.v1.BatchGetShipmentsResponse
-	35, // 57: einride.iam.example.v1.FreightService.SetIamPolicy:output_type -> google.iam.v1.Policy
-	35, // 58: einride.iam.example.v1.FreightService.GetIamPolicy:output_type -> google.iam.v1.Policy
-	36, // 59: einride.iam.example.v1.FreightService.TestIamPermissions:output_type -> google.iam.v1.TestIamPermissionsResponse
-	37, // 60: einride.iam.example.v1.FreightService.ListRoles:output_type -> google.iam.admin.v1.ListRolesResponse
-	39, // [39:61] is the sub-list for method output_type
-	17, // [17:39] is the sub-list for method input_type
+	34, // 39: einride.iam.example.v1.FreightService.GetRole:input_type -> google.iam.admin.v1.GetRoleRequest
+	25, // 40: einride.iam.example.v1.FreightService.GetShipper:output_type -> einride.iam.example.v1.Shipper
+	2,  // 41: einride.iam.example.v1.FreightService.ListShippers:output_type -> einride.iam.example.v1.ListShippersResponse
+	25, // 42: einride.iam.example.v1.FreightService.CreateShipper:output_type -> einride.iam.example.v1.Shipper
+	25, // 43: einride.iam.example.v1.FreightService.UpdateShipper:output_type -> einride.iam.example.v1.Shipper
+	35, // 44: einride.iam.example.v1.FreightService.DeleteShipper:output_type -> google.longrunning.Operation
+	27, // 45: einride.iam.example.v1.FreightService.GetSite:output_type -> einride.iam.example.v1.Site
+	8,  // 46: einride.iam.example.v1.FreightService.ListSites:output_type -> einride.iam.example.v1.ListSitesResponse
+	27, // 47: einride.iam.example.v1.FreightService.CreateSite:output_type -> einride.iam.example.v1.Site
+	27, // 48: einride.iam.example.v1.FreightService.UpdateSite:output_type -> einride.iam.example.v1.Site
+	27, // 49: einride.iam.example.v1.FreightService.DeleteSite:output_type -> einride.iam.example.v1.Site
+	13, // 50: einride.iam.example.v1.FreightService.BatchGetSites:output_type -> einride.iam.example.v1.BatchGetSitesResponse
+	15, // 51: einride.iam.example.v1.FreightService.SearchSites:output_type -> einride.iam.example.v1.SearchSitesResponse
+	28, // 52: einride.iam.example.v1.FreightService.GetShipment:output_type -> einride.iam.example.v1.Shipment
+	18, // 53: einride.iam.example.v1.FreightService.ListShipments:output_type -> einride.iam.example.v1.ListShipmentsResponse
+	28, // 54: einride.iam.example.v1.FreightService.CreateShipment:output_type -> einride.iam.example.v1.Shipment
+	28, // 55: einride.iam.example.v1.FreightService.UpdateShipment:output_type -> einride.iam.example.v1.Shipment
+	28, // 56: einride.iam.example.v1.FreightService.DeleteShipment:output_type -> einride.iam.example.v1.Shipment
+	23, // 57: einride.iam.example.v1.FreightService.BatchGetShipments:output_type -> einride.iam.example.v1.BatchGetShipmentsResponse
+	36, // 58: einride.iam.example.v1.FreightService.SetIamPolicy:output_type -> google.iam.v1.Policy
+	36, // 59: einride.iam.example.v1.FreightService.GetIamPolicy:output_type -> google.iam.v1.Policy
+	37, // 60: einride.iam.example.v1.FreightService.TestIamPermissions:output_type -> google.iam.v1.TestIamPermissionsResponse
+	38, // 61: einride.iam.example.v1.FreightService.ListRoles:output_type -> google.iam.admin.v1.ListRolesResponse
+	39, // 62: einride.iam.example.v1.FreightService.GetRole:output_type -> google.iam.admin.v1.Role
+	40, // [40:63] is the sub-list for method output_type
+	17, // [17:40] is the sub-list for method input_type
 	17, // [17:17] is the sub-list for extension type_name
 	17, // [17:17] is the sub-list for extension extendee
 	0,  // [0:17] is the sub-list for field type_name

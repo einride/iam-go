@@ -94,6 +94,8 @@ type FreightServiceClient interface {
 	TestIamPermissions(ctx context.Context, in *v1.TestIamPermissionsRequest, opts ...grpc.CallOption) (*v1.TestIamPermissionsResponse, error)
 	// Lists every predefined role that this service supports.
 	ListRoles(ctx context.Context, in *v11.ListRolesRequest, opts ...grpc.CallOption) (*v11.ListRolesResponse, error)
+	// Get a predefined role.
+	GetRole(ctx context.Context, in *v11.GetRoleRequest, opts ...grpc.CallOption) (*v11.Role, error)
 }
 
 type freightServiceClient struct {
@@ -302,6 +304,15 @@ func (c *freightServiceClient) ListRoles(ctx context.Context, in *v11.ListRolesR
 	return out, nil
 }
 
+func (c *freightServiceClient) GetRole(ctx context.Context, in *v11.GetRoleRequest, opts ...grpc.CallOption) (*v11.Role, error) {
+	out := new(v11.Role)
+	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/GetRole", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FreightServiceServer is the server API for FreightService service.
 // All implementations should embed UnimplementedFreightServiceServer
 // for forward compatibility
@@ -379,6 +390,8 @@ type FreightServiceServer interface {
 	TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error)
 	// Lists every predefined role that this service supports.
 	ListRoles(context.Context, *v11.ListRolesRequest) (*v11.ListRolesResponse, error)
+	// Get a predefined role.
+	GetRole(context.Context, *v11.GetRoleRequest) (*v11.Role, error)
 }
 
 // UnimplementedFreightServiceServer should be embedded to have forward compatible implementations.
@@ -450,6 +463,9 @@ func (UnimplementedFreightServiceServer) TestIamPermissions(context.Context, *v1
 }
 func (UnimplementedFreightServiceServer) ListRoles(context.Context, *v11.ListRolesRequest) (*v11.ListRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
+}
+func (UnimplementedFreightServiceServer) GetRole(context.Context, *v11.GetRoleRequest) (*v11.Role, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
 }
 
 // UnsafeFreightServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -859,6 +875,24 @@ func _FreightService_ListRoles_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FreightService_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v11.GetRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FreightServiceServer).GetRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/einride.iam.example.v1.FreightService/GetRole",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FreightServiceServer).GetRole(ctx, req.(*v11.GetRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FreightService_ServiceDesc is the grpc.ServiceDesc for FreightService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -953,6 +987,10 @@ var FreightService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRoles",
 			Handler:    _FreightService_ListRoles_Handler,
+		},
+		{
+			MethodName: "GetRole",
+			Handler:    _FreightService_GetRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -301,6 +301,19 @@ func NewFreightServiceAuthorization(
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
 	}
 	result.beforeListRoles = beforeListRoles
+	descriptorGetRole, err := protoregistry.GlobalFiles.FindDescriptorByName("einride.iam.example.v1.FreightService.GetRole")
+	if err != nil {
+		return nil, fmt.Errorf("new FreightService authorization: failed to find descriptor for GetRole")
+	}
+	methodGetRole, ok := descriptorGetRole.(protoreflect.MethodDescriptor)
+	if !ok {
+		return nil, fmt.Errorf("new FreightService authorization: got non-method descriptor for GetRole")
+	}
+	beforeGetRole, err := iamauthz.NewBeforeMethodAuthorization(methodGetRole, permissionTester, memberResolver)
+	if err != nil {
+		return nil, fmt.Errorf("new FreightService authorization: %w", err)
+	}
+	result.beforeGetRole = beforeGetRole
 	iamDescriptor, err := NewFreightServiceIAMDescriptor()
 	if err != nil {
 		return nil, err
@@ -335,6 +348,7 @@ type FreightServiceAuthorization struct {
 	beforeSetIamPolicy               *iamauthz.BeforeMethodAuthorization
 	beforeGetIamPolicy               *iamauthz.BeforeMethodAuthorization
 	beforeListRoles                  *iamauthz.BeforeMethodAuthorization
+	beforeGetRole                    *iamauthz.BeforeMethodAuthorization
 	beforeLongRunningOperationMethod *iamauthz.BeforeLongRunningOperationMethodAuthorization
 }
 
@@ -574,6 +588,17 @@ func (a *FreightServiceAuthorization) ListRoles(
 		return nil, err
 	}
 	return a.next.ListRoles(ctx, request)
+}
+
+func (a *FreightServiceAuthorization) GetRole(
+	ctx context.Context,
+	request *v11.GetRoleRequest,
+) (*v11.Role, error) {
+	ctx, err := a.beforeGetRole.AuthorizeRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return a.next.GetRole(ctx, request)
 }
 
 func (a *FreightServiceAuthorization) ListOperations(
