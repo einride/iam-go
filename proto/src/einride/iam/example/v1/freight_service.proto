@@ -519,6 +519,20 @@ service FreightService {
       }
     };
   }
+
+  // Get a predefined role.
+  rpc GetRole(google.iam.admin.v1.GetRoleRequest) returns (google.iam.admin.v1.Role) {
+    option (google.api.http) = {
+      get: "/v1/{name=roles/*}"
+    };
+    option (einride.iam.v1.method_authorization) = {
+      permission: "freight.roles.get"
+      before: {
+        expression: "test(caller, request.name)"
+        description: "The caller must have permission to get the role."
+      }
+    };
+  }
 }
 
 // Request message for FreightService.GetShipper.

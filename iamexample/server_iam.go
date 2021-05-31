@@ -38,3 +38,11 @@ func (s *Server) ListRoles(
 ) (*admin.ListRolesResponse, error) {
 	return s.IAM.ListRoles(ctx, request)
 }
+
+// GetRole implements admin.IAMServer.
+func (s *Server) GetRole(
+	ctx context.Context,
+	request *admin.GetRoleRequest,
+) (*admin.Role, error) {
+	return s.IAM.GetRole(ctx, request)
+}
