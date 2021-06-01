@@ -97,7 +97,7 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 		}
 	}
 	// Resolve long-running operation authorization operations.
-	for _, operationPermissions := range result.LongRunningOperationsAuthorization.OperationPermissions {
+	for _, operationPermissions := range result.LongRunningOperationsAuthorization.GetOperationPermissions() {
 		if len(operationPermissions.Operation.GetPattern()) > 0 {
 			// Operation is annotated with patterns manually. No need to resolve.
 			continue
