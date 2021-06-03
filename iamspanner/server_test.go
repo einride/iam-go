@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iammember"
+	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamresource"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
@@ -560,5 +561,52 @@ func TestServer(t *testing.T) {
 			}
 		}
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
+	})
+
+	t.Run("read+write", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(),
+			roles,
+			iammember.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		expected := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{
+					Role:    "roles/test.admin",
+					Members: []string{"user:user1"},
+				},
+			},
+		}
+		actual, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iam.Policy) (*iam.Policy, error) {
+			iampolicy.AddBinding(policy, "roles/test.admin", "user:user1")
+			return policy, nil
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected.Bindings, actual.Bindings, protocmp.Transform())
+		expected2 := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{
+					Role:    "roles/test.admin",
+					Members: []string{"user:user1"},
+				},
+				{
+					Role:    "roles/test.user",
+					Members: []string{"user:user2"},
+				},
+			},
+		}
+		actual2, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iam.Policy) (*iam.Policy, error) {
+			assert.DeepEqual(t, actual, policy, protocmp.Transform())
+			iampolicy.AddBinding(policy, "roles/test.user", "user:user2")
+			return policy, nil
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected2.Bindings, actual2.Bindings, protocmp.Transform())
 	})
 }

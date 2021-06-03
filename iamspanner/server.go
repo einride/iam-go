@@ -144,6 +144,41 @@ func (s *IAMServer) TestIamPermissions(
 	return response, nil
 }
 
+// ReadWritePolicy enables the caller to modify a policy in a read-write transaction.
+func (s *IAMServer) ReadWritePolicy(
+	ctx context.Context,
+	resource string,
+	fn func(*iam.Policy) (*iam.Policy, error),
+) (*iam.Policy, error) {
+	var result *iam.Policy
+	if _, err := s.client.ReadWriteTransaction(
+		ctx,
+		func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
+			policy, err := s.QueryIamPolicyInTransaction(ctx, tx, resource)
+			if err != nil {
+				return err
+			}
+			policy, err = fn(policy)
+			if err != nil {
+				return err
+			}
+			result = policy
+			mutations := []*spanner.Mutation{deleteIAMPolicyMutation(resource)}
+			mutations = append(mutations, insertIAMPolicyMutations(resource, policy)...)
+			return tx.BufferWrite(mutations)
+		},
+	); err != nil {
+		return nil, s.handleStorageError(ctx, err)
+	}
+	result.Etag = nil
+	etag, err := computeETag(result)
+	if err != nil {
+		return nil, err
+	}
+	result.Etag = etag
+	return result, nil
+}
+
 // TestPermissionOnResource tests if the caller has the specified permission on the specified resource.
 func (s *IAMServer) TestPermissionOnResource(
 	ctx context.Context,
