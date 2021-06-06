@@ -27,12 +27,12 @@ func (s *IAMServer) TestIamPermissions(
 	permissions := make(map[string]struct{}, len(request.Permissions))
 	tx := s.client.Single()
 	defer tx.Close()
-	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
+	if err := s.ReadBindingsByResourcesAndMembersInTransaction(
 		ctx,
 		tx,
-		memberResolveResult.Members,
 		[]string{request.Resource},
-		func(ctx context.Context, _, _ string, role *admin.Role) error {
+		memberResolveResult.Members,
+		func(ctx context.Context, _ string, role *admin.Role, _ string) error {
 			for _, permission := range request.Permissions {
 				if s.roles.RoleHasPermission(role.Name, permission) {
 					permissions[permission] = struct{}{}

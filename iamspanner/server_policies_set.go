@@ -23,7 +23,7 @@ func (s *IAMServer) SetIamPolicy(
 	}
 	var unfresh bool
 	if _, err := s.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
-		if ok, err := s.ValidateIamPolicyFreshnessInTransaction(
+		if ok, err := s.ValidatePolicyFreshnessInTransaction(
 			ctx, tx, request.GetResource(), request.GetPolicy().GetEtag(),
 		); err != nil {
 			return err
