@@ -19,7 +19,7 @@ func (s *IAMServer) GetIamPolicy(
 	}
 	tx := s.client.Single()
 	defer tx.Close()
-	return s.QueryIamPolicyInTransaction(ctx, tx, request.Resource)
+	return s.ReadPolicyInTransaction(ctx, tx, request.Resource)
 }
 
 func validateGetIamPolicyRequest(request *iam.GetIamPolicyRequest) error {

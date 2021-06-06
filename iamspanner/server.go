@@ -1,7 +1,6 @@
 package iamspanner
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"hash/crc32"
@@ -57,41 +56,6 @@ func NewIAMServer(
 	return s, nil
 }
 
-// ReadWritePolicy enables the caller to modify a policy in a read-write transaction.
-func (s *IAMServer) ReadWritePolicy(
-	ctx context.Context,
-	resource string,
-	fn func(*iam.Policy) (*iam.Policy, error),
-) (*iam.Policy, error) {
-	var result *iam.Policy
-	if _, err := s.client.ReadWriteTransaction(
-		ctx,
-		func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
-			policy, err := s.QueryIamPolicyInTransaction(ctx, tx, resource)
-			if err != nil {
-				return err
-			}
-			policy, err = fn(policy)
-			if err != nil {
-				return err
-			}
-			result = policy
-			mutations := []*spanner.Mutation{deleteIAMPolicyMutation(resource)}
-			mutations = append(mutations, insertIAMPolicyMutations(resource, policy)...)
-			return tx.BufferWrite(mutations)
-		},
-	); err != nil {
-		return nil, s.handleStorageError(ctx, err)
-	}
-	result.Etag = nil
-	etag, err := computeETag(result)
-	if err != nil {
-		return nil, err
-	}
-	result.Etag = etag
-	return result, nil
-}
-
 // TestPermissionOnResource tests if the caller has the specified permission on the specified resource.
 func (s *IAMServer) TestPermissionOnResource(
 	ctx context.Context,
@@ -130,12 +94,12 @@ func (s *IAMServer) TestResourcePermissions(
 	for resource := range resourcePermissions {
 		resources = append(resources, resource)
 	}
-	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
+	if err := s.ReadBindingsByResourcesAndMembersInTransaction(
 		ctx,
 		tx,
-		members,
 		resources,
-		func(ctx context.Context, _ string, boundResource string, role *admin.Role) error {
+		members,
+		func(ctx context.Context, boundResource string, role *admin.Role, _ string) error {
 			for resource, permission := range resourcePermissions {
 				result[resource] = result[resource] ||
 					(boundResource == iamresource.Root ||
@@ -169,12 +133,12 @@ func (s *IAMServer) TestPermissionOnResources(
 	result := make(map[string]bool, len(resources))
 	tx := s.client.Single()
 	defer tx.Close()
-	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
+	if err := s.ReadBindingsByResourcesAndMembersInTransaction(
 		ctx,
 		tx,
-		memberResolveResult.Members,
 		resources,
-		func(ctx context.Context, _ string, boundResource string, role *admin.Role) error {
+		memberResolveResult.Members,
+		func(ctx context.Context, boundResource string, role *admin.Role, _ string) error {
 			for _, resource := range resources {
 				result[resource] = result[resource] ||
 					(boundResource == iamresource.Root ||
@@ -188,204 +152,6 @@ func (s *IAMServer) TestPermissionOnResources(
 		return nil, s.handleStorageError(ctx, err)
 	}
 	return result, nil
-}
-
-// ReadRolesBoundToMembersAndResources reads all roles bound to the provided members and resources.
-func (s *IAMServer) ReadRolesBoundToMembersAndResources(
-	ctx context.Context,
-	members []string,
-	resources []string,
-	fn func(ctx context.Context, member, resource string, role *admin.Role) error,
-) error {
-	tx := s.client.Single()
-	defer tx.Close()
-	return s.ReadRolesBoundToMembersAndResourcesInTransaction(ctx, tx, members, resources, fn)
-}
-
-// ReadRolesBoundToMembersAndResourcesInTransaction reads all roles bound to members and resources
-// within the provided Spanner transaction.
-// Also considers roles bound to parent resources.
-func (s *IAMServer) ReadRolesBoundToMembersAndResourcesInTransaction(
-	ctx context.Context,
-	tx ReadTransaction,
-	members []string,
-	resources []string,
-	fn func(ctx context.Context, member, resource string, role *admin.Role) error,
-) error {
-	// Deduplicate resources and parents to read.
-	resourcesAndParents := make(map[string]struct{}, len(resources))
-	// Include root resource.
-	resourcesAndParents[iamresource.Root] = struct{}{}
-	for _, resource := range resources {
-		if resource == iamresource.Root {
-			continue
-		}
-		if !resourcename.ContainsWildcard(resource) {
-			resourcesAndParents[resource] = struct{}{}
-		}
-		resourcename.RangeParents(resource, func(parent string) bool {
-			if !resourcename.ContainsWildcard(parent) {
-				resourcesAndParents[parent] = struct{}{}
-			}
-			return true
-		})
-	}
-	// Build deduplicated key ranges to read.
-	memberResourceKeySets := make([]spanner.KeySet, 0, len(resources))
-	for resource := range resourcesAndParents {
-		for _, member := range members {
-			memberResourceKeySets = append(memberResourceKeySets, spanner.Key{member, resource}.AsPrefix())
-		}
-	}
-	iamPolicyBindings := iamspannerdb.Descriptor().IamPolicyBindings()
-	iamPolicyBindingsByMemberAndResource := iamspannerdb.Descriptor().IamPolicyBindingsByMemberAndResource()
-	return tx.ReadWithOptions(
-		ctx,
-		iamPolicyBindings.TableName(),
-		spanner.KeySets(memberResourceKeySets...),
-		[]string{
-			iamPolicyBindingsByMemberAndResource.Member().ColumnName(),
-			iamPolicyBindingsByMemberAndResource.Resource().ColumnName(),
-			iamPolicyBindingsByMemberAndResource.Role().ColumnName(),
-		},
-		&spanner.ReadOptions{
-			Index: iamPolicyBindingsByMemberAndResource.IndexName(),
-		},
-	).Do(func(r *spanner.Row) error {
-		var member string
-		if err := r.Column(0, &member); err != nil {
-			return err
-		}
-		var resource string
-		if err := r.Column(1, &resource); err != nil {
-			return err
-		}
-		var roleName string
-		if err := r.Column(2, &roleName); err != nil {
-			return err
-		}
-		role, ok := s.roles.FindRoleByName(roleName)
-		if !ok {
-			return status.Errorf(codes.Internal, "missing built-in role: %s", roleName)
-		}
-		return fn(ctx, member, resource, role)
-	})
-}
-
-// QueryResourcesBoundToMemberAndPermission reads all resources bound to the member and permission.
-func (s *IAMServer) QueryResourcesBoundToMemberAndPermission(
-	ctx context.Context,
-	member string,
-	permission string,
-) ([]string, error) {
-	tx := s.client.Single()
-	defer tx.Close()
-	return s.QueryResourcesBoundToMemberAndPermissionInTransaction(ctx, tx, member, permission)
-}
-
-// QueryResourcesBoundToMemberAndPermissionInTransaction reads all resources bound to the member and permission,
-// within the provided Spanner transaction.
-func (s *IAMServer) QueryResourcesBoundToMemberAndPermissionInTransaction(
-	ctx context.Context,
-	tx ReadTransaction,
-	member string,
-	permission string,
-) ([]string, error) {
-	memberRoleKeySets := make([]spanner.KeySet, 0, s.roles.Count())
-	s.roles.RangeRolesByPermission(permission, func(role *admin.Role) bool {
-		memberRoleKeySets = append(memberRoleKeySets, spanner.Key{member, role}.AsPrefix())
-		return true
-	})
-	iamPolicyBindings := iamspannerdb.Descriptor().IamPolicyBindings()
-	iamPolicyBindingsByMemberAndRole := iamspannerdb.Descriptor().IamPolicyBindingsByMemberAndRole()
-	var resources []string
-	if err := tx.ReadWithOptions(
-		ctx,
-		iamPolicyBindings.TableName(),
-		spanner.KeySets(memberRoleKeySets...),
-		[]string{
-			iamPolicyBindingsByMemberAndRole.Resource().ColumnName(),
-		},
-		&spanner.ReadOptions{
-			Index: iamPolicyBindingsByMemberAndRole.IndexName(),
-		},
-	).Do(func(r *spanner.Row) error {
-		var resource string
-		if err := r.Column(0, &resource); err != nil {
-			return err
-		}
-		resources = append(resources, resource)
-		return nil
-	}); err != nil {
-		return nil, s.handleStorageError(ctx, err)
-	}
-	return resources, nil
-}
-
-// QueryIamPolicyInTransaction queries the IAM policy for a resource within the provided transaction.
-func (s *IAMServer) QueryIamPolicyInTransaction(
-	ctx context.Context,
-	tx ReadTransaction,
-	resource string,
-) (*iam.Policy, error) {
-	var policy iam.Policy
-	var binding *iam.Binding
-	iamPolicyBindings := iamspannerdb.Descriptor().IamPolicyBindings()
-	if err := tx.Read(
-		ctx,
-		iamPolicyBindings.TableName(),
-		spanner.Key{resource}.AsPrefix(),
-		[]string{
-			iamPolicyBindings.BindingIndex().ColumnName(),
-			iamPolicyBindings.Role().ColumnName(),
-			iamPolicyBindings.Member().ColumnName(),
-		},
-	).Do(func(row *spanner.Row) error {
-		var bindingIndex int64
-		if err := row.Column(0, &bindingIndex); err != nil {
-			return err
-		}
-		var role string
-		if err := row.Column(1, &role); err != nil {
-			return err
-		}
-		var member string
-		if err := row.Column(2, &member); err != nil {
-			return err
-		}
-		if binding == nil || int(bindingIndex) >= len(policy.Bindings) {
-			binding = &iam.Binding{Role: role}
-			policy.Bindings = append(policy.Bindings, binding)
-		}
-		binding.Members = append(binding.Members, member)
-		return nil
-	}); err != nil {
-		return nil, s.handleStorageError(ctx, err)
-	}
-	etag, err := computeETag(&policy)
-	if err != nil {
-		return nil, err
-	}
-	policy.Etag = etag
-	return &policy, nil
-}
-
-// ValidateIamPolicyFreshnessInTransaction validates the freshness of an IAM policy for a resource
-// within the provided transaction.
-func (s *IAMServer) ValidateIamPolicyFreshnessInTransaction(
-	ctx context.Context,
-	tx ReadTransaction,
-	resource string,
-	etag []byte,
-) (bool, error) {
-	if len(etag) == 0 {
-		return true, nil
-	}
-	existingPolicy, err := s.QueryIamPolicyInTransaction(ctx, tx, resource)
-	if err != nil {
-		return false, fmt.Errorf("validate freshness: %w", err)
-	}
-	return bytes.Equal(existingPolicy.Etag, etag), nil
 }
 
 func deleteIAMPolicyMutation(resource string) *spanner.Mutation {

@@ -11,8 +11,7 @@ import (
 
 // Roles are a set of roles.
 type Roles struct {
-	roles             map[string]*admin.Role
-	rolesByPermission map[string][]*admin.Role
+	roles map[string]*admin.Role
 }
 
 // NewRoles creates a set of Roles from a pre-defined roles annotation.
@@ -21,14 +20,10 @@ func NewRoles(roles *iamv1.Roles) (*Roles, error) {
 		return nil, fmt.Errorf("invalid roles:\n%s", prototext.Format(err))
 	}
 	result := Roles{
-		roles:             make(map[string]*admin.Role, len(roles.Role)),
-		rolesByPermission: make(map[string][]*admin.Role, len(roles.Role)),
+		roles: make(map[string]*admin.Role, len(roles.Role)),
 	}
 	for _, role := range roles.Role {
 		result.roles[role.Name] = role
-		for _, includedPermission := range role.IncludedPermissions {
-			result.rolesByPermission[includedPermission] = append(result.rolesByPermission[includedPermission], role)
-		}
 	}
 	return &result, nil
 }
@@ -60,9 +55,11 @@ func (r *Roles) RangeRoles(fn func(*admin.Role) bool) {
 // RangeRolesByPermission iterates over all registered roles with the provided permission while f returns true.
 // The iteration order is undefined, and permissions with wildcards are not allowed.
 func (r *Roles) RangeRolesByPermission(permission string, fn func(*admin.Role) bool) {
-	for _, role := range r.rolesByPermission[permission] {
-		if !fn(role) {
-			break
+	for _, role := range r.roles {
+		if iamrole.HasPermission(role, permission) {
+			if !fn(role) {
+				break
+			}
 		}
 	}
 }
