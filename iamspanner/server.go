@@ -9,14 +9,12 @@ import (
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iammember"
-	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamrole"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -57,91 +55,6 @@ func NewIAMServer(
 		memberResolver: memberResolver,
 	}
 	return s, nil
-}
-
-// SetIamPolicy implements iam.IAMPolicyServer.
-func (s *IAMServer) SetIamPolicy(
-	ctx context.Context,
-	request *iam.SetIamPolicyRequest,
-) (*iam.Policy, error) {
-	if err := s.validateSetIamPolicyRequest(ctx, request); err != nil {
-		return nil, err
-	}
-	var unfresh bool
-	if _, err := s.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
-		if ok, err := s.ValidateIamPolicyFreshnessInTransaction(
-			ctx, tx, request.GetResource(), request.GetPolicy().GetEtag(),
-		); err != nil {
-			return err
-		} else if !ok {
-			unfresh = true
-			return nil
-		}
-		mutations := []*spanner.Mutation{deleteIAMPolicyMutation(request.Resource)}
-		mutations = append(mutations, insertIAMPolicyMutations(request.Resource, request.Policy)...)
-		return tx.BufferWrite(mutations)
-	}); err != nil {
-		return nil, s.handleStorageError(ctx, err)
-	}
-	if unfresh {
-		return nil, status.Error(codes.Aborted, "resource freshness validation failed")
-	}
-	request.Policy.Etag = nil
-	etag, err := computeETag(request.Policy)
-	if err != nil {
-		return nil, err
-	}
-	request.Policy.Etag = etag
-	return request.Policy, nil
-}
-
-// GetIamPolicy implements iam.IAMPolicyServer.
-func (s *IAMServer) GetIamPolicy(
-	ctx context.Context,
-	request *iam.GetIamPolicyRequest,
-) (*iam.Policy, error) {
-	tx := s.client.Single()
-	defer tx.Close()
-	return s.QueryIamPolicyInTransaction(ctx, tx, request.Resource)
-}
-
-// TestIamPermissions implements iam.IAMPolicyServer.
-func (s *IAMServer) TestIamPermissions(
-	ctx context.Context,
-	request *iam.TestIamPermissionsRequest,
-) (*iam.TestIamPermissionsResponse, error) {
-	memberResolveResult, err := s.memberResolver.ResolveIAMMembers(ctx)
-	if err != nil {
-		return nil, err
-	}
-	permissions := make(map[string]struct{}, len(request.Permissions))
-	tx := s.client.Single()
-	defer tx.Close()
-	if err := s.ReadRolesBoundToMembersAndResourcesInTransaction(
-		ctx,
-		tx,
-		memberResolveResult.Members,
-		[]string{request.Resource},
-		func(ctx context.Context, _, _ string, role *admin.Role) error {
-			for _, permission := range request.Permissions {
-				if s.roles.RoleHasPermission(role.Name, permission) {
-					permissions[permission] = struct{}{}
-				}
-			}
-			return nil
-		},
-	); err != nil {
-		return nil, s.handleStorageError(ctx, err)
-	}
-	response := &iam.TestIamPermissionsResponse{
-		Permissions: make([]string, 0, len(permissions)),
-	}
-	for _, permission := range request.Permissions {
-		if _, ok := permissions[permission]; ok {
-			response.Permissions = append(response.Permissions, permission)
-		}
-	}
-	return response, nil
 }
 
 // ReadWritePolicy enables the caller to modify a policy in a read-write transaction.
@@ -497,31 +410,6 @@ func insertIAMPolicyMutations(resource string, policy *iam.Policy) []*spanner.Mu
 		}
 	}
 	return mutations
-}
-
-func (s *IAMServer) validateSetIamPolicyRequest(ctx context.Context, request *iam.SetIamPolicyRequest) error {
-	var fieldViolations []*errdetails.BadRequest_FieldViolation
-	if len(request.Resource) == 0 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "resource",
-			Description: "missing required field",
-		})
-	}
-	for _, fieldViolation := range iampolicy.Validate(request.GetPolicy()).GetFieldViolations() {
-		fieldViolation.Field = fmt.Sprintf("policy.%s", fieldViolation.Field)
-		fieldViolations = append(fieldViolations, fieldViolation)
-	}
-	if len(fieldViolations) > 0 {
-		result, err := status.New(codes.InvalidArgument, "bad request").WithDetails(&errdetails.BadRequest{
-			FieldViolations: fieldViolations,
-		})
-		if err != nil {
-			s.logError(ctx, err)
-			return status.Error(codes.Internal, "failed to attach error details")
-		}
-		return result.Err()
-	}
-	return nil
 }
 
 func (s *IAMServer) logError(ctx context.Context, err error) {

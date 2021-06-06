@@ -30,7 +30,7 @@ func TestServer(t *testing.T) {
 		t.Cleanup(cancel)
 	}
 	fx := spantest.NewEmulatorFixture(t)
-	newDatabase := func() *spanner.Client {
+	newDatabase := func(t *testing.T) *spanner.Client {
 		return fx.NewDatabaseFromDDLFiles(t, "./schema.sql")
 	}
 	const (
@@ -76,7 +76,7 @@ func TestServer(t *testing.T) {
 	t.Run("get non-existent returns empty policy", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -96,10 +96,50 @@ func TestServer(t *testing.T) {
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
 
+	t.Run("get invalid resource", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iammember.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		actual, err := server.GetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.GetIamPolicyRequest{Resource: "ice cream is best"},
+		)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Assert(t, actual == nil)
+	})
+
+	t.Run("get wildcard resource", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iammember.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		actual, err := server.GetIamPolicy(
+			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			&iam.GetIamPolicyRequest{Resource: "resources/-"},
+		)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Assert(t, actual == nil)
+	})
+
 	t.Run("set", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -135,7 +175,7 @@ func TestServer(t *testing.T) {
 	t.Run("set stale", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -166,7 +206,7 @@ func TestServer(t *testing.T) {
 	t.Run("set and get", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -209,7 +249,7 @@ func TestServer(t *testing.T) {
 	t.Run("set and get other resource", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -255,7 +295,7 @@ func TestServer(t *testing.T) {
 	t.Run("test no permissions", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -283,7 +323,7 @@ func TestServer(t *testing.T) {
 	t.Run("test all permissions", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -326,7 +366,7 @@ func TestServer(t *testing.T) {
 	t.Run("test some permissions", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -370,7 +410,7 @@ func TestServer(t *testing.T) {
 	t.Run("test permissions different user", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -413,7 +453,7 @@ func TestServer(t *testing.T) {
 	t.Run("test permissions on parent", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -457,7 +497,7 @@ func TestServer(t *testing.T) {
 	t.Run("test permissions on root", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -501,7 +541,7 @@ func TestServer(t *testing.T) {
 	t.Run("get role", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -525,7 +565,7 @@ func TestServer(t *testing.T) {
 	t.Run("list roles", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
@@ -563,10 +603,10 @@ func TestServer(t *testing.T) {
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})
 
-	t.Run("read+write", func(t *testing.T) {
+	t.Run("read and write", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
-			newDatabase(),
+			newDatabase(t),
 			roles,
 			iammember.FromContextResolver(),
 			ServerConfig{
