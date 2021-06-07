@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
 )
 
@@ -25,7 +26,7 @@ func TestChainResolvers(t *testing.T) {
 		}
 		actual, err := ChainResolvers(constantResult(expected)).ResolveIAMMembers(context.Background())
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, actual)
+		assert.DeepEqual(t, expected, actual, cmpopts.IgnoreFields(ResolveResult{}, "Checksum"))
 	})
 
 	t.Run("multi", func(t *testing.T) {
@@ -38,20 +39,22 @@ func TestChainResolvers(t *testing.T) {
 		}
 		actual, err := ChainResolvers(
 			constantResult{
-				Members: []string{"foo", "bar"},
+				Checksum: 1,
+				Members:  []string{"foo", "bar"},
 				Metadata: Metadata{
 					"key1": {"foo", "bar"},
 				},
 			},
 			constantResult{
-				Members: []string{"baz"},
+				Checksum: 2,
+				Members:  []string{"baz"},
 				Metadata: Metadata{
 					"key2": {"baz"},
 				},
 			},
 		).ResolveIAMMembers(context.Background())
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, actual)
+		assert.DeepEqual(t, expected, actual, cmpopts.IgnoreFields(ResolveResult{}, "Checksum"))
 	})
 
 	t.Run("multi duplicates", func(t *testing.T) {
@@ -78,7 +81,7 @@ func TestChainResolvers(t *testing.T) {
 			},
 		).ResolveIAMMembers(context.Background())
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, actual)
+		assert.DeepEqual(t, expected, actual, cmpopts.IgnoreFields(ResolveResult{}, "Checksum"))
 	})
 
 	t.Run("error", func(t *testing.T) {
