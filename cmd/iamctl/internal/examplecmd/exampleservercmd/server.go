@@ -132,6 +132,7 @@ func (googleIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iamme
 	if !ok {
 		return result, nil
 	}
+	result.AddChecksum(authorizationKey, token)
 	var payload iamjwt.Payload
 	if err := payload.UnmarshalToken(token); err != nil {
 		return iammember.ResolveResult{}, err
