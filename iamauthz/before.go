@@ -36,7 +36,7 @@ func NewBeforeMethodAuthorization(
 	if !ok {
 		return nil, fmt.Errorf("strategy must be 'before'")
 	}
-	fns := NewFunctions(methodAuthorizationOptions, permissionTester)
+	fns := NewPermissionTestFunctions(methodAuthorizationOptions, permissionTester)
 	caller := (&iamv1.Caller{}).ProtoReflect().Descriptor()
 	env, err := cel.NewEnv(
 		cel.TypeDescs(collectTypeDescs(caller, method.Input())),
@@ -45,6 +45,7 @@ func NewBeforeMethodAuthorization(
 			decls.NewVar("request", decls.NewObjectType(string(method.Input().FullName()))),
 		),
 		cel.Declarations(fns.Declarations()...),
+		cel.Declarations(ResourceNameFunctions{}.Declarations()...),
 	)
 	if err != nil {
 		return nil, err
@@ -53,7 +54,11 @@ func NewBeforeMethodAuthorization(
 	if issues.Err() != nil {
 		return nil, issues.Err()
 	}
-	program, err := env.Program(ast, cel.Functions(fns.Functions()...))
+	program, err := env.Program(
+		ast,
+		cel.Functions(fns.Functions()...),
+		cel.Functions(ResourceNameFunctions{}.Functions()...),
+	)
 	if err != nil {
 		return nil, err
 	}

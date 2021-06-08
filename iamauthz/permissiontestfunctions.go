@@ -31,19 +31,22 @@ type PermissionTester interface {
 	) (map[string]bool, error)
 }
 
-type Functions struct {
+type PermissionTestFunctions struct {
 	options *iamv1.MethodAuthorizationOptions
 	tester  PermissionTester
 }
 
-func NewFunctions(options *iamv1.MethodAuthorizationOptions, tester PermissionTester) *Functions {
-	return &Functions{
+func NewPermissionTestFunctions(
+	options *iamv1.MethodAuthorizationOptions,
+	tester PermissionTester,
+) *PermissionTestFunctions {
+	return &PermissionTestFunctions{
 		options: options,
 		tester:  tester,
 	}
 }
 
-func (f *Functions) Declarations() []*expr.Decl {
+func (f *PermissionTestFunctions) Declarations() []*expr.Decl {
 	caller := (&iamv1.Caller{}).ProtoReflect().Descriptor()
 	return []*expr.Decl{
 		decls.NewFunction(
@@ -82,7 +85,7 @@ func (f *Functions) Declarations() []*expr.Decl {
 	}
 }
 
-func (f *Functions) Functions() []*functions.Overload {
+func (f *PermissionTestFunctions) Functions() []*functions.Overload {
 	return []*functions.Overload{
 		{Operator: testFunctionOverload, Binary: f.testCallerResource},
 		{Operator: testAllFunctionOverload, Binary: f.testAllCallerResources},
@@ -90,7 +93,7 @@ func (f *Functions) Functions() []*functions.Overload {
 	}
 }
 
-func (f *Functions) testCallerResource(callerVal ref.Val, resourceVal ref.Val) ref.Val {
+func (f *PermissionTestFunctions) testCallerResource(callerVal ref.Val, resourceVal ref.Val) ref.Val {
 	caller, ok := callerVal.Value().(*iamv1.Caller)
 	if !ok {
 		return types.NewErr("test: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, caller)
@@ -120,7 +123,7 @@ func (f *Functions) testCallerResource(callerVal ref.Val, resourceVal ref.Val) r
 	}
 }
 
-func (f *Functions) testAllCallerResources(callerVal, resourcesVal ref.Val) ref.Val {
+func (f *PermissionTestFunctions) testAllCallerResources(callerVal, resourcesVal ref.Val) ref.Val {
 	caller, ok := callerVal.Value().(*iamv1.Caller)
 	if !ok {
 		return types.NewErr("test_all: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, caller)
@@ -166,7 +169,7 @@ func (f *Functions) testAllCallerResources(callerVal, resourcesVal ref.Val) ref.
 	}
 }
 
-func (f *Functions) testAnyCallerResources(callerVal, resourcesVal ref.Val) ref.Val {
+func (f *PermissionTestFunctions) testAnyCallerResources(callerVal, resourcesVal ref.Val) ref.Val {
 	caller, ok := callerVal.Value().(*iamv1.Caller)
 	if !ok {
 		return types.NewErr("test_any: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, caller)
