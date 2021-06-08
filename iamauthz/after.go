@@ -36,7 +36,7 @@ func NewAfterMethodAuthorization(
 		return nil, fmt.Errorf("strategy must be 'after'")
 	}
 	caller := (&iamv1.Caller{}).ProtoReflect().Descriptor()
-	fns := NewFunctions(methodAuthorizationOptions, permissionTester)
+	fns := NewPermissionTestFunctions(methodAuthorizationOptions, permissionTester)
 	env, err := cel.NewEnv(
 		cel.TypeDescs(collectTypeDescs(caller, method.Input(), method.Output())),
 		cel.Declarations(
@@ -45,6 +45,7 @@ func NewAfterMethodAuthorization(
 			decls.NewVar("response", decls.NewObjectType(string(method.Output().FullName()))),
 		),
 		cel.Declarations(fns.Declarations()...),
+		cel.Declarations(ResourceNameFunctions{}.Declarations()...),
 	)
 	if err != nil {
 		return nil, err
@@ -53,7 +54,11 @@ func NewAfterMethodAuthorization(
 	if issues.Err() != nil {
 		return nil, issues.Err()
 	}
-	program, err := env.Program(ast, cel.Functions(fns.Functions()...))
+	program, err := env.Program(
+		ast,
+		cel.Functions(fns.Functions()...),
+		cel.Functions(ResourceNameFunctions{}.Functions()...),
+	)
 	if err != nil {
 		return nil, err
 	}
