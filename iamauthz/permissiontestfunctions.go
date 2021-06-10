@@ -9,6 +9,7 @@ import (
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
 	"github.com/google/cel-go/interpreter/functions"
+	"go.einride.tech/iam/iamreflect"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 )
@@ -102,9 +103,9 @@ func (f *PermissionTestFunctions) testCallerResource(callerVal ref.Val, resource
 	if !ok {
 		return types.NewErr("test: unexpected type of arg 2, expected string but got %T", resource)
 	}
-	permission, err := ResolvePermissionForResource(f.options, resource)
-	if err != nil {
-		return types.NewErr(err.Error())
+	permission, ok := iamreflect.ResolveMethodPermission(f.options, resource)
+	if !ok {
+		return types.NewErr("test: failed to resolve permission")
 	}
 	// TODO: When cel-go supports async functions, use the caller context here.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -141,9 +142,9 @@ func (f *PermissionTestFunctions) testAllCallerResources(callerVal, resourcesVal
 	}
 	resourcePermissions := make(map[string]string, len(resources))
 	for _, resource := range resources {
-		permission, err := ResolvePermissionForResource(f.options, resource)
-		if err != nil {
-			return types.NewErr(err.Error())
+		permission, ok := iamreflect.ResolveMethodPermission(f.options, resource)
+		if !ok {
+			return types.NewErr("test: failed to resolve permission")
 		}
 		resourcePermissions[resource] = permission
 	}
@@ -187,9 +188,9 @@ func (f *PermissionTestFunctions) testAnyCallerResources(callerVal, resourcesVal
 	}
 	resourcePermissions := make(map[string]string, len(resources))
 	for _, resource := range resources {
-		permission, err := ResolvePermissionForResource(f.options, resource)
-		if err != nil {
-			return types.NewErr(err.Error())
+		permission, ok := iamreflect.ResolveMethodPermission(f.options, resource)
+		if !ok {
+			return types.NewErr("test: failed to resolve permission")
 		}
 		resourcePermissions[resource] = permission
 	}
