@@ -12,6 +12,7 @@ import (
 type Server interface {
 	iam.IAMPolicyServer
 	ListRoles(context.Context, *admin.ListRolesRequest) (*admin.ListRolesResponse, error)
+	GetRole(context.Context, *admin.GetRoleRequest) (*admin.Role, error)
 }
 
 // Register the IAM mixin server with the provided gRPC server.
@@ -32,6 +33,14 @@ func (a *adminAdapter) ListRoles(
 	request *admin.ListRolesRequest,
 ) (*admin.ListRolesResponse, error) {
 	return a.server.ListRoles(ctx, request)
+}
+
+// GetRole implements admin.IAMServer.
+func (a *adminAdapter) GetRole(
+	ctx context.Context,
+	request *admin.GetRoleRequest,
+) (*admin.Role, error) {
+	return a.server.GetRole(ctx, request)
 }
 
 // SetIamPolicy implements admin.IAMServer.
