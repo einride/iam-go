@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"go.einride.tech/iam/iammember"
-	"go.einride.tech/iam/iamreflect"
+	"go.einride.tech/iam/iampermission"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -30,10 +30,10 @@ func NewBeforeLongRunningOperationMethodAuthorization(
 
 func (a *BeforeLongRunningOperationMethodAuthorization) AuthorizeRequest(
 	ctx context.Context,
-	request iamreflect.LongRunningOperationRequest,
+	request iampermission.LongRunningOperationRequest,
 ) (context.Context, error) {
 	Authorize(ctx)
-	permission, ok := iamreflect.ResolveLongRunningOperationPermission(a.operationsPermissions, request)
+	permission, ok := iampermission.ResolveLongRunningOperationPermission(a.operationsPermissions, request)
 	if !ok {
 		return nil, status.Error(codes.PermissionDenied, "no permission configured for long-running operation request")
 	}

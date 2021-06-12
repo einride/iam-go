@@ -26,19 +26,19 @@ func addNameViolations(result *validation.MessageValidator, name string) {
 		return
 	}
 	if !strings.HasPrefix(name, "roles/") {
-		result.AddFieldViolation("name", "must have format `roles/{service}.{role}`")
+		result.AddFieldViolation("name", "'%s' is not on the format `roles/{service}.{role}`", name)
 		return
 	}
 	roleID := strings.TrimPrefix(name, "roles/")
 	if len(roleID) > 64 {
-		result.AddFieldViolation("name", "role ID can be max 64 characters long")
+		result.AddFieldViolation("name", "'%s' has a too long role ID, it can be max 64 characters long", name)
 	}
 	if indexOfPeriod := strings.IndexByte(roleID, '.'); indexOfPeriod == -1 {
-		result.AddFieldViolation("name", "must be on the format `roles/{service}.{role}`")
+		result.AddFieldViolation("name", "'%s' is not on the format `roles/{service}.{role}`", name)
 	} else {
 		service, role := roleID[:indexOfPeriod], roleID[indexOfPeriod+1:]
 		if !isLowerCamelCase(service) || !isLowerCamelCase(role) {
-			result.AddFieldViolation("name", "each part of `roles/{service}.{role}` must be valid lowerCamelCase")
+			result.AddFieldViolation("name", "each part of '%s' must be valid lowerCamelCase", name)
 		}
 	}
 }
