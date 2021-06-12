@@ -10,7 +10,6 @@ import (
 	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamresource"
-	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"go.einride.tech/spanner-aip/spantest"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
@@ -38,39 +37,38 @@ func TestServer(t *testing.T) {
 		user2 = "email:user2@example.com"
 		user3 = "email:user3@example.com"
 	)
-	roles, err := iamregistry.NewRoles(&iamv1.Roles{
-		Role: []*admin.Role{
-			{
-				Name:        "roles/test.admin",
-				Title:       "Admin",
-				Description: "Test admin",
-				IncludedPermissions: []string{
-					"test.resources.create",
-					"test.resources.get",
-					"test.resources.update",
-					"test.resources.delete",
-				},
-			},
-			{
-				Name:        "roles/test.user",
-				Title:       "User",
-				Description: "Test user",
-				IncludedPermissions: []string{
-					"test.resources.create",
-					"test.resources.get",
-					"test.resources.update",
-				},
-			},
-			{
-				Name:        "roles/test.viewer",
-				Title:       "User",
-				Description: "Test user",
-				IncludedPermissions: []string{
-					"test.resources.get",
-				},
+	roles := []*admin.Role{
+		{
+			Name:        "roles/test.admin",
+			Title:       "Admin",
+			Description: "Test admin",
+			IncludedPermissions: []string{
+				"test.resources.create",
+				"test.resources.get",
+				"test.resources.update",
+				"test.resources.delete",
 			},
 		},
-	})
+		{
+			Name:        "roles/test.user",
+			Title:       "User",
+			Description: "Test user",
+			IncludedPermissions: []string{
+				"test.resources.create",
+				"test.resources.get",
+				"test.resources.update",
+			},
+		},
+		{
+			Name:        "roles/test.viewer",
+			Title:       "User",
+			Description: "Test user",
+			IncludedPermissions: []string{
+				"test.resources.get",
+			},
+		},
+	}
+	rolesRegistry, err := iamregistry.NewRoles(roles...)
 	assert.NilError(t, err)
 
 	t.Run("get non-existent returns empty policy", func(t *testing.T) {
@@ -550,7 +548,7 @@ func TestServer(t *testing.T) {
 				},
 			})
 		assert.NilError(t, err)
-		expected, ok := roles.FindRoleByName("roles/test.admin")
+		expected, ok := rolesRegistry.FindRoleByName("roles/test.admin")
 		assert.Assert(t, ok)
 		actual, err := server.GetRole(
 			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
@@ -574,15 +572,15 @@ func TestServer(t *testing.T) {
 				},
 			})
 		assert.NilError(t, err)
-		expected := make([]*admin.Role, 0, roles.Count())
-		roles.RangeRoles(func(role *admin.Role) bool {
+		expected := make([]*admin.Role, 0, rolesRegistry.Count())
+		rolesRegistry.RangeRoles(func(role *admin.Role) bool {
 			expected = append(expected, role)
 			return true
 		})
 		sort.Slice(expected, func(i, j int) bool {
 			return expected[i].Name < expected[j].Name
 		})
-		actual := make([]*admin.Role, 0, roles.Count())
+		actual := make([]*admin.Role, 0, rolesRegistry.Count())
 		var nextPageToken string
 		for {
 			response, err := server.ListRoles(

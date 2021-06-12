@@ -15,7 +15,6 @@ import (
 	"go.einride.tech/iam/iamjwt"
 	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iammixin"
-	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/api/idtoken"
@@ -28,13 +27,9 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 	if err != nil {
 		return nil, err
 	}
-	roles, err := iamregistry.NewRoles(iamDescriptor.PredefinedRoles)
-	if err != nil {
-		return nil, err
-	}
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
-		roles,
+		iamDescriptor.PredefinedRoles.Role,
 		iammember.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {

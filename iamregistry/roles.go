@@ -15,14 +15,14 @@ type Roles struct {
 }
 
 // NewRoles creates a set of Roles from a pre-defined roles annotation.
-func NewRoles(roles *iamv1.Roles) (*Roles, error) {
-	if err := iamreflect.ValidateRoles(roles); err != nil {
+func NewRoles(roles ...*admin.Role) (*Roles, error) {
+	if err := iamreflect.ValidateRoles(&iamv1.Roles{Role: roles}); err != nil {
 		return nil, fmt.Errorf("new roles registry: %w", err)
 	}
 	result := Roles{
-		roles: make(map[string]*admin.Role, len(roles.Role)),
+		roles: make(map[string]*admin.Role, len(roles)),
 	}
-	for _, role := range roles.Role {
+	for _, role := range roles {
 		result.roles[role.Name] = role
 	}
 	return &result, nil
