@@ -64,7 +64,7 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 		}
 	}
 	// Resolve method authorization resources.
-	for _, methodAuthorizationOptions := range result.MethodAuthorizationOptions {
+	for method, methodAuthorizationOptions := range result.MethodAuthorizationOptions {
 		resourcePermissions := methodAuthorizationOptions.GetResourcePermissions()
 		if resourcePermissions == nil {
 			continue
@@ -81,16 +81,18 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 			resource, ok := resolveResource(resourcePermission.Resource.GetType(), service, files)
 			if !ok {
 				return nil, fmt.Errorf(
-					"new %s IAM descriptor: unable to resolve resource '%s' patterns",
+					"new %s IAM descriptor: unable to resolve resource '%s' patterns for method '%s'",
 					service.Name(),
-					resource.GetType(),
+					resourcePermission.Resource.GetType(),
+					method,
 				)
 			}
 			if len(resource.Pattern) == 0 {
 				return nil, fmt.Errorf(
-					"new %s IAM descriptor: resource '%s' has no patterns",
+					"new %s IAM descriptor: resource '%s' has no patterns for method '%s'",
 					service.Name(),
 					resource.GetType(),
+					method,
 				)
 			}
 			resourcePermission.Resource = proto.Clone(resource).(*annotations.ResourceDescriptor)
