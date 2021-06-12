@@ -3,10 +3,10 @@ package iamregistry
 import (
 	"fmt"
 
+	"go.einride.tech/iam/iamreflect"
 	"go.einride.tech/iam/iamrole"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/protobuf/encoding/prototext"
 )
 
 // Roles are a set of roles.
@@ -16,8 +16,8 @@ type Roles struct {
 
 // NewRoles creates a set of Roles from a pre-defined roles annotation.
 func NewRoles(roles *iamv1.Roles) (*Roles, error) {
-	if err := ValidateRoles(roles); err != nil {
-		return nil, fmt.Errorf("invalid roles:\n%s", prototext.Format(err))
+	if err := iamreflect.ValidateRoles(roles); err != nil {
+		return nil, fmt.Errorf("new roles registry: %w", err)
 	}
 	result := Roles{
 		roles: make(map[string]*admin.Role, len(roles.Role)),

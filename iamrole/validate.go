@@ -5,109 +5,81 @@ import (
 	"strings"
 	"unicode"
 
+	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iampermission"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
 // Validate checks that an IAM role is valid.
-func Validate(role *admin.Role) *errdetails.BadRequest {
-	var result errdetails.BadRequest
-	result.FieldViolations = appendNameViolations(result.FieldViolations, role.GetName())
-	result.FieldViolations = appendTitleViolations(result.FieldViolations, role.GetTitle())
-	result.FieldViolations = appendDescriptionViolations(result.FieldViolations, role.GetTitle())
-	result.FieldViolations = appendIncludedPermissionsViolations(result.FieldViolations, role.GetIncludedPermissions())
-	if len(result.FieldViolations) > 0 {
-		return &result
-	}
-	return nil
+func Validate(role *admin.Role) error {
+	var result validation.MessageValidator
+	addNameViolations(&result, role.GetName())
+	addTitleViolations(&result, role.GetTitle())
+	addDescriptionViolations(&result, role.GetTitle())
+	addIncludedPermissionsViolations(&result, role.GetIncludedPermissions())
+	return result.Err()
 }
 
-func appendNameViolations(
-	fieldViolations []*errdetails.BadRequest_FieldViolation,
-	name string,
-) []*errdetails.BadRequest_FieldViolation {
+func addNameViolations(result *validation.MessageValidator, name string) {
 	if len(name) == 0 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "name",
-			Description: "must be non-empty",
-		})
+		result.AddFieldViolation("name", "must be non-empty")
+		return
 	}
 	if !strings.HasPrefix(name, "roles/") {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "name",
-			Description: "must have format `roles/{role}`",
-		})
+		result.AddFieldViolation("name", "must have format `roles/{service}.{role}`")
+		return
 	}
-	roleID := name[len("roles/"):]
+	roleID := strings.TrimPrefix(name, "roles/")
 	if len(roleID) > 64 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "name",
-			Description: "role ID can be max 64 characters long",
-		})
+		result.AddFieldViolation("name", "role ID can be max 64 characters long")
 	}
-	for _, r := range roleID {
-		if r > unicode.MaxASCII {
-			fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-				Field:       "name",
-				Description: "role ID must only contain ASCII characters",
-			})
-			break
-		}
-		if !(r == '.' || unicode.In(r, unicode.Letter, unicode.Digit)) {
-			fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-				Field:       "name",
-				Description: "role ID must only contain alphanumeric characters and periods",
-			})
-			break
+	if indexOfPeriod := strings.IndexByte(roleID, '.'); indexOfPeriod == -1 {
+		result.AddFieldViolation("name", "must be on the format `roles/{service}.{role}`")
+	} else {
+		service, role := roleID[:indexOfPeriod], roleID[indexOfPeriod+1:]
+		if !isLowerCamelCase(service) || !isLowerCamelCase(role) {
+			result.AddFieldViolation("name", "each part of `roles/{service}.{role}` must be valid lowerCamelCase")
 		}
 	}
-	return fieldViolations
 }
 
-func appendTitleViolations(
-	fieldViolations []*errdetails.BadRequest_FieldViolation,
-	title string,
-) []*errdetails.BadRequest_FieldViolation {
+func addTitleViolations(result *validation.MessageValidator, title string) {
 	if len(title) == 0 || len(title) > 100 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "title",
-			Description: "must be non-empty and <= 100 characters",
-		})
+		result.AddFieldViolation("title", "must be non-empty and <= 100 characters")
 	}
-	return fieldViolations
 }
 
-func appendDescriptionViolations(
-	fieldViolations []*errdetails.BadRequest_FieldViolation,
-	description string,
-) []*errdetails.BadRequest_FieldViolation {
+func addDescriptionViolations(result *validation.MessageValidator, description string) {
 	if len(description) == 0 || len(description) > 256 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "description",
-			Description: "must be non-empty and <= 256 characters",
-		})
+		result.AddFieldViolation("description", "must be non-empty and <= 256 characters")
 	}
-	return fieldViolations
 }
 
-func appendIncludedPermissionsViolations(
-	fieldViolations []*errdetails.BadRequest_FieldViolation,
-	includedPermissions []string,
-) []*errdetails.BadRequest_FieldViolation {
+func addIncludedPermissionsViolations(result *validation.MessageValidator, includedPermissions []string) {
 	if len(includedPermissions) == 0 {
-		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-			Field:       "included_permissions",
-			Description: "missing required field",
-		})
+		result.AddFieldViolation("included_permissions", "missing required field")
 	}
 	for i, includedPermission := range includedPermissions {
 		if err := iampermission.Validate(includedPermission); err != nil {
-			fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
-				Field:       fmt.Sprintf("included_permissions[%d]", i),
-				Description: err.Error(),
-			})
+			result.AddFieldError(fmt.Sprintf("included_permissions[%d]", i), err)
 		}
 	}
-	return fieldViolations
+}
+
+func isLowerCamelCase(s string) bool {
+	for i, r := range s {
+		if r > unicode.MaxASCII {
+			return false
+		}
+		if i == 0 {
+			if !unicode.IsLower(r) {
+				return false
+			}
+		} else {
+			if !unicode.In(r, unicode.Letter, unicode.Digit) {
+				return false
+			}
+		}
+	}
+	return true
 }
