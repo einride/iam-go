@@ -14,7 +14,7 @@ import (
 // IAMDescriptor represents an RPC service's IAM specification.
 type IAMDescriptor struct {
 	// PredefinedRoles are the service's predefined IAM roles.
-	PredefinedRoles *iamv1.Roles
+	PredefinedRoles *iamv1.PredefinedRoles
 	// LongRunningOperationsAuthorization is the service's configuration for authorization of long-running operations.
 	LongRunningOperationsAuthorization *iamv1.LongRunningOperationsAuthorization
 	// MethodAuthorizationOptions is a mapping from full method name to the method's authorization options.
@@ -36,8 +36,8 @@ func NewIAMDescriptor(service protoreflect.ServiceDescriptor, files *protoregist
 	}
 	if predefinedRoles := proto.GetExtension(
 		service.Options(), iamv1.E_PredefinedRoles,
-	).(*iamv1.Roles); predefinedRoles != nil {
-		result.PredefinedRoles = proto.Clone(predefinedRoles).(*iamv1.Roles)
+	).(*iamv1.PredefinedRoles); predefinedRoles != nil {
+		result.PredefinedRoles = proto.Clone(predefinedRoles).(*iamv1.PredefinedRoles)
 	}
 	if longRunningOperationsAuthorization := proto.GetExtension(
 		service.Options(), iamv1.E_LongRunningOperationsAuthorization,
