@@ -6,6 +6,7 @@ import (
 
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gotest.tools/v3/assert"
 )
@@ -38,7 +39,7 @@ func TestValidate(t *testing.T) {
 				FieldViolations: []*errdetails.BadRequest_FieldViolation{
 					{
 						Field:       "name",
-						Description: "must have format `roles/{role}`",
+						Description: "must have format `roles/{service}.{role}`",
 					},
 				},
 			},
@@ -63,7 +64,14 @@ func TestValidate(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.DeepEqual(t, tt.expected, Validate(tt.role), protocmp.Transform())
+			err := Validate(tt.role)
+			if tt.expected == nil {
+				assert.NilError(t, err)
+			} else {
+				actual, ok := status.Convert(err).Details()[0].(*errdetails.BadRequest)
+				assert.Assert(t, ok)
+				assert.DeepEqual(t, tt.expected, actual, protocmp.Transform())
+			}
 		})
 	}
 }

@@ -41,7 +41,7 @@ func TestServer(t *testing.T) {
 	roles, err := iamregistry.NewRoles(&iamv1.Roles{
 		Role: []*admin.Role{
 			{
-				Name:        "roles/admin",
+				Name:        "roles/test.admin",
 				Title:       "Admin",
 				Description: "Test admin",
 				IncludedPermissions: []string{
@@ -52,7 +52,7 @@ func TestServer(t *testing.T) {
 				},
 			},
 			{
-				Name:        "roles/user",
+				Name:        "roles/test.user",
 				Title:       "User",
 				Description: "Test user",
 				IncludedPermissions: []string{
@@ -62,7 +62,7 @@ func TestServer(t *testing.T) {
 				},
 			},
 			{
-				Name:        "roles/viewer",
+				Name:        "roles/test.viewer",
 				Title:       "User",
 				Description: "Test user",
 				IncludedPermissions: []string{
@@ -150,16 +150,16 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
 		}
 		expected := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
-			Etag: []byte("W/104-14AAE092"),
+			Etag: []byte("W/114-946EB3AA"),
 		}
 		actual, err := server.SetIamPolicy(
 			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
@@ -186,8 +186,8 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
 			// stale etag
 			Etag: []byte("W/1234"),
@@ -217,17 +217,17 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		expected := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
-			Etag: []byte("W/104-14AAE092"),
+			Etag: []byte("W/114-946EB3AA"),
 		}
 		actual, err := server.SetIamPolicy(
 			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
@@ -260,17 +260,17 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		expected := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1, user2}},
-				{Role: "roles/user", Members: []string{user3}},
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
 			},
-			Etag: []byte("W/104-14AAE092"),
+			Etag: []byte("W/114-946EB3AA"),
 		}
 		actual, err := server.SetIamPolicy(
 			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
@@ -334,7 +334,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1}},
+				{Role: "roles/test.admin", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
@@ -377,7 +377,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/viewer", Members: []string{user1}},
+				{Role: "roles/test.viewer", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
@@ -421,7 +421,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/admin", Members: []string{user1}},
+				{Role: "roles/test.admin", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
@@ -464,7 +464,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/viewer", Members: []string{user1}},
+				{Role: "roles/test.viewer", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
@@ -508,7 +508,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
-				{Role: "roles/viewer", Members: []string{user1}},
+				{Role: "roles/test.viewer", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
@@ -550,12 +550,12 @@ func TestServer(t *testing.T) {
 				},
 			})
 		assert.NilError(t, err)
-		expected, ok := roles.FindRoleByName("roles/admin")
+		expected, ok := roles.FindRoleByName("roles/test.admin")
 		assert.Assert(t, ok)
 		actual, err := server.GetRole(
 			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
 			&admin.GetRoleRequest{
-				Name: "roles/admin",
+				Name: "roles/test.admin",
 			},
 		)
 		assert.NilError(t, err)

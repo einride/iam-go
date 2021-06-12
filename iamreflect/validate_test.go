@@ -1,4 +1,4 @@
-package iamregistry
+package iamreflect
 
 import (
 	"testing"
@@ -6,6 +6,7 @@ import (
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gotest.tools/v3/assert"
 )
@@ -58,14 +59,21 @@ func TestValidateRoles(t *testing.T) {
 				FieldViolations: []*errdetails.BadRequest_FieldViolation{
 					{
 						Field:       "role[0].name",
-						Description: "must have format `roles/{role}`",
+						Description: "must have format `roles/{service}.{role}`",
 					},
 				},
 			},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.DeepEqual(t, tt.expected, ValidateRoles(tt.roles), protocmp.Transform())
+			err := ValidateRoles(tt.roles)
+			if tt.expected == nil {
+				assert.NilError(t, err)
+			} else {
+				actual, ok := status.Convert(err).Details()[0].(*errdetails.BadRequest)
+				assert.Assert(t, ok)
+				assert.DeepEqual(t, tt.expected, actual, protocmp.Transform())
+			}
 		})
 	}
 }
