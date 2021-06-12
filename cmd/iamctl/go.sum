@@ -313,8 +313,8 @@ github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.einride.tech/aip v0.35.0/go.mod h1:JgWM7uEMZ1GfTehF4YJKSPg3PQlwgpnLbL+imA0yH3M=
-go.einride.tech/aip v0.40.0 h1:ydsknOEKUDGyQv3TN7Xv6mF/INF11Xe9mNx+YskBeKQ=
-go.einride.tech/aip v0.40.0/go.mod h1:t0vJcNeHvth1KmLpBVNIlGOFpXnoEl6gqruf9xdtANw=
+go.einride.tech/aip v0.41.1 h1:dBlYes/aNAYJTOvnakIGNrUKqUdEw+CGVCvvG5iLc2g=
+go.einride.tech/aip v0.41.1/go.mod h1:t0vJcNeHvth1KmLpBVNIlGOFpXnoEl6gqruf9xdtANw=
 go.einride.tech/spanner-aip v0.34.0 h1:EtTeXHWZIaw6iWElJoNfkGvmF+gnEkFCWC+wowBbUCg=
 go.einride.tech/spanner-aip v0.34.0/go.mod h1:nxaR0F9hrPxC/7xmFDBIk68j+z9uwYtoNELYqcNjxf8=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

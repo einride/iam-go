@@ -1,4 +1,4 @@
-package iamauthz
+package iamcel
 
 import (
 	"testing"
@@ -8,12 +8,12 @@ import (
 )
 
 func TestResourceNameFunctions(t *testing.T) {
-	env, err := cel.NewEnv(cel.Declarations(ResourceNameFunctions{}.Declarations()...))
+	env, err := cel.NewEnv(cel.Declarations(NewAncestorFunctionDeclaration()))
 	assert.NilError(t, err)
 	t.Run("ok", func(t *testing.T) {
 		ast, issues := env.Compile(`ancestor('foo/1/bar/2', 'foo/{foo}')`)
 		assert.NilError(t, issues.Err())
-		program, err := env.Program(ast, cel.Functions(ResourceNameFunctions{}.Functions()...))
+		program, err := env.Program(ast, cel.Functions(NewAncestorFunctionImplementation()))
 		assert.NilError(t, err)
 		result, _, err := program.Eval(map[string]interface{}(nil))
 		assert.NilError(t, err)
@@ -22,7 +22,7 @@ func TestResourceNameFunctions(t *testing.T) {
 	t.Run("no match", func(t *testing.T) {
 		ast, issues := env.Compile(`ancestor('baz/1/bar/2', 'foo/{foo}')`)
 		assert.NilError(t, issues.Err())
-		program, err := env.Program(ast, cel.Functions(ResourceNameFunctions{}.Functions()...))
+		program, err := env.Program(ast, cel.Functions(NewAncestorFunctionImplementation()))
 		assert.NilError(t, err)
 		result, _, err := program.Eval(map[string]interface{}(nil))
 		assert.NilError(t, err)

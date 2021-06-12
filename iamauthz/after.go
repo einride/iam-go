@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/cel-go/cel"
-	"github.com/google/cel-go/checker/decls"
+	"go.einride.tech/iam/iamcel"
 	"go.einride.tech/iam/iammember"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc/codes"
@@ -35,18 +35,7 @@ func NewAfterMethodAuthorization(
 	if !ok {
 		return nil, fmt.Errorf("strategy must be 'after'")
 	}
-	caller := (&iamv1.Caller{}).ProtoReflect().Descriptor()
-	fns := NewPermissionTestFunctions(methodAuthorizationOptions, permissionTester)
-	env, err := cel.NewEnv(
-		cel.TypeDescs(collectTypeDescs(caller, method.Input(), method.Output())),
-		cel.Declarations(
-			decls.NewVar("caller", decls.NewObjectType(string(caller.FullName()))),
-			decls.NewVar("request", decls.NewObjectType(string(method.Input().FullName()))),
-			decls.NewVar("response", decls.NewObjectType(string(method.Output().FullName()))),
-		),
-		cel.Declarations(fns.Declarations()...),
-		cel.Declarations(ResourceNameFunctions{}.Declarations()...),
-	)
+	env, err := iamcel.NewAfterEnv(method)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +45,12 @@ func NewAfterMethodAuthorization(
 	}
 	program, err := env.Program(
 		ast,
-		cel.Functions(fns.Functions()...),
-		cel.Functions(ResourceNameFunctions{}.Functions()...),
+		cel.Functions(
+			iamcel.NewTestFunctionImplementation(methodAuthorizationOptions, permissionTester),
+			iamcel.NewTestAllFunctionImplementation(methodAuthorizationOptions, permissionTester),
+			iamcel.NewTestAnyFunctionImplementation(methodAuthorizationOptions, permissionTester),
+			iamcel.NewAncestorFunctionImplementation(),
+		),
 	)
 	if err != nil {
 		return nil, err
