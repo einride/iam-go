@@ -14,12 +14,12 @@ import (
 func TestValidateRoles(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
-		roles    *iamv1.Roles
+		roles    *iamv1.PredefinedRoles
 		expected *errdetails.BadRequest
 	}{
 		{
 			name: "valid",
-			roles: &iamv1.Roles{
+			roles: &iamv1.PredefinedRoles{
 				Role: []*admin.Role{
 					{
 						Name:                "roles/foo.barBaz",
@@ -39,7 +39,7 @@ func TestValidateRoles(t *testing.T) {
 
 		{
 			name: "invalid name format",
-			roles: &iamv1.Roles{
+			roles: &iamv1.PredefinedRoles{
 				Role: []*admin.Role{
 					{
 						Name:                "foobarbaz",
@@ -66,7 +66,7 @@ func TestValidateRoles(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateRoles(tt.roles)
+			err := ValidatePredefinedRoles(tt.roles)
 			if tt.expected == nil {
 				assert.NilError(t, err)
 			} else {

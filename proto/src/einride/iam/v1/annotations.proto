@@ -17,7 +17,7 @@ import "google/type/expr.proto";
 
 extend google.protobuf.ServiceOptions {
   // Predefined roles for the service.
-  Roles predefined_roles = 201601;
+  PredefinedRoles predefined_roles = 201601;
   // Long-running operations authorization for the service.
   LongRunningOperationsAuthorization long_running_operations_authorization = 201602;
 }
@@ -27,8 +27,8 @@ extend google.protobuf.MethodOptions {
   MethodAuthorizationOptions method_authorization = 201600;
 }
 
-// A list of roles.
-message Roles {
+// A list of predefined roles.
+message PredefinedRoles {
   repeated google.iam.admin.v1.Role role = 1;
 }
 

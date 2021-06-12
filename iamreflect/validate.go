@@ -8,8 +8,8 @@ import (
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 )
 
-// ValidateRoles validates a set of predefined roles.
-func ValidateRoles(roles *iamv1.Roles) error {
+// ValidatePredefinedRoles validates a set of predefined roles.
+func ValidatePredefinedRoles(roles *iamv1.PredefinedRoles) error {
 	var result validation.MessageValidator
 	roleNames := make(map[string]struct{}, len(roles.Role))
 	for i, role := range roles.Role {

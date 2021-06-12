@@ -16,7 +16,7 @@ type Roles struct {
 
 // NewRoles creates a set of Roles from a pre-defined roles annotation.
 func NewRoles(roles ...*admin.Role) (*Roles, error) {
-	if err := iamreflect.ValidateRoles(&iamv1.Roles{Role: roles}); err != nil {
+	if err := iamreflect.ValidatePredefinedRoles(&iamv1.PredefinedRoles{Role: roles}); err != nil {
 		return nil, fmt.Errorf("new roles registry: %w", err)
 	}
 	result := Roles{
