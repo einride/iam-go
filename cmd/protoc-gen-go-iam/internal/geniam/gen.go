@@ -3,12 +3,16 @@ package geniam
 import (
 	"fmt"
 
+	"go.einride.tech/iam/iamreflect"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
 const generatedFilenameSuffix = "_iam.pb.go"
 
-func GenerateFile(gen *protogen.Plugin, f *protogen.File) {
+func GenerateFile(gen *protogen.Plugin, files *protoregistry.Files, f *protogen.File) error {
 	filename := f.GeneratedFilenamePrefix + generatedFilenameSuffix
 	g := gen.NewGeneratedFile(filename, f.GoImportPath)
 	g.Skip()
@@ -26,6 +30,10 @@ func GenerateFile(gen *protogen.Plugin, f *protogen.File) {
 	g.P("package ", f.GoPackageName)
 	g.P()
 	for _, service := range f.Services {
+		if err := validateService(files, service); err != nil {
+			gen.Error(err)
+			continue
+		}
 		descriptor := descriptorCodeGenerator{gen: gen, file: f, service: service}
 		authorization := authorizationCodeGenerator{gen: gen, file: f, service: service}
 		if !descriptor.GeneratesCode() && !authorization.GeneratesCode() {
@@ -35,4 +43,43 @@ func GenerateFile(gen *protogen.Plugin, f *protogen.File) {
 		descriptor.GenerateCode(g)
 		authorization.GenerateCode(g)
 	}
+	return nil
+}
+
+func validateService(files *protoregistry.Files, service *protogen.Service) error {
+	if option := proto.GetExtension(
+		service.Desc.Options(), iamv1.E_PredefinedRoles,
+	).(*iamv1.PredefinedRoles); option != nil {
+		if err := iamreflect.ValidatePredefinedRoles(option); err != nil {
+			// TODO: Find location of the annotation to improve error location precision.
+			return locationError(files, service.Location, err)
+		}
+	}
+	if option := proto.GetExtension(
+		service.Desc.Options(), iamv1.E_LongRunningOperationsAuthorization,
+	).(*iamv1.LongRunningOperationsAuthorization); option != nil {
+		if err := iamreflect.ValidateLongRunningOperationsAuthorization(option); err != nil {
+			// TODO: Find location of the annotation to improve error location precision.
+			return locationError(files, service.Location, err)
+		}
+	}
+	for _, method := range service.Methods {
+		if options := proto.GetExtension(
+			method.Desc.Options(), iamv1.E_MethodAuthorization,
+		).(*iamv1.MethodAuthorizationOptions); options != nil {
+			if err := iamreflect.ValidateMethodAuthorizationOptions(options, method.Desc, files); err != nil {
+				return locationError(files, method.Location, err)
+			}
+		}
+	}
+	return nil
+}
+
+func locationError(files *protoregistry.Files, location protogen.Location, err error) error {
+	file, errFile := files.FindFileByPath(location.SourceFile)
+	if errFile != nil {
+		return fmt.Errorf("\n%s: %w", location.SourceFile, err)
+	}
+	sourceLocation := file.SourceLocations().ByPath(location.Path)
+	return fmt.Errorf("\n%s:%d:%d: %w", location.SourceFile, sourceLocation.StartLine, sourceLocation.StartColumn, err)
 }

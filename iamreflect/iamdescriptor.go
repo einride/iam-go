@@ -3,6 +3,7 @@ package iamreflect
 import (
 	"fmt"
 
+	"go.einride.tech/iam/iampermission"
 	"go.einride.tech/iam/iamresource"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/genproto/googleapis/api/annotations"
@@ -132,14 +133,7 @@ func (d *IAMDescriptor) ResolvePermissionByRequestAndResource(
 	if !ok {
 		return "", false
 	}
-	switch permissions := methodAuthorizationOptions.Permissions.(type) {
-	case *iamv1.MethodAuthorizationOptions_Permission:
-		return permissions.Permission, true
-	case *iamv1.MethodAuthorizationOptions_ResourcePermissions:
-		return ResolveResourcePermission(permissions.ResourcePermissions.GetResourcePermission(), resource)
-	default:
-		return "", false
-	}
+	return iampermission.ResolveMethodPermission(methodAuthorizationOptions, resource)
 }
 
 func (d *IAMDescriptor) FindMethodAuthorizationOptionsByRequest(

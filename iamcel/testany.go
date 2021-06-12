@@ -9,7 +9,7 @@ import (
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
 	"github.com/google/cel-go/interpreter/functions"
-	"go.einride.tech/iam/iamreflect"
+	"go.einride.tech/iam/iampermission"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 )
@@ -36,7 +36,7 @@ func NewTestAnyFunctionDeclaration() *expr.Decl {
 
 // NewTestAnyFunctionImplementation creates a new implementation for the test_all function.
 func NewTestAnyFunctionImplementation(
-	methodOptions *iamv1.MethodAuthorizationOptions,
+	options *iamv1.MethodAuthorizationOptions,
 	tester ResourcePermissionsTester,
 ) *functions.Overload {
 	return &functions.Overload{
@@ -59,7 +59,7 @@ func NewTestAnyFunctionImplementation(
 			}
 			resourcePermissions := make(map[string]string, len(resources))
 			for _, resource := range resources {
-				permission, ok := iamreflect.ResolveMethodPermission(methodOptions, resource)
+				permission, ok := iampermission.ResolveMethodPermission(options, resource)
 				if !ok {
 					return types.NewErr("test: failed to resolve permission '%s'", permission)
 				}

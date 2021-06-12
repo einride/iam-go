@@ -1,4 +1,4 @@
-package iamreflect
+package iampermission
 
 import (
 	"go.einride.tech/aip/resourcename"
