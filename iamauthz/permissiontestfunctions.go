@@ -105,7 +105,7 @@ func (f *PermissionTestFunctions) testCallerResource(callerVal ref.Val, resource
 	}
 	permission, ok := iamreflect.ResolveMethodPermission(f.options, resource)
 	if !ok {
-		return types.NewErr("test: failed to resolve permission")
+		return types.NewErr("test: failed to resolve permission for resource '%s'", resource)
 	}
 	// TODO: When cel-go supports async functions, use the caller context here.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -116,7 +116,7 @@ func (f *PermissionTestFunctions) testCallerResource(callerVal ref.Val, resource
 		resource,
 		permission,
 	); err != nil {
-		return types.NewErr("test: error testing permission: %v", err)
+		return types.NewErr("test: error testing permission '%s': %v", permission, err)
 	} else if !result {
 		return types.False
 	} else {
@@ -144,7 +144,7 @@ func (f *PermissionTestFunctions) testAllCallerResources(callerVal, resourcesVal
 	for _, resource := range resources {
 		permission, ok := iamreflect.ResolveMethodPermission(f.options, resource)
 		if !ok {
-			return types.NewErr("test: failed to resolve permission")
+			return types.NewErr("test: failed to resolve permission for resource '%s'", resource)
 		}
 		resourcePermissions[resource] = permission
 	}
@@ -190,7 +190,7 @@ func (f *PermissionTestFunctions) testAnyCallerResources(callerVal, resourcesVal
 	for _, resource := range resources {
 		permission, ok := iamreflect.ResolveMethodPermission(f.options, resource)
 		if !ok {
-			return types.NewErr("test: failed to resolve permission")
+			return types.NewErr("test: failed to resolve permission '%s'", permission)
 		}
 		resourcePermissions[resource] = permission
 	}
