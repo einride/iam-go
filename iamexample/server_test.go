@@ -10,7 +10,6 @@ import (
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iammember"
-	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner"
 	"go.einride.tech/iam/iamtest"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
@@ -55,12 +54,10 @@ func newServerTestSuite(t *testing.T) *serverTestSuite {
 func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	iamDescriptor, err := iamexamplev1.NewFreightServiceIAMDescriptor()
 	assert.NilError(t, err)
-	roles, err := iamregistry.NewRoles(iamDescriptor.PredefinedRoles)
-	assert.NilError(t, err)
 	spannerClient := ts.spanner.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
-		roles,
+		iamDescriptor.PredefinedRoles.Role,
 		iammember.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {

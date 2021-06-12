@@ -43,14 +43,18 @@ type ReadTransaction interface {
 // NewIAMServer creates a new Spanner IAM policy server.
 func NewIAMServer(
 	client *spanner.Client,
-	roles *iamregistry.Roles,
+	roles []*admin.Role,
 	memberResolver iammember.Resolver,
 	config ServerConfig,
 ) (*IAMServer, error) {
+	rolesRegistry, err := iamregistry.NewRoles(roles...)
+	if err != nil {
+		return nil, fmt.Errorf("new IAM server: %w", err)
+	}
 	s := &IAMServer{
 		client:         client,
 		config:         config,
-		roles:          roles,
+		roles:          rolesRegistry,
 		memberResolver: memberResolver,
 	}
 	return s, nil
