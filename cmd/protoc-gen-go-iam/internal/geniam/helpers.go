@@ -6,16 +6,22 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func getPredefinedRoles(service *protogen.Service) *iamv1.PredefinedRoles {
+func getPredefinedRoles(
+	service *protogen.Service,
+) *iamv1.PredefinedRoles {
 	return proto.GetExtension(service.Desc.Options(), iamv1.E_PredefinedRoles).(*iamv1.PredefinedRoles)
 }
 
-func getMethodAuthorizationOptions(method *protogen.Method) *iamv1.MethodAuthorizationOptions {
+func getMethodAuthorizationOptions(
+	method *protogen.Method,
+) *iamv1.MethodAuthorizationOptions {
 	return proto.GetExtension(method.Desc.Options(), iamv1.E_MethodAuthorization).(*iamv1.MethodAuthorizationOptions)
 }
 
-func getLongRunningOperationsAuthorization(service *protogen.Service) *iamv1.LongRunningOperationsAuthorization {
+func getLongRunningOperationsAuthorizationOptions(
+	service *protogen.Service,
+) *iamv1.LongRunningOperationsAuthorizationOptions {
 	return proto.GetExtension(
 		service.Desc.Options(), iamv1.E_LongRunningOperationsAuthorization,
-	).(*iamv1.LongRunningOperationsAuthorization)
+	).(*iamv1.LongRunningOperationsAuthorizationOptions)
 }

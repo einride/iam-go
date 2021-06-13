@@ -19,7 +19,7 @@ extend google.protobuf.ServiceOptions {
   // Predefined roles for the service.
   PredefinedRoles predefined_roles = 201601;
   // Long-running operations authorization for the service.
-  LongRunningOperationsAuthorization long_running_operations_authorization = 201602;
+  LongRunningOperationsAuthorizationOptions long_running_operations_authorization = 201602;
 }
 
 extend google.protobuf.MethodOptions {
@@ -70,7 +70,7 @@ message ResourcePermission {
 }
 
 // Long-running operations permissions.
-message LongRunningOperationsAuthorization {
+message LongRunningOperationsAuthorizationOptions {
   // The long-running operation permissions.
   repeated LongRunningOperationPermissions operation_permissions = 1;
   // Strategy that decides if the request is authorized.

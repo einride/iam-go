@@ -1,14 +1,17 @@
-package iamreflect
+package iamannotations
 
 import (
 	"fmt"
 
+	"github.com/google/cel-go/checker/decls"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iamcel"
 	"go.einride.tech/iam/iampermission"
+	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamrole"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
@@ -42,7 +45,9 @@ func ValidateMethodAuthorizationOptions(
 			result.AddFieldError("permission", err)
 		}
 	case *iamv1.MethodAuthorizationOptions_ResourcePermissions:
-		if err := validateResourcePermissions(permissions.ResourcePermissions, files); err != nil {
+		if err := validateResourcePermissions(
+			permissions.ResourcePermissions, files, method.ParentFile().Package(),
+		); err != nil {
 			result.AddFieldError("resource_permissions", err)
 		}
 	default:
@@ -85,8 +90,12 @@ func validateBeforeStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("parse error: %w", issues.Err())
 	}
-	if _, issues := env.Check(ast); issues.Err() != nil {
+	ast, issues = env.Check(ast)
+	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
+	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return fmt.Errorf("invalid result type: %v", ast.ResultType())
 	}
 	return nil
 }
@@ -106,41 +115,83 @@ func validateAfterStrategy(
 	if _, issues := env.Check(ast); issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
+	if !proto.Equal(ast.ResultType(), decls.Bool) {
+		return fmt.Errorf("invalid result type: %v", ast.ResultType())
+	}
 	return nil
 }
 
 func validateResourcePermissions(
 	resourcePermissions *iamv1.ResourcePermissions,
 	files *protoregistry.Files,
+	startPackage protoreflect.FullName,
 ) error {
-	// TODO: Implement me, and rewrite how resources are resolved during initialization of IAM descriptor.
-	//       (To fix current cross-package resolution issue).
-	return nil
+	var result validation.MessageValidator
+	if len(resourcePermissions.GetResourcePermission()) == 0 {
+		result.AddFieldViolation("resource_permission", "at least one resource permission is required")
+	}
+	for i, resourcePermission := range resourcePermissions.GetResourcePermission() {
+		switch {
+		case resourcePermission.GetResource().GetType() == "":
+			result.AddFieldViolation(fmt.Sprintf("resource_permission[%d].resource.type", i), "missing required field")
+		case resourcePermission.GetResource().GetType() == iamresource.Root:
+			if len(resourcePermission.GetResource().GetPattern()) > 0 {
+				result.AddFieldViolation(
+					fmt.Sprintf("resource_permission[%d]", i), "root resource must not have patterns",
+				)
+			}
+		case len(resourcePermission.GetResource().GetPattern()) > 0:
+			for j, pattern := range resourcePermission.GetResource().GetPattern() {
+				if err := resourcename.ValidatePattern(pattern); err != nil {
+					result.AddFieldError(fmt.Sprintf("resource_permission[%d].pattern[%d]", i, j), err)
+				}
+			}
+		default:
+			if resource, ok := resolveResource(files, startPackage, resourcePermission.GetResource().GetType()); ok {
+				if len(resource.Pattern) == 0 {
+					result.AddFieldViolation(
+						fmt.Sprintf("resource_permission[%d].resource.type", i),
+						"resolved resource '%s' has no patterns",
+						resourcePermission.GetResource().GetType(),
+					)
+				}
+			} else {
+				result.AddFieldViolation(
+					fmt.Sprintf("resource_permission[%d].resource.type", i),
+					"unable to resolve resource '%s'",
+					resourcePermission.GetResource().GetType(),
+				)
+			}
+		}
+	}
+	return result.Err()
 }
 
 // ValidateLongRunningOperationsAuthorization checks that a long-running operations authorization annotation is valid.
-func ValidateLongRunningOperationsAuthorization(authorization *iamv1.LongRunningOperationsAuthorization) error {
+func ValidateLongRunningOperationsAuthorization(
+	options *iamv1.LongRunningOperationsAuthorizationOptions,
+) error {
 	var result validation.MessageValidator
-	switch strategy := authorization.Strategy.(type) {
-	case *iamv1.LongRunningOperationsAuthorization_Before:
+	switch strategy := options.Strategy.(type) {
+	case *iamv1.LongRunningOperationsAuthorizationOptions_Before:
 		if !strategy.Before {
 			result.AddFieldViolation("before", "must be true")
 		}
-	case *iamv1.LongRunningOperationsAuthorization_Custom:
+	case *iamv1.LongRunningOperationsAuthorizationOptions_Custom:
 		if !strategy.Custom {
 			result.AddFieldViolation("custom", "must be true")
 		}
-	case *iamv1.LongRunningOperationsAuthorization_None:
+	case *iamv1.LongRunningOperationsAuthorizationOptions_None:
 		if !strategy.None {
 			result.AddFieldViolation("none", "must be true")
 		}
 	default:
 		result.AddFieldViolation("strategy", "one of (before|custom|none) must be specified")
 	}
-	if len(authorization.OperationPermissions) == 0 {
+	if len(options.OperationPermissions) == 0 {
 		result.AddFieldViolation("operation_permissions", "required field")
 	}
-	for i, operationPermissions := range authorization.OperationPermissions {
+	for i, operationPermissions := range options.OperationPermissions {
 		if err := validateOperationPermissions(operationPermissions); err != nil {
 			result.AddFieldError(fmt.Sprintf("operation_permissions[%d]", i), err)
 		}

@@ -3,7 +3,8 @@ package geniam
 import (
 	"fmt"
 
-	"go.einride.tech/iam/iamreflect"
+	"go.einride.tech/iam/iamannotations"
+
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
@@ -34,13 +35,16 @@ func GenerateFile(gen *protogen.Plugin, files *protoregistry.Files, f *protogen.
 			gen.Error(err)
 			continue
 		}
-		descriptor := descriptorCodeGenerator{gen: gen, file: f, service: service}
+		descriptor := descriptorCodeGenerator{gen: gen, files: files, service: service}
 		authorization := authorizationCodeGenerator{gen: gen, file: f, service: service}
 		if !descriptor.GeneratesCode() && !authorization.GeneratesCode() {
 			continue
 		}
 		g.Unskip()
-		descriptor.GenerateCode(g)
+		if err := descriptor.GenerateCode(g); err != nil {
+			gen.Error(locationError(files, service.Location, err))
+			continue
+		}
 		authorization.GenerateCode(g)
 	}
 	return nil
@@ -50,15 +54,15 @@ func validateService(files *protoregistry.Files, service *protogen.Service) erro
 	if option := proto.GetExtension(
 		service.Desc.Options(), iamv1.E_PredefinedRoles,
 	).(*iamv1.PredefinedRoles); option != nil {
-		if err := iamreflect.ValidatePredefinedRoles(option); err != nil {
+		if err := iamannotations.ValidatePredefinedRoles(option); err != nil {
 			// TODO: Find location of the annotation to improve error location precision.
 			return locationError(files, service.Location, err)
 		}
 	}
 	if option := proto.GetExtension(
 		service.Desc.Options(), iamv1.E_LongRunningOperationsAuthorization,
-	).(*iamv1.LongRunningOperationsAuthorization); option != nil {
-		if err := iamreflect.ValidateLongRunningOperationsAuthorization(option); err != nil {
+	).(*iamv1.LongRunningOperationsAuthorizationOptions); option != nil {
+		if err := iamannotations.ValidateLongRunningOperationsAuthorization(option); err != nil {
 			// TODO: Find location of the annotation to improve error location precision.
 			return locationError(files, service.Location, err)
 		}
@@ -67,7 +71,7 @@ func validateService(files *protoregistry.Files, service *protogen.Service) erro
 		if options := proto.GetExtension(
 			method.Desc.Options(), iamv1.E_MethodAuthorization,
 		).(*iamv1.MethodAuthorizationOptions); options != nil {
-			if err := iamreflect.ValidateMethodAuthorizationOptions(options, method.Desc, files); err != nil {
+			if err := iamannotations.ValidateMethodAuthorizationOptions(options, method.Desc, files); err != nil {
 				return locationError(files, method.Location, err)
 			}
 		}

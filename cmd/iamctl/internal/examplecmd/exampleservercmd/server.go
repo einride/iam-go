@@ -50,7 +50,7 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 		},
 	}
 	authorization, err := iamexamplev1.NewFreightServiceAuthorization(
-		freightServer, iamServer, iammember.FromContextResolver(),
+		freightServer, iamDescriptor, iamServer, iammember.FromContextResolver(),
 	)
 	if err != nil {
 		return nil, err

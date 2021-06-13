@@ -4,6 +4,11 @@ import (
 	"context"
 )
 
+type PermissionTester interface {
+	ResourcePermissionTester
+	ResourcePermissionsTester
+}
+
 // ResourcePermissionTester is an interface for testing the presence for a single resource permission binding.
 type ResourcePermissionTester interface {
 	TestResourcePermission(

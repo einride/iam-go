@@ -3,6 +3,7 @@ package iamauthz
 import (
 	"context"
 
+	"go.einride.tech/iam/iamcel"
 	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iampermission"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
@@ -11,20 +12,20 @@ import (
 )
 
 type BeforeLongRunningOperationMethodAuthorization struct {
-	operationsPermissions []*iamv1.LongRunningOperationPermissions
-	permissionTester      PermissionTester
-	memberResolver        iammember.Resolver
+	options          *iamv1.LongRunningOperationsAuthorizationOptions
+	permissionTester iamcel.PermissionTester
+	memberResolver   iammember.Resolver
 }
 
 func NewBeforeLongRunningOperationMethodAuthorization(
-	operationsPermissions []*iamv1.LongRunningOperationPermissions,
-	permissionTester PermissionTester,
+	options *iamv1.LongRunningOperationsAuthorizationOptions,
+	permissionTester iamcel.PermissionTester,
 	memberResolver iammember.Resolver,
 ) (*BeforeLongRunningOperationMethodAuthorization, error) {
 	return &BeforeLongRunningOperationMethodAuthorization{
-		operationsPermissions: operationsPermissions,
-		permissionTester:      permissionTester,
-		memberResolver:        memberResolver,
+		options:          options,
+		permissionTester: permissionTester,
+		memberResolver:   memberResolver,
 	}, nil
 }
 
@@ -33,7 +34,7 @@ func (a *BeforeLongRunningOperationMethodAuthorization) AuthorizeRequest(
 	request iampermission.LongRunningOperationRequest,
 ) (context.Context, error) {
 	Authorize(ctx)
-	permission, ok := iampermission.ResolveLongRunningOperationPermission(a.operationsPermissions, request)
+	permission, ok := iampermission.ResolveLongRunningOperationPermission(a.options.GetOperationPermissions(), request)
 	if !ok {
 		return nil, status.Error(codes.PermissionDenied, "no permission configured for long-running operation request")
 	}
