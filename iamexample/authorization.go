@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.einride.tech/iam/iamauthz"
-	"go.einride.tech/iam/iamreflect"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/grpc/codes"
@@ -15,7 +14,7 @@ type Authorization struct {
 	*iamexamplev1.FreightServiceAuthorization
 	Next          iamexamplev1.FreightServiceServer
 	IAMServer     *iamspanner.IAMServer
-	IAMDescriptor *iamreflect.IAMDescriptor
+	IAMDescriptor *iamexamplev1.FreightServiceIAMDescriptor
 }
 
 var _ iamexamplev1.FreightServiceServer = &Authorization{}

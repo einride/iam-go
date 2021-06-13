@@ -2,14 +2,13 @@ package iamspanner
 
 import (
 	"context"
+	"fmt"
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // ReadBindingsByResourcesAndMembers reads all roles bound to the provided members and resources.
@@ -84,7 +83,8 @@ func (s *IAMServer) ReadBindingsByResourcesAndMembersInTransaction(
 		}
 		role, ok := s.roles.FindRoleByName(roleName)
 		if !ok {
-			return status.Errorf(codes.Internal, "missing built-in role: %s", roleName)
+			s.logError(ctx, fmt.Errorf("missing built-in role: %s", roleName))
+			return nil
 		}
 		var member string
 		if err := r.Column(2, &member); err != nil {
@@ -155,7 +155,8 @@ func (s *IAMServer) ReadBindingsByMembersAndPermissionsInTransaction(
 		}
 		role, ok := s.roles.FindRoleByName(roleName)
 		if !ok {
-			return status.Errorf(codes.Internal, "missing built-in role: %s", roleName)
+			s.logError(ctx, fmt.Errorf("missing built-in role: %s", roleName))
+			return nil
 		}
 		var member string
 		if err := r.Column(2, &member); err != nil {

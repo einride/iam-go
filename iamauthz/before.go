@@ -15,23 +15,18 @@ import (
 )
 
 type BeforeMethodAuthorization struct {
-	methodAuthorizationOptions *iamv1.MethodAuthorizationOptions
-	memberResolver             iammember.Resolver
-	program                    cel.Program
+	options        *iamv1.MethodAuthorizationOptions
+	memberResolver iammember.Resolver
+	program        cel.Program
 }
 
 func NewBeforeMethodAuthorization(
 	method protoreflect.MethodDescriptor,
-	permissionTester PermissionTester,
+	options *iamv1.MethodAuthorizationOptions,
+	permissionTester iamcel.PermissionTester,
 	memberResolver iammember.Resolver,
 ) (*BeforeMethodAuthorization, error) {
-	methodAuthorizationOptions := proto.GetExtension(
-		method.Options(), iamv1.E_MethodAuthorization,
-	).(*iamv1.MethodAuthorizationOptions)
-	if methodAuthorizationOptions == nil {
-		return nil, fmt.Errorf("missing method_authorization annotation")
-	}
-	beforeStrategy, ok := methodAuthorizationOptions.Strategy.(*iamv1.MethodAuthorizationOptions_Before)
+	beforeStrategy, ok := options.Strategy.(*iamv1.MethodAuthorizationOptions_Before)
 	if !ok {
 		return nil, fmt.Errorf("strategy must be 'before'")
 	}
@@ -46,9 +41,9 @@ func NewBeforeMethodAuthorization(
 	program, err := env.Program(
 		ast,
 		cel.Functions(
-			iamcel.NewTestFunctionImplementation(methodAuthorizationOptions, permissionTester),
-			iamcel.NewTestAllFunctionImplementation(methodAuthorizationOptions, permissionTester),
-			iamcel.NewTestAnyFunctionImplementation(methodAuthorizationOptions, permissionTester),
+			iamcel.NewTestFunctionImplementation(options, permissionTester),
+			iamcel.NewTestAllFunctionImplementation(options, permissionTester),
+			iamcel.NewTestAnyFunctionImplementation(options, permissionTester),
 			iamcel.NewAncestorFunctionImplementation(),
 		),
 	)
@@ -56,9 +51,9 @@ func NewBeforeMethodAuthorization(
 		return nil, err
 	}
 	return &BeforeMethodAuthorization{
-		methodAuthorizationOptions: methodAuthorizationOptions,
-		memberResolver:             memberResolver,
-		program:                    program,
+		options:        options,
+		memberResolver: memberResolver,
+		program:        program,
 	}, nil
 }
 
@@ -83,7 +78,7 @@ func (a *BeforeMethodAuthorization) AuthorizeRequest(
 		return nil, status.Error(codes.Internal, "authorization policy returned non-bool result")
 	}
 	if !boolVal {
-		return nil, status.Error(codes.PermissionDenied, a.methodAuthorizationOptions.GetBefore().GetDescription())
+		return nil, status.Error(codes.PermissionDenied, a.options.GetBefore().GetDescription())
 	}
 	return ctx, nil
 }

@@ -75,7 +75,9 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 			},
 		},
 	}
-	authorization, err := iamexamplev1.NewFreightServiceAuthorization(server, iamServer, iammember.FromContextResolver())
+	authorization, err := iamexamplev1.NewFreightServiceAuthorization(
+		server, iamServer, iammember.FromContextResolver(),
+	)
 	assert.NilError(t, err)
 	serverWithAuthorization := &Authorization{
 		Next:                        server,

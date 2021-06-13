@@ -1,4 +1,4 @@
-package iamreflect
+package iamannotations
 
 import (
 	"testing"
