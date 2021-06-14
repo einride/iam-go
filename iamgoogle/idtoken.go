@@ -9,6 +9,6 @@ const Issuer = "https://accounts.google.com"
 
 // IsGoogleIDToken returns true if the JWT payload is from a Google ID token.
 // See: https://developers.google.com/identity/protocols/oauth2/openid-connect
-func IsGoogleIDToken(p iamjwt.Payload) bool {
-	return p.Issuer == Issuer
+func IsGoogleIDToken(token iamjwt.Token) bool {
+	return token.Issuer == Issuer
 }

@@ -7,6 +7,6 @@ import (
 )
 
 // ProjectID returns the token payload's Firebase project ID.
-func ProjectID(p iamjwt.Payload) string {
-	return strings.TrimPrefix(p.Issuer, Issuer+"/")
+func ProjectID(token iamjwt.Token) string {
+	return strings.TrimPrefix(token.Issuer, Issuer+"/")
 }
