@@ -9,6 +9,6 @@ const Issuer = "https://securetoken.google.com"
 
 // IsFirebaseIDToken returns true if the JWT payload is from a Firebase ID token.
 // See: https://firebase.google.com/docs/rules/rules-and-auth
-func IsFirebaseIDToken(p iamjwt.Payload) bool {
-	return p.Issuer == Issuer+"/"+p.Audience
+func IsFirebaseIDToken(token iamjwt.Token) bool {
+	return token.Issuer == Issuer+"/"+token.Audience
 }
