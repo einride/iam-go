@@ -220,6 +220,7 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 	g.P("if err != nil {")
 	g.P("return nil, ", fmtErrorf, `("new `, c.service.GoName, ` authorization: %w", err)`)
 	g.P("}")
+	g.P("_ = descriptor") // instead of figuring out if it will be used
 	g.P("var result ", c.StructGoName())
 	g.P("result.next = next")
 	for _, method := range c.service.Methods {

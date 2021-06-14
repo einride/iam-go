@@ -242,6 +242,7 @@ func NewFreightServiceAuthorization(
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
 	}
+	_ = descriptor
 	var result FreightServiceAuthorization
 	result.next = next
 	descriptorGetShipper, err := protoregistry.GlobalFiles.FindDescriptorByName("einride.iam.example.v1.FreightService.GetShipper")
