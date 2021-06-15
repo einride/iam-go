@@ -14,7 +14,7 @@ type Resolver interface {
 // ResolveResult is the output from a Resolver.
 type ResolveResult struct {
 	// Metadata are the resolved IAM members partitioned by which metadata key they were resolved from.
-	Metadata map[string]MetadataValue
+	Metadata Metadata
 }
 
 // Metadata is a map from metadata keys to IAM members resolved from the metadata values.
