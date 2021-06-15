@@ -43,7 +43,7 @@ func (a *BeforeLongRunningOperationMethodAuthorization) AuthorizeRequest(
 		return nil, err
 	}
 	result, err := a.permissionTester.TestResourcePermission(
-		ctx, memberResolveResult.Members, request.GetName(), permission,
+		ctx, memberResolveResult.Members(), request.GetName(), permission,
 	)
 	if err != nil {
 		return nil, err

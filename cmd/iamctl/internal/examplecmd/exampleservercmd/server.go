@@ -127,28 +127,32 @@ func (googleIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iamme
 	if !ok {
 		return result, nil
 	}
-	result.AddChecksum(authorizationKey, token)
-	var payload iamjwt.Token
-	if err := payload.UnmarshalString(token); err != nil {
+	var jwt iamjwt.Token
+	if err := jwt.UnmarshalString(token); err != nil {
 		return iammember.ResolveResult{}, err
 	}
+	value := iammember.MetadataValue{JWT: &jwt}
 	switch {
-	case iamgoogle.IsGoogleIDToken(payload):
+	case iamgoogle.IsGoogleIDToken(jwt):
 		googlePayload, err := idtoken.Validate(ctx, token, "")
 		if err != nil {
 			return iammember.ResolveResult{}, err
 		}
 		if iamgoogle.IsEmailVerified(googlePayload) {
 			if email, ok := iamgoogle.Email(googlePayload); ok {
-				result.Add(authorizationKey, fmt.Sprintf("email:%s", email))
+				value.Members = append(value.Members, fmt.Sprintf("email:%s", email))
 			}
 		}
 		if hostedDomain, ok := iamgoogle.HostedDomain(googlePayload); ok {
-			result.Add(authorizationKey, fmt.Sprintf("domain:%s", hostedDomain))
+			value.Members = append(value.Members, fmt.Sprintf("domain:%s", hostedDomain))
 		}
-	case iamfirebase.IsFirebaseIDToken(payload):
+		result.Add(authorizationKey, iammember.MetadataValue{
+			JWT:     &jwt,
+			Members: value.Members,
+		})
+	case iamfirebase.IsFirebaseIDToken(jwt):
 		app, err := firebase.NewApp(ctx, &firebase.Config{
-			ProjectID: iamfirebase.ProjectID(payload),
+			ProjectID: iamfirebase.ProjectID(jwt),
 		})
 		if err != nil {
 			return iammember.ResolveResult{}, err
@@ -161,11 +165,11 @@ func (googleIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iamme
 		if err != nil {
 			return iammember.ResolveResult{}, err
 		}
-		result.Add(authorizationKey, fmt.Sprintf("user:%s", payload.Subject))
+		value.Members = append(value.Members, fmt.Sprintf("user:%s", payload.Subject))
 		if payload.Firebase.Tenant != "" {
-			result.Add(authorizationKey, fmt.Sprintf("tenant:%s", payload.Firebase.Tenant))
+			value.Members = append(value.Members, fmt.Sprintf("tenant:%s", payload.Firebase.Tenant))
 		}
 	}
-	log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
+	log.Printf("[IAM]\t%v %v", result.Members(), result.Metadata)
 	return result, nil
 }

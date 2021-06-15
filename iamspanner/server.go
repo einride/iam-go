@@ -141,7 +141,7 @@ func (s *IAMServer) TestPermissionOnResources(
 		ctx,
 		tx,
 		resources,
-		memberResolveResult.Members,
+		memberResolveResult.Members(),
 		func(ctx context.Context, boundResource string, role *admin.Role, _ string) error {
 			for _, resource := range resources {
 				result[resource] = result[resource] ||

@@ -26,10 +26,7 @@ func (m *iamMemberHeaderResolver) ResolveIAMMembers(ctx context.Context) (iammem
 	if !ok {
 		return result, nil
 	}
-	for _, member := range md.Get(MemberHeader) {
-		result.AddChecksum(MemberHeader, member)
-		result.Add(MemberHeader, member)
-	}
+	result.Add(MemberHeader, iammember.MetadataValue{Members: md.Get(MemberHeader)})
 	return result, nil
 }
 

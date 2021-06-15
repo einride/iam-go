@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
 )
 
@@ -18,75 +17,71 @@ func TestChainResolvers(t *testing.T) {
 
 	t.Run("single", func(t *testing.T) {
 		expected := ResolveResult{
-			Members: []string{"foo", "bar"},
 			Metadata: Metadata{
-				"key1": {"foo"},
-				"key2": {"bar"},
+				"key1": {Members: []string{"foo"}},
+				"key2": {Members: []string{"bar"}},
 			},
 		}
 		actual, err := ChainResolvers(constantResult(expected)).ResolveIAMMembers(context.Background())
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, actual, cmpopts.IgnoreFields(ResolveResult{}, "Checksum"))
+		assert.DeepEqual(t, expected, actual)
 	})
 
 	t.Run("multi", func(t *testing.T) {
 		expected := ResolveResult{
-			Members: []string{"foo", "bar", "baz"},
 			Metadata: Metadata{
-				"key1": {"foo", "bar"},
-				"key2": {"baz"},
+				"key1": {Members: []string{"foo", "bar"}},
+				"key2": {Members: []string{"baz"}},
 			},
 		}
 		actual, err := ChainResolvers(
 			constantResult{
-				Checksum: 1,
-				Members:  []string{"foo", "bar"},
 				Metadata: Metadata{
-					"key1": {"foo", "bar"},
+					"key1": {Members: []string{"foo", "bar"}},
 				},
 			},
 			constantResult{
-				Checksum: 2,
-				Members:  []string{"baz"},
 				Metadata: Metadata{
-					"key2": {"baz"},
+					"key2": {Members: []string{"baz"}},
 				},
 			},
 		).ResolveIAMMembers(context.Background())
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, actual, cmpopts.IgnoreFields(ResolveResult{}, "Checksum"))
+		assert.DeepEqual(t, expected, actual)
 	})
 
 	t.Run("multi duplicates", func(t *testing.T) {
 		expected := ResolveResult{
-			Members: []string{"foo", "bar", "baz"},
 			Metadata: Metadata{
-				"key1": {"foo", "bar", "baz"},
-				"key2": {"bar", "baz"},
+				"key1": {Members: []string{"bar"}},
+				"key2": {Members: []string{"bar", "baz"}},
 			},
 		}
 		actual, err := ChainResolvers(
 			constantResult{
-				Members: []string{"foo", "bar"},
 				Metadata: Metadata{
-					"key1": {"foo", "bar"},
+					"key1": {Members: []string{"foo", "bar"}},
 				},
 			},
 			constantResult{
-				Members: []string{"bar", "baz"},
 				Metadata: Metadata{
-					"key1": {"baz"},
-					"key2": {"bar", "baz"},
+					"key1": {Members: []string{"bar"}},
+					"key2": {Members: []string{"bar", "baz"}},
 				},
 			},
 		).ResolveIAMMembers(context.Background())
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, actual, cmpopts.IgnoreFields(ResolveResult{}, "Checksum"))
+		assert.DeepEqual(t, expected, actual)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		actual, err := ChainResolvers(
-			constantResult{Members: []string{"foo", "bar"}},
+			constantResult{
+				Metadata: Metadata{
+					"key1": {Members: []string{"baz"}},
+					"key2": {Members: []string{"bar", "baz"}},
+				},
+			},
 			errorResolver{err: errors.New("boom")},
 		).ResolveIAMMembers(context.Background())
 		assert.Error(t, err, "boom")

@@ -7,6 +7,8 @@ import "context"
 // The resulting resolved members will be the union of the members resolved by each resolver.
 //
 // If any resolver returns an error, that error is immediately returned and no further resolvers are called.
+//
+// If multiple resolvers resolve the same metadata key, the only last encountered result will be kept.
 func ChainResolvers(resolvers ...Resolver) Resolver {
 	return chainResolver{resolvers: resolvers}
 }
@@ -23,7 +25,9 @@ func (c chainResolver) ResolveIAMMembers(ctx context.Context) (ResolveResult, er
 		if err != nil {
 			return ResolveResult{}, err
 		}
-		result.AddAll(nextResult)
+		for key, value := range nextResult.Metadata {
+			result.Add(key, value)
+		}
 	}
 	return result, nil
 }
