@@ -67,7 +67,7 @@ func (a *BeforeMethodAuthorization) AuthorizeRequest(
 		return nil, err
 	}
 	val, _, err := a.program.Eval(map[string]interface{}{
-		"caller":  &iamv1.Caller{Members: memberResolveResult.Members},
+		"caller":  &iamv1.Caller{Members: memberResolveResult.Members()},
 		"request": request,
 	})
 	if err != nil {

@@ -67,8 +67,11 @@ func runStartCommand(ctx context.Context, cfg *startFlags) error {
 		iammember.WithResolvedContext(
 			ctx,
 			iammember.ResolveResult{
-				Members:  []string{iamexampledata.RootAdminMember},
-				Metadata: iammember.Metadata{"x-example-data-init": {iamexampledata.RootAdminMember}},
+				Metadata: iammember.Metadata{
+					"x-example-data-init": {
+						Members: []string{iamexampledata.RootAdminMember},
+					},
+				},
 			},
 		),
 		server,

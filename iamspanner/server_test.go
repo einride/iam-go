@@ -87,7 +87,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		actual, err := server.GetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.GetIamPolicyRequest{Resource: "resources/1"},
 		)
 		assert.NilError(t, err)
@@ -107,7 +107,7 @@ func TestServer(t *testing.T) {
 			})
 		assert.NilError(t, err)
 		actual, err := server.GetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.GetIamPolicyRequest{Resource: "ice cream is best"},
 		)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
@@ -127,7 +127,7 @@ func TestServer(t *testing.T) {
 			})
 		assert.NilError(t, err)
 		actual, err := server.GetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.GetIamPolicyRequest{Resource: "resources/-"},
 		)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
@@ -160,7 +160,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/114-946EB3AA"),
 		}
 		actual, err := server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -191,7 +191,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/1234"),
 		}
 		actual, err := server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -228,7 +228,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/114-946EB3AA"),
 		}
 		actual, err := server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -237,7 +237,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 		got, err := server.GetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.GetIamPolicyRequest{Resource: "resources/1"},
 		)
 		assert.NilError(t, err)
@@ -271,7 +271,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/114-946EB3AA"),
 		}
 		actual, err := server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -283,7 +283,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		got, err := server.GetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.GetIamPolicyRequest{Resource: "resources/2"},
 		)
 		assert.NilError(t, err)
@@ -303,7 +303,7 @@ func TestServer(t *testing.T) {
 			})
 		assert.NilError(t, err)
 		response, err := server.TestIamPermissions(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.TestIamPermissionsRequest{
 				Resource: "resources/1",
 				Permissions: []string{
@@ -337,7 +337,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -351,7 +351,7 @@ func TestServer(t *testing.T) {
 			"test.resources.delete",
 		}
 		response, err := server.TestIamPermissions(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.TestIamPermissionsRequest{
 				Resource:    "resources/1",
 				Permissions: permissions,
@@ -380,7 +380,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -395,7 +395,7 @@ func TestServer(t *testing.T) {
 		}
 		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.TestIamPermissionsRequest{
 				Resource:    "resources/1",
 				Permissions: permissions,
@@ -424,7 +424,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
@@ -438,7 +438,7 @@ func TestServer(t *testing.T) {
 			"test.resources.delete",
 		}
 		response, err := server.TestIamPermissions(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user2}}),
+			withMembers(ctx, user2),
 			&iam.TestIamPermissionsRequest{
 				Resource:    "resources/1",
 				Permissions: permissions,
@@ -467,7 +467,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: "parents/1",
 				Policy:   policy,
@@ -482,7 +482,7 @@ func TestServer(t *testing.T) {
 		}
 		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.TestIamPermissionsRequest{
 				Resource:    "parents/1/resources/1",
 				Permissions: permissions,
@@ -511,7 +511,7 @@ func TestServer(t *testing.T) {
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.SetIamPolicyRequest{
 				Resource: iamresource.Root,
 				Policy:   policy,
@@ -526,7 +526,7 @@ func TestServer(t *testing.T) {
 		}
 		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&iam.TestIamPermissionsRequest{
 				Resource:    "parents/1/resources/1",
 				Permissions: permissions,
@@ -551,7 +551,7 @@ func TestServer(t *testing.T) {
 		expected, ok := rolesRegistry.FindRoleByName("roles/test.admin")
 		assert.Assert(t, ok)
 		actual, err := server.GetRole(
-			iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+			withMembers(ctx, user1),
 			&admin.GetRoleRequest{
 				Name: "roles/test.admin",
 			},
@@ -584,7 +584,7 @@ func TestServer(t *testing.T) {
 		var nextPageToken string
 		for {
 			response, err := server.ListRoles(
-				iammember.WithResolvedContext(ctx, iammember.ResolveResult{Members: []string{user1}}),
+				withMembers(ctx, user1),
 				&admin.ListRolesRequest{
 					PageSize:  1,
 					PageToken: nextPageToken,
@@ -646,5 +646,13 @@ func TestServer(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected2.Bindings, actual2.Bindings, protocmp.Transform())
+	})
+}
+
+func withMembers(ctx context.Context, members ...string) context.Context {
+	return iammember.WithResolvedContext(ctx, iammember.ResolveResult{
+		Metadata: iammember.Metadata{
+			"test": iammember.MetadataValue{Members: members},
+		},
 	})
 }

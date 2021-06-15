@@ -2,92 +2,60 @@ package iammember
 
 import (
 	"context"
-	"hash/crc64"
-)
 
-// crcTable used for calculating checksums.
-var crcTable = crc64.MakeTable(crc64.ISO)
+	"go.einride.tech/iam/iamjwt"
+)
 
 // Resolver resolves the IAM member identifiers for a caller context.
 type Resolver interface {
 	ResolveIAMMembers(context.Context) (ResolveResult, error)
 }
 
-// Metadata contains IAM members partitioned by which gRPC metadata key they were resolved from.
-type Metadata map[string][]string
-
-// Add a member to the specified metadata key.
-func (m Metadata) Add(key, member string) {
-	for _, existingMember := range m[key] {
-		if existingMember == member {
-			return
-		}
-	}
-	m[key] = append(m[key], member)
-}
-
-// AddAll adds all members from another metadata instance.
-func (m Metadata) AddAll(other Metadata) {
-	for key, members := range other {
-		for _, member := range members {
-			m.Add(key, member)
-		}
-	}
-}
-
 // ResolveResult is the output from a Resolver.
 type ResolveResult struct {
-	// Checksum of the metadata that the members were resolved from.
-	Checksum uint64
-	// Members are the resolved IAM members.
-	Members []string
 	// Metadata are the resolved IAM members partitioned by which metadata key they were resolved from.
-	Metadata Metadata
+	Metadata map[string]MetadataValue
 }
 
-// AddChecksum adds the provided metadata key and value to the checksum.
-func (r *ResolveResult) AddChecksum(key, value string) {
-	r.Checksum = crc64.Update(r.Checksum, crcTable, []byte(key))
-	r.Checksum = crc64.Update(r.Checksum, crcTable, []byte(value))
-}
+// Metadata is a map from metadata keys to IAM members resolved from the metadata values.
+type Metadata map[string]MetadataValue
 
-// Add a member resolved from the provided metadata key and value.
-func (r *ResolveResult) Add(key string, member string) {
-	var hasMember bool
-	for _, existingMember := range r.Members {
-		if member == existingMember {
-			hasMember = true
-			break
-		}
+// Members returns the set of all unique members resolved from all metadata keys.
+func (r *ResolveResult) Members() []string {
+	var size int
+	for _, value := range r.Metadata {
+		size = +len(value.Members)
 	}
-	if !hasMember {
-		r.Members = append(r.Members, member)
+	if size == 0 {
+		return nil
 	}
-	if r.Metadata == nil {
-		r.Metadata = make(Metadata)
-	}
-	r.Metadata.Add(key, member)
-}
-
-// AddAll adds all the resolved members from another ResolveResult.
-func (r *ResolveResult) AddAll(other ResolveResult) {
-	// Update checksum. Since we don't have the original metadata values, we simply add the other checksum.
-	r.Checksum = crc64.Update(r.Checksum, crcTable, []byte{byte(other.Checksum)})
-	// Add ordered members first to maintain order.
-	for _, member := range other.Members {
-		var hasMember bool
-		for _, existingMember := range r.Members {
-			if member == existingMember {
-				hasMember = true
-				break
+	result := make([]string, 0, size)
+	for _, value := range r.Metadata {
+	MemberLoop:
+		for _, member := range value.Members {
+			for _, existingMember := range result {
+				if member == existingMember {
+					continue MemberLoop
+				}
 			}
-		}
-		if !hasMember {
-			r.Members = append(r.Members, member)
+			result = append(result, member)
 		}
 	}
+	return result
+}
+
+// Add a metadata key and resolved metadata value to the result.
+func (r *ResolveResult) Add(key string, value MetadataValue) {
 	if r.Metadata == nil {
-		r.Metadata = make(Metadata)
+		r.Metadata = make(map[string]MetadataValue)
 	}
-	r.Metadata.AddAll(other.Metadata)
+	r.Metadata[key] = value
+}
+
+// MetadataValue is the resolve result from a single metatadata key.
+type MetadataValue struct {
+	// JWT is the JWT token parsed from the metadata value, if any.
+	JWT *iamjwt.Token
+	// Members are the members resolved from the metadata value.
+	Members []string
 }
