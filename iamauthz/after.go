@@ -73,7 +73,7 @@ func (a *AfterMethodAuthorization) AuthorizeRequestAndResponse(
 		"response": response,
 	})
 	if err != nil {
-		return nil, err
+		return nil, forwardErrorCodes(err)
 	}
 	boolVal, ok := val.Value().(bool)
 	if !ok {

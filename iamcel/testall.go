@@ -12,6 +12,7 @@ import (
 	"go.einride.tech/iam/iampermission"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
+	"google.golang.org/grpc/codes"
 )
 
 // TestAllFunction is the name of the function for testing that all resources have a specified permission.
@@ -61,7 +62,9 @@ func NewTestAllFunctionImplementation(
 			for _, resource := range resources {
 				permission, ok := iampermission.ResolveMethodPermission(options, resource)
 				if !ok {
-					return types.NewErr("test: failed to resolve permission for resource '%s'", resource)
+					return types.NewErr(
+						"%s: no permission configured for resource '%s'", codes.InvalidArgument, resource,
+					)
 				}
 				resourcePermissions[resource] = permission
 			}
