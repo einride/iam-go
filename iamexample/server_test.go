@@ -39,6 +39,8 @@ func TestServer(t *testing.T) {
 	t.Run("BatchGetShipments", ts.testBatchGetShipments)
 	// long-running operations
 	t.Run("LongRunningOperations", ts.testLongRunningOperations)
+	// IAM
+	t.Run("IAM", ts.testIAM)
 }
 
 type serverTestSuite struct {

@@ -11,6 +11,7 @@ import (
 	"go.einride.tech/iam/iampermission"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
+	"google.golang.org/grpc/codes"
 )
 
 // TestFunction is the name of the test permission function.
@@ -52,7 +53,7 @@ func NewTestFunctionImplementation(
 			}
 			permission, ok := iampermission.ResolveMethodPermission(options, resource)
 			if !ok {
-				return types.NewErr("test: failed to resolve permission for resource '%s'", resource)
+				return types.NewErr("%s: no permission configured for resource '%s'", codes.PermissionDenied, resource)
 			}
 			// TODO: When cel-go supports async functions, use the caller context here.
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
