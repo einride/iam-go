@@ -10,9 +10,6 @@ import (
 // Validate an IAM policy.
 func Validate(policy *iam.Policy) error {
 	var result validation.MessageValidator
-	if len(policy.GetBindings()) == 0 {
-		result.AddFieldViolation("bindings", "missing required field")
-	}
 	for i, binding := range policy.GetBindings() {
 		if len(binding.Role) == 0 {
 			result.AddFieldViolation(fmt.Sprintf("bindings[%d].role", i), "missing required field")
