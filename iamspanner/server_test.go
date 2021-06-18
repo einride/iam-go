@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"cloud.google.com/go/spanner"
-	"go.einride.tech/iam/iammember"
+	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamresource"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"go.einride.tech/spanner-aip/spantest"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/iam/v1"
@@ -76,7 +77,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -99,7 +100,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -119,7 +120,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -139,7 +140,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -175,7 +176,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -206,7 +207,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -249,7 +250,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -295,7 +296,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -323,7 +324,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -366,7 +367,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -410,7 +411,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -453,7 +454,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -497,7 +498,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -541,7 +542,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -565,7 +566,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -606,7 +607,7 @@ func TestServer(t *testing.T) {
 		server, err := NewIAMServer(
 			newDatabase(t),
 			roles,
-			iammember.FromContextResolver(),
+			iamcaller.FromContextResolver(),
 			ServerConfig{
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
@@ -650,9 +651,10 @@ func TestServer(t *testing.T) {
 }
 
 func withMembers(ctx context.Context, members ...string) context.Context {
-	return iammember.WithResolvedContext(ctx, iammember.ResolveResult{
-		Metadata: iammember.Metadata{
-			"test": iammember.MetadataValue{Members: members},
+	return iamcaller.WithResolvedContext(ctx, &iamv1.Caller{
+		Members: members,
+		Metadata: map[string]*iamv1.Caller_Metadata{
+			"test": {Members: members},
 		},
 	})
 }

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/cel-go/cel"
+	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iamcel"
-	"go.einride.tech/iam/iammember"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -16,7 +16,7 @@ import (
 
 type BeforeMethodAuthorization struct {
 	options        *iamv1.MethodAuthorizationOptions
-	memberResolver iammember.Resolver
+	callerResolver iamcaller.Resolver
 	program        cel.Program
 }
 
@@ -24,7 +24,7 @@ func NewBeforeMethodAuthorization(
 	method protoreflect.MethodDescriptor,
 	options *iamv1.MethodAuthorizationOptions,
 	permissionTester iamcel.PermissionTester,
-	memberResolver iammember.Resolver,
+	callerResolver iamcaller.Resolver,
 ) (*BeforeMethodAuthorization, error) {
 	beforeStrategy, ok := options.Strategy.(*iamv1.MethodAuthorizationOptions_Before)
 	if !ok {
@@ -52,7 +52,7 @@ func NewBeforeMethodAuthorization(
 	}
 	return &BeforeMethodAuthorization{
 		options:        options,
-		memberResolver: memberResolver,
+		callerResolver: callerResolver,
 		program:        program,
 	}, nil
 }
@@ -62,12 +62,12 @@ func (a *BeforeMethodAuthorization) AuthorizeRequest(
 	request proto.Message,
 ) (context.Context, error) {
 	Authorize(ctx)
-	memberResolveResult, err := a.memberResolver.ResolveIAMMembers(ctx)
+	caller, err := a.callerResolver.ResolveCaller(ctx)
 	if err != nil {
 		return nil, err
 	}
 	val, _, err := a.program.Eval(map[string]interface{}{
-		"caller":  &iamv1.Caller{Members: memberResolveResult.Members()},
+		"caller":  caller,
 		"request": request,
 	})
 	if err != nil {

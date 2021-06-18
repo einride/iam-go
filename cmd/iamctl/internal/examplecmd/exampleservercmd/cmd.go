@@ -6,8 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iamexample/iamexampledata"
-	"go.einride.tech/iam/iammember"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc"
 )
 
@@ -64,10 +65,11 @@ func runStartCommand(ctx context.Context, cfg *startFlags) error {
 	}
 	log.Println("initializing example resources...")
 	if err := iamexampledata.InitializeResources(
-		iammember.WithResolvedContext(
+		iamcaller.WithResolvedContext(
 			ctx,
-			iammember.ResolveResult{
-				Metadata: iammember.Metadata{
+			&iamv1.Caller{
+				Members: []string{iamexampledata.RootAdminMember},
+				Metadata: map[string]*iamv1.Caller_Metadata{
 					"x-example-data-init": {
 						Members: []string{iamexampledata.RootAdminMember},
 					},

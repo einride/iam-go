@@ -1,20 +1,21 @@
-package iammember
+package iamcaller
 
 import (
 	"context"
 	"fmt"
 
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc"
 )
 
 // FromResolvedContext returns the resolved IAM members and metadata from the provided context.
-func FromResolvedContext(ctx context.Context) (ResolveResult, bool) {
-	value, ok := ctx.Value(resolvedContextKey{}).(ResolveResult)
+func FromResolvedContext(ctx context.Context) (*iamv1.Caller, bool) {
+	value, ok := ctx.Value(resolvedContextKey{}).(*iamv1.Caller)
 	return value, ok
 }
 
 // WithResolvedContext returns a new context with cached IAM member resolve result.
-func WithResolvedContext(ctx context.Context, resolveResult ResolveResult) context.Context {
+func WithResolvedContext(ctx context.Context, resolveResult *iamv1.Caller) context.Context {
 	return context.WithValue(ctx, resolvedContextKey{}, resolveResult)
 }
 
@@ -27,11 +28,11 @@ func FromContextResolver() Resolver {
 
 type contextResolver struct{}
 
-// ResolveIAMMembers implements Resolver.
-func (contextResolver) ResolveIAMMembers(ctx context.Context) (ResolveResult, error) {
+// ResolveCaller implements Resolver.
+func (contextResolver) ResolveCaller(ctx context.Context) (*iamv1.Caller, error) {
 	result, ok := FromResolvedContext(ctx)
 	if !ok {
-		return ResolveResult{}, fmt.Errorf("unresolved IAM member context")
+		return nil, fmt.Errorf("unresolved IAM member context")
 	}
 	return result, nil
 }
@@ -44,7 +45,7 @@ func ResolveContextUnaryInterceptor(resolver Resolver) grpc.UnaryServerIntercept
 		_ *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		result, err := resolver.ResolveIAMMembers(ctx)
+		result, err := resolver.ResolveCaller(ctx)
 		if err != nil {
 			return nil, err
 		}

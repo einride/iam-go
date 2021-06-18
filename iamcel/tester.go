@@ -2,23 +2,13 @@ package iamcel
 
 import (
 	"context"
+
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 )
 
+// PermissionTester is an interface for testing IAM permissions.
 type PermissionTester interface {
-	ResourcePermissionTester
-	ResourcePermissionsTester
-}
-
-// ResourcePermissionTester is an interface for testing the presence for a single resource permission binding.
-type ResourcePermissionTester interface {
-	TestResourcePermission(
-		ctx context.Context, members []string, resource string, permission string,
-	) (bool, error)
-}
-
-// ResourcePermissionsTester is an interface for testing the presence for multiple resource permission bindings.
-type ResourcePermissionsTester interface {
-	TestResourcePermissions(
-		ctx context.Context, members []string, resourcePermissions map[string]string,
+	TestPermissions(
+		ctx context.Context, caller *iamv1.Caller, resourcePermissions map[string]string,
 	) (map[string]bool, error)
 }

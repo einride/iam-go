@@ -3,8 +3,8 @@ package iamauthz
 import (
 	"context"
 
+	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iamcel"
-	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iampermission"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc/codes"
@@ -14,18 +14,18 @@ import (
 type BeforeLongRunningOperationMethodAuthorization struct {
 	options          *iamv1.LongRunningOperationsAuthorizationOptions
 	permissionTester iamcel.PermissionTester
-	memberResolver   iammember.Resolver
+	callerResolver   iamcaller.Resolver
 }
 
 func NewBeforeLongRunningOperationMethodAuthorization(
 	options *iamv1.LongRunningOperationsAuthorizationOptions,
 	permissionTester iamcel.PermissionTester,
-	memberResolver iammember.Resolver,
+	callerResolver iamcaller.Resolver,
 ) (*BeforeLongRunningOperationMethodAuthorization, error) {
 	return &BeforeLongRunningOperationMethodAuthorization{
 		options:          options,
 		permissionTester: permissionTester,
-		memberResolver:   memberResolver,
+		callerResolver:   callerResolver,
 	}, nil
 }
 
@@ -38,17 +38,17 @@ func (a *BeforeLongRunningOperationMethodAuthorization) AuthorizeRequest(
 	if !ok {
 		return nil, status.Error(codes.PermissionDenied, "no permission configured for long-running operation request")
 	}
-	memberResolveResult, err := a.memberResolver.ResolveIAMMembers(ctx)
+	caller, err := a.callerResolver.ResolveCaller(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result, err := a.permissionTester.TestResourcePermission(
-		ctx, memberResolveResult.Members(), request.GetName(), permission,
+	result, err := a.permissionTester.TestPermissions(
+		ctx, caller, map[string]string{request.GetName(): permission},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if !result {
+	if !result[request.GetName()] {
 		return nil, status.Errorf(codes.PermissionDenied, "operation requires permission %s", permission)
 	}
 	return ctx, nil

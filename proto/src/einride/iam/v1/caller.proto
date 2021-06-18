@@ -10,10 +10,20 @@ option java_package = "tech.einride.iam.v1";
 option objc_class_prefix = "IXX";
 option php_namespace = "Iam\\V1";
 
+import "einride/iam/v1/identity_token.proto";
 import "google/protobuf/timestamp.proto";
 
 // Caller identity.
 message Caller {
-  // The authenticated IAM policy members of the caller.
+  // The caller's resolved IAM members.
   repeated string members = 1;
+  // Caller identity from gRPC metadata key/value pairs.
+  map<string, Metadata> metadata = 2;
+  // Caller identity for a gRPC metadata key/value pair.
+  message Metadata {
+    // The IAM members from the metadata value.
+    repeated string members = 1;
+    // The identity token from the metadata value.
+    IdentityToken identity_token = 2;
+  }
 }

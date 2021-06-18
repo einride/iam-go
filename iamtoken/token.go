@@ -1,4 +1,4 @@
-package iamjwt
+package iamtoken
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// FromIncomingContext looks up a JWT token in the incoming gRPC request metadata by key.
+// FromIncomingContext looks up a bearer token in the incoming gRPC request metadata by key.
 func FromIncomingContext(ctx context.Context, key string) (string, bool) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

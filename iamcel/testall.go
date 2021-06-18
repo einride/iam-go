@@ -38,7 +38,7 @@ func NewTestAllFunctionDeclaration() *expr.Decl {
 // NewTestAllFunctionImplementation creates a new implementation for the test_all function.
 func NewTestAllFunctionImplementation(
 	options *iamv1.MethodAuthorizationOptions,
-	tester ResourcePermissionsTester,
+	tester PermissionTester,
 ) *functions.Overload {
 	return &functions.Overload{
 		Operator: testAllFunctionOverload,
@@ -71,7 +71,7 @@ func NewTestAllFunctionImplementation(
 			// TODO: When cel-go supports async functions, use the caller context here.
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
-			if result, err := tester.TestResourcePermissions(ctx, caller.Members, resourcePermissions); err != nil {
+			if result, err := tester.TestPermissions(ctx, caller, resourcePermissions); err != nil {
 				return types.NewErr("test: error testing permission: %v", err)
 			} else {
 				if len(result) != len(resources) {

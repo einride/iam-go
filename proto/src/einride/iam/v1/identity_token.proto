@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package einride.iam.v1;
+
+option csharp_namespace = "Iam.V1";
+option go_package = "go.einride.tech/iam/proto/gen/einride/iam/v1;iamv1";
+option java_multiple_files = true;
+option java_outer_classname = "IdentityTokenProto";
+option java_package = "tech.einride.iam.v1";
+option objc_class_prefix = "IXX";
+option php_namespace = "Iam\\V1";
+
+import "google/protobuf/timestamp.proto";
+
+// A JWT identity token.
+message IdentityToken {
+  // The raw token value.
+  string raw = 1;
+  // The "iss" claim identifies the principal that issued the JWT.
+  // The processing of this claim is generally application specific.
+  // The "iss" value is a case-sensitive string containing a string or URI value.
+  string iss = 2;
+  // The "sub" claim identifies the principal that is the
+  // subject of the JWT.  The claims in a JWT are normally statements
+  // about the subject.  The subject value MUST either be scoped to be
+  // locally unique in the context of the issuer or be globally unique.
+  // The processing of this claim is generally application specific.
+  // The "sub" value is a case-sensitive string containing a string or URI value.
+  string sub = 3;
+  // The "aud" claim identifies the recipients that the JWT is intended for.
+  // Each principal intended to process the JWT MUST identify itself with a value in the audience claim.
+  // If the principal processing the claim does not identify itself with a value in the
+  // "aud" claim when this claim is present, then the JWT MUST be rejected.
+  // In the general case, the "aud" value is an array of case-sensitive strings, each containing a
+  // string or URI value.
+  // In the special case when the JWT has one audience, the "aud" value MAY be a
+  // single case-sensitive string containing a string or URI value.
+  // The interpretation of audience values is generally application specific.
+  string aud = 4;
+  // The "exp" claim identifies the expiration time on or after
+  // which the JWT MUST NOT be accepted for processing.
+  // The processing of the "exp" claim requires that the current date/time
+  // MUST be before the expiration date/time listed in the "exp" claim.
+  int64 exp = 5;
+  // The "nbf" (not before) claim identifies the time before which the JWT
+  // MUST NOT be accepted for processing. The processing of the "nbf"
+  // claim requires that the current date/time MUST be after or equal to
+  // the not-before date/time listed in the "nbf" claim. Implementers MAY
+  // provide for some small leeway, usually no more than a few minutes, to
+  // account for clock skew. Its value MUST be a number containing a
+  // numeric date value.
+  int64 nbf = 6;
+  // The "iat" claim identifies the time at which the JWT was
+  // issued.  This claim can be used to determine the age of the JWT.
+  // Its value MUST be a number containing a numeric date value.
+  int64 iat = 7;
+}
