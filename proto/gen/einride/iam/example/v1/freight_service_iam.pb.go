@@ -8,8 +8,8 @@ import (
 	context "context"
 	fmt "fmt"
 	iamauthz "go.einride.tech/iam/iamauthz"
+	iamcaller "go.einride.tech/iam/iamcaller"
 	iamcel "go.einride.tech/iam/iamcel"
-	iammember "go.einride.tech/iam/iammember"
 	v1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	v12 "google.golang.org/genproto/googleapis/iam/admin/v1"
 	v11 "google.golang.org/genproto/googleapis/iam/v1"
@@ -236,7 +236,7 @@ func NewFreightServiceIAMDescriptor() (*FreightServiceIAMDescriptor, error) {
 func NewFreightServiceAuthorization(
 	next FreightServiceServer,
 	permissionTester iamcel.PermissionTester,
-	memberResolver iammember.Resolver,
+	callerResolver iamcaller.Resolver,
 ) (*FreightServiceAuthorization, error) {
 	descriptor, err := NewFreightServiceIAMDescriptor()
 	if err != nil {
@@ -257,7 +257,7 @@ func NewFreightServiceAuthorization(
 		methodGetShipper,
 		descriptor.GetShipperAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -275,7 +275,7 @@ func NewFreightServiceAuthorization(
 		methodListShippers,
 		descriptor.ListShippersAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -293,7 +293,7 @@ func NewFreightServiceAuthorization(
 		methodCreateShipper,
 		descriptor.CreateShipperAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -311,7 +311,7 @@ func NewFreightServiceAuthorization(
 		methodUpdateShipper,
 		descriptor.UpdateShipperAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -329,7 +329,7 @@ func NewFreightServiceAuthorization(
 		methodDeleteShipper,
 		descriptor.DeleteShipperAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -347,7 +347,7 @@ func NewFreightServiceAuthorization(
 		methodGetSite,
 		descriptor.GetSiteAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -365,7 +365,7 @@ func NewFreightServiceAuthorization(
 		methodListSites,
 		descriptor.ListSitesAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -383,7 +383,7 @@ func NewFreightServiceAuthorization(
 		methodCreateSite,
 		descriptor.CreateSiteAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -401,7 +401,7 @@ func NewFreightServiceAuthorization(
 		methodUpdateSite,
 		descriptor.UpdateSiteAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -419,7 +419,7 @@ func NewFreightServiceAuthorization(
 		methodDeleteSite,
 		descriptor.DeleteSiteAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -437,7 +437,7 @@ func NewFreightServiceAuthorization(
 		methodBatchGetSites,
 		descriptor.BatchGetSitesAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -455,7 +455,7 @@ func NewFreightServiceAuthorization(
 		methodSearchSites,
 		descriptor.SearchSitesAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -473,7 +473,7 @@ func NewFreightServiceAuthorization(
 		methodGetShipment,
 		descriptor.GetShipmentAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -491,7 +491,7 @@ func NewFreightServiceAuthorization(
 		methodListShipments,
 		descriptor.ListShipmentsAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -509,7 +509,7 @@ func NewFreightServiceAuthorization(
 		methodCreateShipment,
 		descriptor.CreateShipmentAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -527,7 +527,7 @@ func NewFreightServiceAuthorization(
 		methodDeleteShipment,
 		descriptor.DeleteShipmentAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -545,7 +545,7 @@ func NewFreightServiceAuthorization(
 		methodBatchGetShipments,
 		descriptor.BatchGetShipmentsAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -563,7 +563,7 @@ func NewFreightServiceAuthorization(
 		methodSetIamPolicy,
 		descriptor.SetIamPolicyAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -581,7 +581,7 @@ func NewFreightServiceAuthorization(
 		methodGetIamPolicy,
 		descriptor.GetIamPolicyAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -599,7 +599,7 @@ func NewFreightServiceAuthorization(
 		methodListRoles,
 		descriptor.ListRolesAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -617,7 +617,7 @@ func NewFreightServiceAuthorization(
 		methodGetRole,
 		descriptor.GetRoleAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)
@@ -626,7 +626,7 @@ func NewFreightServiceAuthorization(
 	beforeLongRunningOperationMethod, err := iamauthz.NewBeforeLongRunningOperationMethodAuthorization(
 		descriptor.LongRunningOperationsAuthorization,
 		permissionTester,
-		memberResolver,
+		callerResolver,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("new FreightService authorization: %w", err)

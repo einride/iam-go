@@ -3,10 +3,10 @@ package iamfirebase
 import (
 	"strings"
 
-	"go.einride.tech/iam/iamjwt"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 )
 
 // ProjectID returns the token payload's Firebase project ID.
-func ProjectID(token iamjwt.Token) string {
-	return strings.TrimPrefix(token.Issuer, Issuer+"/")
+func ProjectID(token *iamv1.IdentityToken) string {
+	return strings.TrimPrefix(token.Iss, Issuer+"/")
 }

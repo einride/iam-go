@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.einride.tech/iam/iamauthz"
+	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iamspanner"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/grpc/codes"
@@ -12,9 +13,10 @@ import (
 
 type Authorization struct {
 	*iamexamplev1.FreightServiceAuthorization
-	Next          iamexamplev1.FreightServiceServer
-	IAMServer     *iamspanner.IAMServer
-	IAMDescriptor *iamexamplev1.FreightServiceIAMDescriptor
+	CallerResolver iamcaller.Resolver
+	Next           iamexamplev1.FreightServiceServer
+	IAMServer      *iamspanner.IAMServer
+	IAMDescriptor  *iamexamplev1.FreightServiceIAMDescriptor
 }
 
 var _ iamexamplev1.FreightServiceServer = &Authorization{}
@@ -61,11 +63,17 @@ func (a *Authorization) BatchGetShipments(
 	if err != nil {
 		return nil, err
 	}
-	resources := make([]string, 0, 3*len(response.Shipments))
+	resourcePermissions := make(map[string]string, 3*len(response.Shipments))
 	for _, shipment := range response.Shipments {
-		resources = append(resources, shipment.Name, shipment.OriginSite, shipment.DestinationSite)
+		resourcePermissions[shipment.Name] = permission
+		resourcePermissions[shipment.OriginSite] = permission
+		resourcePermissions[shipment.DestinationSite] = permission
 	}
-	results, err := a.IAMServer.TestPermissionOnResources(ctx, permission, resources)
+	caller, err := a.CallerResolver.ResolveCaller(ctx)
+	if err != nil {
+		return nil, err
+	}
+	results, err := a.IAMServer.TestPermissions(ctx, caller, resourcePermissions)
 	if err != nil {
 		return nil, err
 	}
@@ -78,11 +86,27 @@ func (a *Authorization) BatchGetShipments(
 }
 
 func (a *Authorization) test(ctx context.Context, permission, resource string) (bool, error) {
-	return a.IAMServer.TestPermissionOnResource(ctx, permission, resource)
+	caller, err := a.CallerResolver.ResolveCaller(ctx)
+	if err != nil {
+		return false, err
+	}
+	results, err := a.IAMServer.TestPermissions(ctx, caller, map[string]string{resource: permission})
+	if err != nil {
+		return false, err
+	}
+	return results[resource], nil
 }
 
 func (a *Authorization) testAny(ctx context.Context, permission string, resources []string) (bool, error) {
-	results, err := a.IAMServer.TestPermissionOnResources(ctx, permission, resources)
+	caller, err := a.CallerResolver.ResolveCaller(ctx)
+	if err != nil {
+		return false, err
+	}
+	resourcePermissions := make(map[string]string, len(resources))
+	for _, resource := range resources {
+		resourcePermissions[resource] = permission
+	}
+	results, err := a.IAMServer.TestPermissions(ctx, caller, resourcePermissions)
 	if err != nil {
 		return false, err
 	}

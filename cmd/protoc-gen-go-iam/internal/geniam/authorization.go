@@ -196,8 +196,8 @@ func (c authorizationCodeGenerator) generateLongRunningOperationMethod(
 }
 
 func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFile) {
-	memberResolver := g.QualifiedGoIdent(protogen.GoIdent{
-		GoImportPath: "go.einride.tech/iam/iammember",
+	callerResolver := g.QualifiedGoIdent(protogen.GoIdent{
+		GoImportPath: "go.einride.tech/iam/iamcaller",
 		GoName:       "Resolver",
 	})
 	permissionTester := g.QualifiedGoIdent(protogen.GoIdent{
@@ -213,7 +213,7 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 	g.P("func ", c.ConstructorGoName(), "(")
 	g.P("next ", c.serverGoName(), ",")
 	g.P("permissionTester ", permissionTester, ",")
-	g.P("memberResolver ", memberResolver, ",")
+	g.P("callerResolver ", callerResolver, ",")
 	g.P(") (*", c.StructGoName(), ", error) {")
 	descriptor := descriptorCodeGenerator{service: c.service}
 	g.P("descriptor, err := ", descriptor.ConstructorGoName(), "()")
@@ -261,7 +261,7 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 				g.P(methodVar, ",")
 				g.P("descriptor.", method.GoName, "Authorization,")
 				g.P("permissionTester,")
-				g.P("memberResolver,")
+				g.P("callerResolver,")
 				g.P(")")
 				g.P("if err != nil {")
 				g.P("return nil, ", fmtErrorf, `("new `, c.service.GoName, ` authorization: %w", err)`)
@@ -276,7 +276,7 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 				g.P(methodVar, ",")
 				g.P("descriptor.", method.GoName, "Authorization,")
 				g.P("permissionTester,")
-				g.P("memberResolver,")
+				g.P("callerResolver,")
 				g.P(")")
 				g.P("if err != nil {")
 				g.P("return nil, ", fmtErrorf, `("new `, c.service.GoName, ` authorization: %w", err)`)
@@ -297,7 +297,7 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 		g.P("beforeLongRunningOperationMethod, err := ", constructor, "(")
 		g.P("descriptor.LongRunningOperationsAuthorization,")
 		g.P("permissionTester,")
-		g.P("memberResolver,")
+		g.P("callerResolver,")
 		g.P(")")
 		g.P("if err != nil {")
 		g.P("return nil, ", fmtErrorf, `("new `, c.service.GoName, ` authorization: %w", err)`)

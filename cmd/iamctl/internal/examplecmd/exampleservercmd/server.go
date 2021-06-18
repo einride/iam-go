@@ -9,17 +9,20 @@ import (
 	"cloud.google.com/go/spanner"
 	firebase "firebase.google.com/go/v4"
 	"go.einride.tech/iam/iamauthz"
+	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iamexample"
 	"go.einride.tech/iam/iamfirebase"
 	"go.einride.tech/iam/iamgoogle"
-	"go.einride.tech/iam/iamjwt"
-	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iammixin"
 	"go.einride.tech/iam/iamspanner"
+	"go.einride.tech/iam/iamtoken"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
+	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error) {
@@ -30,7 +33,7 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
 		iamDescriptor.PredefinedRoles.Role,
-		iammember.FromContextResolver(),
+		iamcaller.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(ctx context.Context, err error) {
 				log.Println(err)
@@ -50,7 +53,7 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 		},
 	}
 	authorization, err := iamexamplev1.NewFreightServiceAuthorization(
-		freightServer, iamServer, iammember.FromContextResolver(),
+		freightServer, iamServer, iamcaller.FromContextResolver(),
 	)
 	if err != nil {
 		return nil, err
@@ -70,16 +73,16 @@ func runServer(
 	address string,
 
 ) error {
-	memberResolver := iammember.ChainResolvers(
+	callerResolver := iamcaller.ChainResolvers(
 		// Resolve members from the example members header.
-		iamexample.NewIAMMemberHeaderResolver(),
+		iamexample.NewMemberHeaderResolver(),
 		// Resolve members from ID tokens in the authorization header.
-		googleIDTokenMemberResolver{},
+		googleIdentityTokenCallerResolver{},
 	)
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logRequestUnaryInterceptor,
-			iammember.ResolveContextUnaryInterceptor(memberResolver),
+			iamcaller.ResolveContextUnaryInterceptor(callerResolver),
 			iamauthz.RequireAuthorizationUnaryInterceptor,
 		),
 		grpc.StreamInterceptor(iamauthz.RequireAuthorizationStreamInterceptor),
@@ -118,58 +121,60 @@ func logRequestUnaryInterceptor(
 	return response, err
 }
 
-type googleIDTokenMemberResolver struct{}
+type googleIdentityTokenCallerResolver struct{}
 
-func (googleIDTokenMemberResolver) ResolveIAMMembers(ctx context.Context) (iammember.ResolveResult, error) {
+func (googleIdentityTokenCallerResolver) ResolveCaller(ctx context.Context) (*iamv1.Caller, error) {
 	const authorizationKey = "authorization"
-	var result iammember.ResolveResult
-	token, ok := iamjwt.FromIncomingContext(ctx, authorizationKey)
+	var result iamv1.Caller
+	token, ok := iamtoken.FromIncomingContext(ctx, authorizationKey)
 	if !ok {
-		return result, nil
+		return &result, nil
 	}
-	var jwt iamjwt.Token
-	if err := jwt.UnmarshalString(token); err != nil {
-		return iammember.ResolveResult{}, err
+	identityToken, err := iamtoken.ParseIdentityToken(token)
+	if err != nil {
+		return nil, err
 	}
-	value := iammember.MetadataValue{JWT: &jwt}
+	if err := iamtoken.ValidateIdentityToken(identityToken); err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	metadata := iamv1.Caller_Metadata{
+		IdentityToken: identityToken,
+	}
 	switch {
-	case iamgoogle.IsGoogleIDToken(jwt):
+	case iamgoogle.IsGoogleIdentityToken(identityToken):
 		googlePayload, err := idtoken.Validate(ctx, token, "")
 		if err != nil {
-			return iammember.ResolveResult{}, err
+			return nil, err
 		}
 		if iamgoogle.IsEmailVerified(googlePayload) {
 			if email, ok := iamgoogle.Email(googlePayload); ok {
-				value.Members = append(value.Members, fmt.Sprintf("email:%s", email))
+				metadata.Members = append(metadata.Members, fmt.Sprintf("email:%s", email))
 			}
 		}
 		if hostedDomain, ok := iamgoogle.HostedDomain(googlePayload); ok {
-			value.Members = append(value.Members, fmt.Sprintf("domain:%s", hostedDomain))
+			metadata.Members = append(metadata.Members, fmt.Sprintf("domain:%s", hostedDomain))
 		}
-		result.Add(authorizationKey, iammember.MetadataValue{
-			JWT:     &jwt,
-			Members: value.Members,
-		})
-	case iamfirebase.IsFirebaseIDToken(jwt):
+		iamcaller.Add(&result, authorizationKey, &metadata)
+	case iamfirebase.IsFirebaseIdentityToken(identityToken):
 		app, err := firebase.NewApp(ctx, &firebase.Config{
-			ProjectID: iamfirebase.ProjectID(jwt),
+			ProjectID: iamfirebase.ProjectID(identityToken),
 		})
 		if err != nil {
-			return iammember.ResolveResult{}, err
+			return nil, err
 		}
 		authClient, err := app.Auth(ctx)
 		if err != nil {
-			return iammember.ResolveResult{}, err
+			return nil, err
 		}
 		payload, err := authClient.VerifyIDToken(ctx, token)
 		if err != nil {
-			return iammember.ResolveResult{}, err
+			return nil, err
 		}
-		value.Members = append(value.Members, fmt.Sprintf("user:%s", payload.Subject))
+		metadata.Members = append(metadata.Members, fmt.Sprintf("user:%s", payload.Subject))
 		if payload.Firebase.Tenant != "" {
-			value.Members = append(value.Members, fmt.Sprintf("tenant:%s", payload.Firebase.Tenant))
+			metadata.Members = append(metadata.Members, fmt.Sprintf("tenant:%s", payload.Firebase.Tenant))
 		}
 	}
-	log.Printf("[IAM]\t%v %v", result.Members(), result.Metadata)
-	return result, nil
+	log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
+	return &result, nil
 }

@@ -20,7 +20,7 @@ func (s *IAMServer) TestIamPermissions(
 	if err := validateTestIamPermissionsRequest(request); err != nil {
 		return nil, err
 	}
-	memberResolveResult, err := s.memberResolver.ResolveIAMMembers(ctx)
+	caller, err := s.callerResolver.ResolveCaller(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (s *IAMServer) TestIamPermissions(
 		ctx,
 		tx,
 		[]string{request.Resource},
-		memberResolveResult.Members(),
+		caller.Members,
 		func(ctx context.Context, _ string, role *admin.Role, _ string) error {
 			for _, permission := range request.Permissions {
 				if s.roles.RoleHasPermission(role.Name, permission) {
