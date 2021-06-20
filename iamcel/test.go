@@ -12,6 +12,7 @@ import (
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // TestFunction is the name of the test permission function.
@@ -59,6 +60,9 @@ func NewTestFunctionImplementation(
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 			if result, err := tester.TestPermissions(ctx, caller, map[string]string{resource: permission}); err != nil {
+				if s, ok := status.FromError(err); ok {
+					return types.NewErr("%s: %s", s.Code(), s.Message())
+				}
 				return types.NewErr("test: error testing permission '%s': %v", permission, err)
 			} else if !result[resource] {
 				return types.False
