@@ -11,7 +11,12 @@ import (
 // Instead, the CEL functions are expected to return the status code as a prefix of the error.
 func forwardErrorCodes(err error) error {
 	errStr := err.Error()
-	for _, code := range []codes.Code{codes.InvalidArgument, codes.PermissionDenied} {
+	for _, code := range []codes.Code{
+		codes.InvalidArgument,
+		codes.PermissionDenied,
+		codes.Unauthenticated,
+		codes.DeadlineExceeded,
+	} {
 		codeStr := code.String()
 		if strings.HasPrefix(errStr, codeStr) {
 			return status.Error(code, strings.TrimPrefix(strings.TrimPrefix(errStr, codeStr), ": "))
