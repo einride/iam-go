@@ -19,11 +19,22 @@ message Caller {
   repeated string members = 1;
   // Caller identity from gRPC metadata key/value pairs.
   map<string, Metadata> metadata = 2;
+  // Caller context.
+  // TODO: Remove this when cel-go supports async functions with context threading.
+  Context context = 3;
   // Caller identity for a gRPC metadata key/value pair.
   message Metadata {
     // The IAM members from the metadata value.
     repeated string members = 1;
     // The identity token from the metadata value.
     IdentityToken identity_token = 2;
+  }
+  // Caller context for downstream network calls.
+  // TODO: Remove this when cel-go supports async functions with context threading.
+  message Context {
+    // Deadline for the caller's request.
+    google.protobuf.Timestamp deadline = 1;
+    // Trace context for the caller's request.
+    string trace = 2;
   }
 }

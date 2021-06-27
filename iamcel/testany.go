@@ -3,7 +3,6 @@ package iamcel
 import (
 	"context"
 	"reflect"
-	"time"
 
 	"github.com/google/cel-go/checker/decls"
 	"github.com/google/cel-go/common/types"
@@ -70,8 +69,12 @@ func NewTestAnyFunctionImplementation(
 				resourcePermissions[resource] = permission
 			}
 			// TODO: When cel-go supports async functions, use the caller context here.
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-			defer cancel()
+			ctx := context.Background()
+			if caller.GetContext().GetDeadline() != nil {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithDeadline(ctx, caller.GetContext().GetDeadline().AsTime())
+				defer cancel()
+			}
 			if result, err := tester.TestPermissions(ctx, caller, resourcePermissions); err != nil {
 				if s, ok := status.FromError(err); ok {
 					return types.NewErr("%s: %s", s.Code(), s.Message())
