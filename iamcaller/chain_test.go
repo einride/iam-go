@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gotest.tools/v3/assert"
 )
 
@@ -79,6 +81,23 @@ func TestChainResolvers(t *testing.T) {
 				},
 			}),
 		).ResolveCaller(context.Background())
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected, actual, protocmp.Transform())
+	})
+
+	t.Run("context", func(t *testing.T) {
+		expected := &iamv1.Caller{
+			Context: &iamv1.Caller_Context{
+				Deadline: timestamppb.New(time.Unix(1234, 0).UTC()),
+				Trace:    "mock-trace-context",
+			},
+			Members: []string{"test:bar", "test:foo"},
+			Metadata: map[string]*iamv1.Caller_Metadata{
+				"key1": {Members: []string{"test:foo"}},
+				"key2": {Members: []string{"test:bar"}},
+			},
+		}
+		actual, err := ChainResolvers(constant(expected)).ResolveCaller(context.Background())
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 	})

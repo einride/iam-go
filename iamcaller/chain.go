@@ -36,6 +36,10 @@ func (c chainResolver) ResolveCaller(ctx context.Context) (*iamv1.Caller, error)
 		for key, value := range nextCaller.Metadata {
 			Add(&result, key, value)
 		}
+		// TODO: Remove this when CEL-Go supports async functions with context arguments.
+		if result.Context == nil && nextCaller.Context != nil {
+			result.Context = nextCaller.Context
+		}
 	}
 	return &result, nil
 }

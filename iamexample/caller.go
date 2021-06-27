@@ -6,6 +6,7 @@ import (
 	"go.einride.tech/iam/iamcaller"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // MemberHeader is the gRPC header used by the example server to determine IAM members of the caller.
@@ -23,13 +24,16 @@ type memberHeaderResolver struct{}
 // ResolveCaller implements iamcaller.Resolver.
 func (m *memberHeaderResolver) ResolveCaller(ctx context.Context) (*iamv1.Caller, error) {
 	var result iamv1.Caller
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return &result, nil
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		iamcaller.Add(&result, MemberHeader, &iamv1.Caller_Metadata{
+			Members: md.Get(MemberHeader),
+		})
 	}
-	iamcaller.Add(&result, MemberHeader, &iamv1.Caller_Metadata{
-		Members: md.Get(MemberHeader),
-	})
+	if deadline, ok := ctx.Deadline(); ok {
+		result.Context = &iamv1.Caller_Context{
+			Deadline: timestamppb.New(deadline),
+		}
+	}
 	return &result, nil
 }
 

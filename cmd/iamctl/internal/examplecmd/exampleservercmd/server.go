@@ -23,6 +23,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error) {
@@ -126,6 +127,11 @@ type googleIdentityTokenCallerResolver struct{}
 func (googleIdentityTokenCallerResolver) ResolveCaller(ctx context.Context) (*iamv1.Caller, error) {
 	const authorizationKey = "authorization"
 	var result iamv1.Caller
+	if deadline, ok := ctx.Deadline(); ok {
+		result.Context = &iamv1.Caller_Context{
+			Deadline: timestamppb.New(deadline),
+		}
+	}
 	token, ok := iamtoken.FromIncomingContext(ctx, authorizationKey)
 	if !ok {
 		return &result, nil
