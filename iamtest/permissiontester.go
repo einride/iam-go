@@ -29,15 +29,15 @@ type allowedPermission struct {
 }
 
 // AllowAll allows all testable permissions for all members and all resources.
-func (m *PermissionTester) AllowAll() *PermissionTester {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.allowAll = true
-	return m
+func (p *PermissionTester) AllowAll() *PermissionTester {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.allowAll = true
+	return p
 }
 
 // Allow a permission for a member and resource.
-func (m *PermissionTester) Allow(member, permission string, resources ...string) *PermissionTester {
+func (p *PermissionTester) Allow(member, permission string, resources ...string) *PermissionTester {
 	if err := iammember.Validate(member); err != nil {
 		panic(fmt.Errorf("permission tester: allow on invalid member %s: %w", member, err))
 	}
@@ -49,44 +49,45 @@ func (m *PermissionTester) Allow(member, permission string, resources ...string)
 			panic(fmt.Errorf("permission tester: allow on invalid resource %s: %w", resource, err))
 		}
 	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if m.allowAll {
-		return m
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if p.allowAll {
+		return p
 	}
 	for _, resource := range resources {
-		m.allowedPermissions = append(m.allowedPermissions, allowedPermission{
+		p.allowedPermissions = append(p.allowedPermissions, allowedPermission{
 			member: member, resource: resource, permission: permission,
 		})
 	}
-	return m
+	return p
 }
 
 // Reset all allowed permissions.
-func (m *PermissionTester) Reset() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.allowAll = false
-	m.allowedPermissions = m.allowedPermissions[:0]
+func (p *PermissionTester) Reset() *PermissionTester {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.allowAll = false
+	p.allowedPermissions = p.allowedPermissions[:0]
+	return p
 }
 
 // TestPermissions implements iamcel.PermissionTester.
-func (m *PermissionTester) TestPermissions(
+func (p *PermissionTester) TestPermissions(
 	_ context.Context,
 	caller *iamv1.Caller,
 	resourcePermissions map[string]string,
 ) (map[string]bool, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	result := make(map[string]bool, len(resourcePermissions))
 ResourcePermissionLoop:
 	for resource, permission := range resourcePermissions {
-		if m.allowAll {
+		if p.allowAll {
 			result[resource] = true
 			continue ResourcePermissionLoop
 		}
 		for _, member := range caller.GetMembers() {
-			for _, p := range m.allowedPermissions {
+			for _, p := range p.allowedPermissions {
 				isResource :=
 					p.resource == iamresource.Root ||
 						p.resource == resource ||
