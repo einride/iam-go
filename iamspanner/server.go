@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamcaller"
+	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
 	"google.golang.org/genproto/googleapis/iam/admin/v1"
@@ -28,7 +29,11 @@ type IAMServer struct {
 
 // ServerConfig configures a Spanner IAM policy server.
 type ServerConfig struct {
+	// ErrorHook is called when errors occur in the IAMServer.
 	ErrorHook func(context.Context, error)
+	// ValidateMember is a custom IAM member validator.
+	// When not provided, iammember.Validate will be used.
+	ValidateMember func(string) error
 }
 
 // ReadTransaction is an interface for Spanner read transactions.
@@ -55,6 +60,13 @@ func NewIAMServer(
 		callerResolver: callerResolver,
 	}
 	return s, nil
+}
+
+func (s *IAMServer) validateMember(member string) error {
+	if s.config.ValidateMember != nil {
+		return s.config.ValidateMember(member)
+	}
+	return iammember.Validate(member)
 }
 
 func deleteIAMPolicyMutation(resource string) *spanner.Mutation {
