@@ -56,7 +56,7 @@ func NewTestAllFunctionImplementation(
 				return types.NewErr("test_all: unexpected type of arg 2, expected []string but got %T", resourcesVal)
 			}
 			if len(resources) == 0 {
-				return types.False
+				return types.True
 			}
 			resourcePermissions := make(map[string]string, len(resources))
 			for _, resource := range resources {
