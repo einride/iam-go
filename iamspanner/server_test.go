@@ -2,6 +2,7 @@ package iamspanner
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"testing"
 
@@ -289,6 +290,70 @@ func TestServer(t *testing.T) {
 		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, emptyPolicy, got, protocmp.Transform())
+	})
+
+	t.Run("set invalid member", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+				ValidateMember: func(s string) error {
+					if s == "invalid:member" {
+						return fmt.Errorf("invalid member")
+					}
+					return nil
+				},
+			})
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.admin", Members: []string{user1, "invalid:member"}},
+			},
+		}
+		actual, err := server.SetIamPolicy(
+			withMembers(ctx, user1),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.ErrorContains(t, err, "invalid member")
+		assert.Assert(t, actual == nil)
+	})
+
+	t.Run("set invalid role", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			})
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.fooBar", Members: []string{user1}},
+			},
+		}
+		actual, err := server.SetIamPolicy(
+			withMembers(ctx, user1),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.ErrorContains(t, err, "unknown role")
+		assert.Assert(t, actual == nil)
 	})
 
 	t.Run("test no permissions", func(t *testing.T) {
