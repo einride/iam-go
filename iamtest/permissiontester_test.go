@@ -19,7 +19,9 @@ func TestPermissionTester(t *testing.T) {
 			resource: permission,
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, map[string]bool{}, result)
+		assert.DeepEqual(t, map[string]bool{
+			resource: false,
+		}, result)
 	})
 
 	t.Run("allow all", func(t *testing.T) {
@@ -54,6 +56,7 @@ func TestPermissionTester(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, map[string]bool{
+			resource1: false,
 			resource2: true,
 		}, result)
 	})
@@ -71,6 +74,8 @@ func TestPermissionTester(t *testing.T) {
 			resource: permission,
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, map[string]bool{}, result)
+		assert.DeepEqual(t, map[string]bool{
+			resource: false,
+		}, result)
 	})
 }

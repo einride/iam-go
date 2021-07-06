@@ -98,6 +98,7 @@ ResourcePermissionLoop:
 				}
 			}
 		}
+		result[resource] = false
 	}
 	return result, nil
 }
