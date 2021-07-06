@@ -81,11 +81,8 @@ func NewTestAllFunctionImplementation(
 				}
 				return types.NewErr("test: error testing permission: %v", err)
 			} else {
-				if len(result) != len(resources) {
-					return types.False
-				}
-				for _, ok := range result {
-					if !ok {
+				for _, resource := range resources {
+					if !result[resource] {
 						return types.False
 					}
 				}
