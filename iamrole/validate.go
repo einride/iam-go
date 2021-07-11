@@ -13,34 +13,36 @@ import (
 // Validate checks that an IAM role is valid.
 func Validate(role *admin.Role) error {
 	var result validation.MessageValidator
-	addNameViolations(&result, role.GetName())
+	if err := ValidateName(role.GetName()); err != nil {
+		result.AddFieldError("name", err)
+	}
 	addTitleViolations(&result, role.GetTitle())
 	addDescriptionViolations(&result, role.GetTitle())
 	addIncludedPermissionsViolations(&result, role.GetIncludedPermissions())
 	return result.Err()
 }
 
-func addNameViolations(result *validation.MessageValidator, name string) {
+// ValidateName checks that an IAM role name is valid.
+func ValidateName(name string) error {
 	if len(name) == 0 {
-		result.AddFieldViolation("name", "must be non-empty")
-		return
+		return fmt.Errorf("role name must be non-empty")
 	}
 	if !strings.HasPrefix(name, "roles/") {
-		result.AddFieldViolation("name", "'%s' is not on the format `roles/{service}.{role}`", name)
-		return
+		return fmt.Errorf("role name '%s' is not on the format `roles/{service}.{role}`", name)
 	}
 	roleID := strings.TrimPrefix(name, "roles/")
 	if len(roleID) > 64 {
-		result.AddFieldViolation("name", "'%s' has a too long role ID, it can be max 64 characters long", name)
+		return fmt.Errorf("role name '%s' has a too long ID, it can be max 64 characters long", name)
 	}
 	if indexOfPeriod := strings.IndexByte(roleID, '.'); indexOfPeriod == -1 {
-		result.AddFieldViolation("name", "'%s' is not on the format `roles/{service}.{role}`", name)
+		return fmt.Errorf("role name '%s' is not on the format `roles/{service}.{role}`", name)
 	} else {
 		service, role := roleID[:indexOfPeriod], roleID[indexOfPeriod+1:]
 		if !isLowerCamelCase(service) || !isLowerCamelCase(role) {
-			result.AddFieldViolation("name", "each part of '%s' must be valid lowerCamelCase", name)
+			return fmt.Errorf("each part of role name '%s' must be valid lowerCamelCase", name)
 		}
 	}
+	return nil
 }
 
 func addTitleViolations(result *validation.MessageValidator, title string) {

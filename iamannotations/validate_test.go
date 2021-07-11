@@ -59,7 +59,7 @@ func TestValidateRoles(t *testing.T) {
 				FieldViolations: []*errdetails.BadRequest_FieldViolation{
 					{
 						Field:       "role[0].name",
-						Description: "'foobarbaz' is not on the format `roles/{service}.{role}`",
+						Description: "role name 'foobarbaz' is not on the format `roles/{service}.{role}`",
 					},
 				},
 			},
