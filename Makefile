@@ -9,9 +9,11 @@ all: \
 	go-lint \
 	go-test \
 	go-mod-tidy \
-	go-install-iamctl
+	go-install-iamctl \
+	git-verify-nodiff
 
 include tools/buf/rules.mk
+include tools/git-verify-nodiff/rules.mk
 include tools/golangci-lint/rules.mk
 include tools/protoc-gen-go-grpc/rules.mk
 include tools/semantic-release/rules.mk
