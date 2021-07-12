@@ -119,7 +119,7 @@ func (c authorizationCodeGenerator) generateStruct(g *protogen.GeneratedFile) {
 		}
 		g.P("}")
 	}
-	if options := getLongRunningOperationsAuthorizationOptions(c.service); options != nil && options.GetBefore() {
+	if options := getLongRunningOperationsAuthorizationOptions(c.service); options != nil {
 		c.generateLongRunningOperationMethod(g, options, "ListOperations", g.QualifiedGoIdent(protogen.GoIdent{
 			GoImportPath: "google.golang.org/genproto/googleapis/longrunning",
 			GoName:       "ListOperationsResponse",
