@@ -11,7 +11,7 @@ require (
 	go.einride.tech/iam v0.0.0-00010101000000-000000000000
 	google.golang.org/api v0.50.0
 	google.golang.org/genproto v0.0.0-20210707141755-0f065b0b1eb9
-	google.golang.org/grpc v1.39.0
+	google.golang.org/grpc v1.39.1
 	google.golang.org/protobuf v1.27.1
 )
 
