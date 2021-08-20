@@ -2,14 +2,6 @@ syntax = "proto3";
 
 package einride.iam.v1;
 
-option csharp_namespace = "Iam.V1";
-option go_package = "go.einride.tech/iam/proto/gen/einride/iam/v1;iamv1";
-option java_multiple_files = true;
-option java_outer_classname = "CallerProto";
-option java_package = "tech.einride.iam.v1";
-option objc_class_prefix = "IXX";
-option php_namespace = "Iam\\V1";
-
 import "einride/iam/v1/identity_token.proto";
 import "google/protobuf/timestamp.proto";
 

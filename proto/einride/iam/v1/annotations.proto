@@ -2,14 +2,6 @@ syntax = "proto3";
 
 package einride.iam.v1;
 
-option csharp_namespace = "Iam.V1";
-option go_package = "go.einride.tech/iam/proto/gen/einride/iam/v1;iamv1";
-option java_multiple_files = true;
-option java_outer_classname = "AnnotationsProto";
-option java_package = "tech.einride.iam.v1";
-option objc_class_prefix = "IXX";
-option php_namespace = "Iam\\V1";
-
 import "google/api/resource.proto";
 import "google/iam/admin/v1/iam.proto";
 import "google/protobuf/descriptor.proto";
