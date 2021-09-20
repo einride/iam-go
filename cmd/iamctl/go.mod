@@ -7,7 +7,7 @@ require (
 	firebase.google.com/go/v4 v4.6.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.1
+	github.com/spf13/viper v1.9.0
 	go.einride.tech/iam v0.0.0-00010101000000-000000000000
 	google.golang.org/api v0.57.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83
