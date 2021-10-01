@@ -22,7 +22,7 @@ proto:
 .PHONY: spanner-generate
 spanner-generate:
 	$(info [$@] generating Spanner database APIs...)
-	@go run -mod=mod go.einride.tech/spanner-aip/cmd/spanner-aip-go generate
+	@go run -mod=mod go.einride.tech/spanner-aip generate
 
 .PHONY: go-mod-tidy
 go-mod-tidy:
