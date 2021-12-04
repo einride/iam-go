@@ -18,8 +18,8 @@ func (ts *serverTestSuite) testUpdateSite(t *testing.T) {
 		t.Run("ok", func(t *testing.T) {
 			const (
 				member = "user:test@example.com"
-				parent = "shippers/1234"
-				siteID = "5678"
+				parent = "shippers/aaaa"
+				siteID = "bbbb"
 			)
 			fx := ts.newTestFixture(t)
 			fx.createShipper(t, parent)
@@ -55,8 +55,8 @@ func (ts *serverTestSuite) testUpdateSite(t *testing.T) {
 	t.Run("unauthorized", func(t *testing.T) {
 		const (
 			member = "user:test@example.com"
-			parent = "shippers/1234"
-			siteID = "5678"
+			parent = "shippers/aaaa"
+			siteID = "bbbb"
 		)
 		fx := ts.newTestFixture(t)
 		got, err := fx.client.CreateSite(

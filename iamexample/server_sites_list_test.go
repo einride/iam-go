@@ -20,7 +20,7 @@ func (ts *serverTestSuite) testListSites(t *testing.T) {
 		t.Run("ok", func(t *testing.T) {
 			const (
 				member = "user:test@example.com"
-				parent = "shippers/1234"
+				parent = "shippers/aaaa"
 				count  = 20
 			)
 			fx := ts.newTestFixture(t)
@@ -35,7 +35,7 @@ func (ts *serverTestSuite) testListSites(t *testing.T) {
 						Site: &iamexamplev1.Site{
 							DisplayName: fmt.Sprintf("Test Site %d", i),
 						},
-						SiteId: fmt.Sprintf("%04d", i),
+						SiteId: fmt.Sprintf("site%04d", i),
 					},
 				)
 				assert.NilError(t, err)

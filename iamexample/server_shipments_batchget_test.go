@@ -21,9 +21,9 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 		t.Run("permission on parent with requested parent", func(t *testing.T) {
 			const (
 				member          = "user:test@example.com"
-				parent          = "shippers/1234"
-				originSite      = "shippers/1234/sites/origin"
-				destinationSite = "shippers/1234/sites/destination"
+				parent          = "shippers/aaaa"
+				originSite      = "shippers/aaaa/sites/origin"
+				destinationSite = "shippers/aaaa/sites/destination"
 				count           = 20
 			)
 			fx := ts.newTestFixture(t)
@@ -49,7 +49,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 							{Title: "test 2", Quantity: 2},
 						},
 					},
-					ShipmentId: fmt.Sprintf("%04d", i),
+					ShipmentId: fmt.Sprintf("shipment%04d", i),
 				})
 				assert.NilError(t, err)
 				expected = append(expected, created)
@@ -66,9 +66,9 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 		t.Run("permission on parent without requested parent", func(t *testing.T) {
 			const (
 				member          = "user:test@example.com"
-				parent          = "shippers/1234"
-				originSite      = "shippers/1234/sites/origin"
-				destinationSite = "shippers/1234/sites/destination"
+				parent          = "shippers/aaaa"
+				originSite      = "shippers/aaaa/sites/origin"
+				destinationSite = "shippers/aaaa/sites/destination"
 				count           = 20
 			)
 			fx := ts.newTestFixture(t)
@@ -95,7 +95,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 								{Title: "test 2", Quantity: 2},
 							},
 						},
-						ShipmentId: fmt.Sprintf("%04d", i),
+						ShipmentId: fmt.Sprintf("shipment%04d", i),
 					},
 				)
 				assert.NilError(t, err)
@@ -117,9 +117,9 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 		const (
 			admin           = "user:admin@example.com"
 			user            = "user:user@example.com"
-			parent          = "shippers/1234"
-			originSite      = "shippers/1234/sites/origin"
-			destinationSite = "shippers/1234/sites/destination"
+			parent          = "shippers/aaaa"
+			originSite      = "shippers/aaaa/sites/origin"
+			destinationSite = "shippers/aaaa/sites/destination"
 			shipmentID      = "test"
 		)
 		fx := ts.newTestFixture(t)

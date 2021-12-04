@@ -30,7 +30,7 @@ func (ts *serverTestSuite) testListShippers(t *testing.T) {
 						Shipper: &iamexamplev1.Shipper{
 							DisplayName: fmt.Sprintf("Test Shipper %d", i),
 						},
-						ShipperId: fmt.Sprintf("%04d", i),
+						ShipperId: fmt.Sprintf("shipper%04d", i),
 					},
 				)
 				assert.NilError(t, err)
