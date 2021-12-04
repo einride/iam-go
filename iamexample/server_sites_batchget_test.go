@@ -20,7 +20,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 		t.Run("permission on parent with requested parent", func(t *testing.T) {
 			const (
 				member = "user:test@example.com"
-				parent = "shippers/1234"
+				parent = "shippers/aaaa"
 				count  = 20
 			)
 			fx := ts.newTestFixture(t)
@@ -36,7 +36,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 						Site: &iamexamplev1.Site{
 							DisplayName: fmt.Sprintf("Test Site %d", i),
 						},
-						SiteId: fmt.Sprintf("%04d", i),
+						SiteId: fmt.Sprintf("site%04d", i),
 					},
 				)
 				assert.NilError(t, err)
@@ -57,7 +57,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 		t.Run("permission on parent without requested parent", func(t *testing.T) {
 			const (
 				member = "user:test@example.com"
-				parent = "shippers/1234"
+				parent = "shippers/aaaa"
 				count  = 20
 			)
 			fx := ts.newTestFixture(t)
@@ -73,7 +73,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 						Site: &iamexamplev1.Site{
 							DisplayName: fmt.Sprintf("Test Site %d", i),
 						},
-						SiteId: fmt.Sprintf("%04d", i),
+						SiteId: fmt.Sprintf("site%04d", i),
 					},
 				)
 				assert.NilError(t, err)
@@ -97,7 +97,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 		response, err := fx.client.BatchGetSites(
 			WithOutgoingMembers(ctx, member),
 			&iamexamplev1.BatchGetSitesRequest{
-				Names: []string{"shippers/1234/sites/5678"},
+				Names: []string{"shippers/aaaa/sites/bbbb"},
 			},
 		)
 		assert.Equal(t, codes.PermissionDenied, status.Code(err), "unexpected status: %v", err)

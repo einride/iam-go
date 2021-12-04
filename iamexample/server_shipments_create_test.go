@@ -20,10 +20,10 @@ func (ts *serverTestSuite) testCreateShipment(t *testing.T) {
 		t.Run("ok", func(t *testing.T) {
 			const (
 				member          = "user:test@example.com"
-				parent          = "shippers/1234"
-				originSite      = "shippers/1234/sites/origin"
-				destinationSite = "shippers/1234/sites/destination"
-				shipmentID      = "5678"
+				parent          = "shippers/aaaa"
+				originSite      = "shippers/aaaa/sites/origin"
+				destinationSite = "shippers/aaaa/sites/destination"
+				shipmentID      = "bbbb"
 			)
 			fx := ts.newTestFixture(t)
 			fx.createShipper(t, parent)
@@ -58,9 +58,9 @@ func (ts *serverTestSuite) testCreateShipment(t *testing.T) {
 	t.Run("unauthorized", func(t *testing.T) {
 		const (
 			member          = "user:test@example.com"
-			parent          = "shippers/1234"
-			originSite      = "shippers/1234/sites/origin"
-			destinationSite = "shippers/1234/sites/destination"
+			parent          = "shippers/aaaa"
+			originSite      = "shippers/aaaa/sites/origin"
+			destinationSite = "shippers/aaaa/sites/destination"
 			shipmentID      = "5678"
 		)
 		fx := ts.newTestFixture(t)

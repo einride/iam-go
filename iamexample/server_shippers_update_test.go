@@ -18,7 +18,7 @@ func (ts *serverTestSuite) testUpdateShipper(t *testing.T) {
 		t.Run("ok", func(t *testing.T) {
 			const (
 				member    = "user:test@example.com"
-				shipperID = "1234"
+				shipperID = "aaaa"
 				shipper   = "shippers/" + shipperID
 			)
 			fx := ts.newTestFixture(t)
@@ -53,7 +53,7 @@ func (ts *serverTestSuite) testUpdateShipper(t *testing.T) {
 	t.Run("unauthorized", func(t *testing.T) {
 		const (
 			member    = "user:test@example.com"
-			shipperID = "1234"
+			shipperID = "aaaa"
 			shipper   = "shippers/" + shipperID
 		)
 		fx := ts.newTestFixture(t)

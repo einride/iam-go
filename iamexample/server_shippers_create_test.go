@@ -18,7 +18,7 @@ func (ts *serverTestSuite) testCreateShipper(t *testing.T) {
 		t.Run("ok", func(t *testing.T) {
 			const (
 				member    = "user:test@example.com"
-				shipperID = "1234"
+				shipperID = "aaaa"
 			)
 			fx := ts.newTestFixture(t)
 			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
@@ -40,7 +40,7 @@ func (ts *serverTestSuite) testCreateShipper(t *testing.T) {
 	t.Run("unauthorized", func(t *testing.T) {
 		const (
 			member    = "user:test@example.com"
-			shipperID = "1234"
+			shipperID = "aaaa"
 		)
 		fx := ts.newTestFixture(t)
 		got, err := fx.client.CreateShipper(
