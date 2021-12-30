@@ -10,6 +10,7 @@ import (
 	"go.einride.tech/iam/iamexample/iamexampledata"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // Command contains sub-commands for the IAM example server.
@@ -47,7 +48,12 @@ func init() {
 
 func runStartCommand(ctx context.Context, cfg *startFlags) error {
 	log.Printf("connecting to Spanner emulator on address %s...", cfg.SpannerEmulatorHost)
-	conn, err := grpc.DialContext(ctx, cfg.SpannerEmulatorHost, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(
+		ctx,
+		cfg.SpannerEmulatorHost,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock(),
+	)
 	if err != nil {
 		return err
 	}
