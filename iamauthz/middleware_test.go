@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 	"gotest.tools/v3/assert"
@@ -33,7 +34,12 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 			grpcServer.GracefulStop()
 		})
 		ctx := withTestDeadline(context.Background(), t)
-		conn, err := grpc.DialContext(ctx, lis.Addr().String(), grpc.WithInsecure(), grpc.WithBlock())
+		conn, err := grpc.DialContext(
+			ctx,
+			lis.Addr().String(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithBlock(),
+		)
 		assert.NilError(t, err)
 		client := healthpb.NewHealthClient(conn)
 		response, err := client.Check(ctx, &healthpb.HealthCheckRequest{})
@@ -61,7 +67,12 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 			grpcServer.GracefulStop()
 		})
 		ctx := withTestDeadline(context.Background(), t)
-		conn, err := grpc.DialContext(ctx, lis.Addr().String(), grpc.WithInsecure(), grpc.WithBlock())
+		conn, err := grpc.DialContext(
+			ctx,
+			lis.Addr().String(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithBlock(),
+		)
 		assert.NilError(t, err)
 		client := healthpb.NewHealthClient(conn)
 		response, err := client.Check(ctx, &healthpb.HealthCheckRequest{})

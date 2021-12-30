@@ -16,6 +16,7 @@ import (
 	"go.einride.tech/spanner-aip/spantest"
 	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gotest.tools/v3/assert"
 )
 
@@ -113,7 +114,12 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 		grpcServer.GracefulStop()
 	})
 	ctx := withTestDeadline(context.Background(), t)
-	conn, err := grpc.DialContext(ctx, lis.Addr().String(), grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(
+		ctx,
+		lis.Addr().String(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock(),
+	)
 	assert.NilError(t, err)
 	serviceClient := iamexamplev1.NewFreightServiceClient(conn)
 	longRunningClient := longrunning.NewOperationsClient(conn)

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/api/run/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -73,7 +74,7 @@ func (f *Flags) Connect(ctx context.Context) (*grpc.ClientConn, error) {
 		if !strings.HasPrefix(address, "localhost:") {
 			return nil, fmt.Errorf("can only use --insecure when connecting to localhost")
 		}
-		opts = append(opts, grpc.WithInsecure())
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
 		systemCertPool, err := x509.SystemCertPool()
 		if err != nil {
