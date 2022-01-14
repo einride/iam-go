@@ -206,8 +206,8 @@ github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.einride.tech/aip v0.53.0/go.mod h1:LpASAVZqkSncCFd6p9xD15Cwn1gcWDQUppEX9q6J7Pg=
-go.einride.tech/aip v0.53.1 h1:bGVb45rrR6rI1eD2Baz+1EqcSiwGsvs8Oje32GlqH5I=
-go.einride.tech/aip v0.53.1/go.mod h1:XjLrmqaYOqgXfKzjiKqSNmLQh3nL3XiWpVweu4hJMlU=
+go.einride.tech/aip v0.54.0 h1:6wkEWkchkoCr98DLLijBTm24cA/WGJECSVvMfKsiAVU=
+go.einride.tech/aip v0.54.0/go.mod h1:XjLrmqaYOqgXfKzjiKqSNmLQh3nL3XiWpVweu4hJMlU=
 go.einride.tech/spanner-aip v0.39.0 h1:bBSqsyYJkNXWsrWq+U3FUHf7y44gw+3KHHlJ9MUYqP0=
 go.einride.tech/spanner-aip v0.39.0/go.mod h1:MNOjvssAzu8l5saGRFTOEujVWxSEInHPGDpU9mJ5WA0=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
