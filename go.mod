@@ -7,15 +7,16 @@ require (
 	github.com/google/cel-go v0.9.0
 	go.einride.tech/aip v0.53.1
 	go.einride.tech/spanner-aip v0.39.0
-	google.golang.org/api v0.64.0
-	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb
+	google.golang.org/api v0.65.0
+	google.golang.org/genproto v0.0.0-20220107163113-42d7afdf6368
 	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 	gotest.tools/v3 v3.0.3
 )
 
 require (
-	cloud.google.com/go v0.99.0 // indirect
+	cloud.google.com/go v0.100.2 // indirect
+	cloud.google.com/go/compute v0.1.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211229183857-345cc17bf36c // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
