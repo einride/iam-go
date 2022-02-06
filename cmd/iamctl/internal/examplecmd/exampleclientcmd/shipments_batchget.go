@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var batchGetShipmentsCommand = &cobra.Command{
 	Use:   "batch-get-shipments",
 	Short: "Batch get shipments",
@@ -44,6 +45,7 @@ type batchGetShipmentsFlags struct {
 	Names            []string `mapstructure:"names"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	batchGetShipmentsCommand.Flags().String("parent", "", "resource name of the parent shipper")
 	batchGetShipmentsCommand.Flags().StringSlice("names", nil, "resource names of the shipments")

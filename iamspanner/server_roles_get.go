@@ -41,13 +41,14 @@ type getRoleRequest struct {
 func (r *getRoleRequest) parse(request *admin.GetRoleRequest) error {
 	var v validation.MessageValidator
 	// name = 1
-	if request.Name == "" {
+	switch {
+	case request.Name == "":
 		v.AddFieldViolation("name", "required field")
-	} else if resourcename.ContainsWildcard(request.Name) {
+	case resourcename.ContainsWildcard(request.Name):
 		v.AddFieldViolation("name", "must not contain wildcards")
-	} else if !resourcename.Match("roles/{role}", request.Name) {
+	case !resourcename.Match("roles/{role}", request.Name):
 		v.AddFieldViolation("name", "invalid format")
-	} else {
+	default:
 		r.name = request.Name
 	}
 	return v.Err()

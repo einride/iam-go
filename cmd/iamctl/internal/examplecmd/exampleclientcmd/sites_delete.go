@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var deleteSiteCommand = &cobra.Command{
 	Use:   "delete-site",
 	Short: "Delete a site",
@@ -43,6 +44,7 @@ type deleteSiteFlags struct {
 	Name             string `mapstructure:"name"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	deleteSiteCommand.Flags().String("name", "", "resource name of the site")
 	_ = deleteSiteCommand.MarkFlagRequired("name")

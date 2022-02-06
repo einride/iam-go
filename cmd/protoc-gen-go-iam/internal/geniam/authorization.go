@@ -285,7 +285,7 @@ func (c authorizationCodeGenerator) generateConstructor(g *protogen.GeneratedFil
 			}
 		}
 	}
-	if longRunning := getLongRunningOperationsAuthorizationOptions(c.service); longRunning != nil && longRunning.GetBefore() {
+	if lr := getLongRunningOperationsAuthorizationOptions(c.service); lr != nil && lr.GetBefore() {
 		constructor := g.QualifiedGoIdent(protogen.GoIdent{
 			GoImportPath: "go.einride.tech/iam/iamauthz",
 			GoName:       "NewBeforeLongRunningOperationMethodAuthorization",

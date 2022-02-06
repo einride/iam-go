@@ -2,6 +2,7 @@ package iamexample
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"testing"
@@ -21,6 +22,7 @@ import (
 )
 
 func TestServer(t *testing.T) {
+	t.Parallel()
 	ts := newServerTestSuite(t)
 	// shippers
 	t.Run("CreateShipper", ts.testCreateShipper)
@@ -101,7 +103,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	longrunning.RegisterOperationsServer(grpcServer, serverWithAuthorization)
 	errChan := make(chan error)
 	go func() {
-		if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+		if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 			errChan <- err
 			return
 		}

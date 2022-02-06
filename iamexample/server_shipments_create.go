@@ -96,19 +96,21 @@ func (r *createShipmentRequest) ParseRequest(request *iamexamplev1.CreateShipmen
 		// delete_time = 4
 		request.Shipment.DeleteTime = nil
 		// origin_site = 5
-		if len(request.Shipment.OriginSite) == 0 {
+		switch {
+		case len(request.Shipment.OriginSite) == 0:
 			v.AddFieldViolation("shipment.origin_site", "required_field")
-		} else if !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.OriginSite) {
+		case !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.OriginSite):
 			v.AddFieldViolation("shipment.origin_site", "invalid format")
-		} else if !resourcename.HasParent(request.Shipment.OriginSite, request.Parent) {
+		case !resourcename.HasParent(request.Shipment.OriginSite, request.Parent):
 			v.AddFieldViolation("shipment.origin_site", "must have same parent as shipment")
 		}
 		// destination_site = 6
-		if len(request.Shipment.DestinationSite) == 0 {
+		switch {
+		case len(request.Shipment.DestinationSite) == 0:
 			v.AddFieldViolation("shipment.destination_site", "required field")
-		} else if !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.DestinationSite) {
+		case !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.DestinationSite):
 			v.AddFieldViolation("shipment.destination_site", "invalid format")
-		} else if !resourcename.HasParent(request.Shipment.DestinationSite, request.Parent) {
+		case !resourcename.HasParent(request.Shipment.DestinationSite, request.Parent):
 			v.AddFieldViolation("shipment.destination_site", "must have same parent as shipment")
 		}
 		// pickup_earliest_time = 7

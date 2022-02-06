@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// nolint: gochecknoglobals
 var updateShipmentCommand = &cobra.Command{
 	Use:   "update-shipment",
 	Short: "Update a shipment",
@@ -52,6 +53,7 @@ type updateShipmentFlags struct {
 	UpdateMask           []string `mapstructure:"update-mask"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	updateShipmentCommand.Flags().String("name", "", "resource name of the shipment")
 	updateShipmentCommand.Flags().String("origin-site", "", "origin site of the shipment")

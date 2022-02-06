@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var createShipperCommand = &cobra.Command{
 	Use:   "create-shipper",
 	Short: "Create a shipper",
@@ -44,6 +45,7 @@ type createShipperFlags struct {
 	ShipperID        string `mapstructure:"shipper-id"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	createShipperCommand.Flags().String("shipper-id", "", "ID to use for the Shipper")
 	createShipperCommand.Flags().String("display-name", "", "The display name of the shipper")

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var getSiteCommand = &cobra.Command{
 	Use:   "get-site",
 	Short: "Get a site",
@@ -43,6 +44,7 @@ type getSiteFlags struct {
 	Name             string `mapstructure:"name"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	getSiteCommand.Flags().String("name", "", "resource name of the site")
 	_ = getSiteCommand.MarkFlagRequired("name")

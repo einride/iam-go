@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var setIAMPolicyCommand = &cobra.Command{
 	Use:   "set-iam-policy <resource> <policy-file>",
 	Short: "Set an IAM policy",

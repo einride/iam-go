@@ -88,10 +88,9 @@ ResourcePermissionLoop:
 		}
 		for _, member := range caller.GetMembers() {
 			for _, p := range p.allowedPermissions {
-				isResource :=
-					p.resource == iamresource.Root ||
-						p.resource == resource ||
-						resourcename.HasParent(resource, p.resource)
+				isResource := p.resource == iamresource.Root ||
+					p.resource == resource ||
+					resourcename.HasParent(resource, p.resource)
 				if isResource && p.member == member && p.permission == permission {
 					result[resource] = true
 					continue ResourcePermissionLoop

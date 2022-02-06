@@ -85,7 +85,7 @@ func (f *Flags) Connect(ctx context.Context) (*grpc.ClientConn, error) {
 	return grpc.DialContext(ctx, address, opts...)
 }
 
-func (c *Flags) unaryClientInterceptor(
+func (f *Flags) unaryClientInterceptor(
 	ctx context.Context,
 	method string,
 	req, reply interface{},
@@ -93,8 +93,8 @@ func (c *Flags) unaryClientInterceptor(
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,
 ) error {
-	if len(c.ExampleMembers) > 0 {
-		ctx = iamexample.WithOutgoingMembers(ctx, c.ExampleMembers...)
+	if len(f.ExampleMembers) > 0 {
+		ctx = iamexample.WithOutgoingMembers(ctx, f.ExampleMembers...)
 	}
 	if err := invoker(ctx, method, req, reply, cc, opts...); err != nil {
 		return &printDetailsError{err: err}
@@ -104,13 +104,13 @@ func (c *Flags) unaryClientInterceptor(
 
 type tokenCredentials string
 
-func (t tokenCredentials) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+func (c tokenCredentials) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
 	return map[string]string{
-		"authorization": "Bearer " + string(t),
+		"authorization": "Bearer " + string(c),
 	}, nil
 }
 
-func (p tokenCredentials) RequireTransportSecurity() bool {
+func (c tokenCredentials) RequireTransportSecurity() bool {
 	return false
 }
 

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var deleteShipperCommand = &cobra.Command{
 	Use:   "delete-shipper",
 	Short: "Delete a shipper",
@@ -43,6 +44,7 @@ type deleteShipperFlags struct {
 	Name             string `mapstructure:"name"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	deleteShipperCommand.Flags().String("name", "", "resource name of the shipper")
 	_ = deleteShipperCommand.MarkFlagRequired("name")

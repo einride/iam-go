@@ -10,6 +10,7 @@ import (
 )
 
 // Command is the CLI root command.
+// nolint: gochecknoglobals
 var Command = &cobra.Command{
 	Use:   "iamctl",
 	Short: "IAM command line controls",
@@ -23,6 +24,7 @@ func Execute() {
 	}
 }
 
+// nolint: gochecknoinits
 func init() {
 	Command.AddCommand(examplecmd.Command)
 	Command.AddCommand(getIAMPolicyCommand)

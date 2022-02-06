@@ -2,7 +2,7 @@
 //
 // versions:
 // 	protoc-gen-go-aip development
-// 	protoc v3.17.3
+// 	protoc (unknown)
 // source: einride/iam/example/v1/site.proto
 
 package examplev1

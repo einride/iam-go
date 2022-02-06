@@ -42,7 +42,7 @@ func NewTestAllFunctionImplementation(
 ) *functions.Overload {
 	return &functions.Overload{
 		Operator: testAllFunctionOverload,
-		Binary: func(callerVal ref.Val, resourcesVal ref.Val) ref.Val {
+		Binary: func(callerVal, resourcesVal ref.Val) ref.Val {
 			caller, ok := callerVal.Value().(*iamv1.Caller)
 			if !ok {
 				return types.NewErr("test_all: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, caller)
@@ -75,19 +75,19 @@ func NewTestAllFunctionImplementation(
 				ctx, cancel = context.WithDeadline(ctx, caller.GetContext().GetDeadline().AsTime())
 				defer cancel()
 			}
-			if result, err := tester.TestPermissions(ctx, caller, resourcePermissions); err != nil {
+			result, err := tester.TestPermissions(ctx, caller, resourcePermissions)
+			if err != nil {
 				if s, ok := status.FromError(err); ok {
 					return types.NewErr("%s: %s", s.Code(), s.Message())
 				}
 				return types.NewErr("test: error testing permission: %v", err)
-			} else {
-				for _, resource := range resources {
-					if !result[resource] {
-						return types.False
-					}
-				}
-				return types.True
 			}
+			for _, resource := range resources {
+				if !result[resource] {
+					return types.False
+				}
+			}
+			return types.True
 		},
 	}
 }

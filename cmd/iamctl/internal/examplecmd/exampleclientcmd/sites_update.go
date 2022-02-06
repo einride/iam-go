@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
+// nolint: gochecknoglobals
 var updateSiteCommand = &cobra.Command{
 	Use:   "update-site",
 	Short: "Update a site",
@@ -49,6 +50,7 @@ type updateSiteFlags struct {
 	UpdateMask       []string `mapstructure:"update-mask"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	updateSiteCommand.Flags().String("name", "", "resource name of the site")
 	updateSiteCommand.Flags().String("display-name", "", "page token")

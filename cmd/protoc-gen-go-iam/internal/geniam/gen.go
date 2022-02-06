@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"go.einride.tech/iam/iamannotations"
-
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"

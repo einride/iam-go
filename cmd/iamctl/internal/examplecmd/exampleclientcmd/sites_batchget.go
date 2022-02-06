@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var batchGetSitesCommand = &cobra.Command{
 	Use:   "batch-get-sites",
 	Short: "Batch get sites",
@@ -44,6 +45,7 @@ type batchGetSitesFlags struct {
 	Names            []string `mapstructure:"names"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	batchGetSitesCommand.Flags().String("parent", "", "resource name of the parent shipper")
 	batchGetSitesCommand.Flags().StringSlice("names", nil, "resource names of the sites")

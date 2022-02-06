@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var addIAMPolicyBindingCommand = &cobra.Command{
 	Use:   "add-iam-policy-binding <resource>",
 	Short: "Add an IAM policy binding",
@@ -46,6 +47,7 @@ type addIAMPolicyBindingFlags struct {
 	Role             string `mapstructure:"role"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	addIAMPolicyBindingCommand.Flags().String("member", "", "member to add")
 	addIAMPolicyBindingCommand.Flags().String("role", "", "role to add")

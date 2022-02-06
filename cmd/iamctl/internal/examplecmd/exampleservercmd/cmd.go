@@ -14,11 +14,13 @@ import (
 )
 
 // Command contains sub-commands for the IAM example server.
+// nolint: gochecknoglobals
 var Command = &cobra.Command{
 	Use:   "server",
 	Short: "IAM example server",
 }
 
+// nolint: gochecknoglobals
 var startCommand = &cobra.Command{
 	Use:   "start",
 	Short: "Start example server",
@@ -40,6 +42,7 @@ type startFlags struct {
 	SpannerEmulatorHost string `mapstructure:"spanner-emulator-host"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	Command.AddCommand(startCommand)
 	startCommand.Flags().String("address", "localhost:8080", "address to listen on")

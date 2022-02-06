@@ -2,6 +2,7 @@ package exampleservercmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -100,7 +101,7 @@ func runServer(
 		return err
 	}
 	log.Printf("example server listening on %s", address)
-	if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+	if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 		return err
 	}
 	return nil

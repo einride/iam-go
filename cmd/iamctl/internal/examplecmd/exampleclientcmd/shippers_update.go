@@ -4,15 +4,15 @@ import (
 	"context"
 	"log"
 
-	"go.einride.tech/iam/cmd/iamctl/internal/connection"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.einride.tech/iam/cmd/iamctl/internal/connection"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
+// nolint: gochecknoglobals
 var updateShipperCommand = &cobra.Command{
 	Use:   "update-shipper",
 	Short: "Update a shipper",
@@ -47,6 +47,7 @@ type updateShipperFlags struct {
 	UpdateMask       []string `mapstructure:"update-mask"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	updateShipperCommand.Flags().String("name", "", "resource name of the shipper")
 	updateShipperCommand.Flags().String("display-name", "", "page token")
