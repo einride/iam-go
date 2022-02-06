@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var createSiteCommand = &cobra.Command{
 	Use:   "create-site",
 	Short: "Create a site",
@@ -48,6 +49,7 @@ type createSiteFlags struct {
 	Longitude        float64 `mapstructure:"longitude"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	createSiteCommand.Flags().String("parent", "", "parent shipper to use for the site")
 	createSiteCommand.Flags().String("site-id", "", "ID to use for the Site")

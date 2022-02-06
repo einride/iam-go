@@ -62,13 +62,14 @@ func (r *listShippersRequest) parse(request *iamexamplev1.ListShippersRequest) e
 		defaultPageSize = 100
 		maxPageSize     = 1_000
 	)
-	if request.PageSize < 0 {
+	switch {
+	case request.PageSize < 0:
 		v.AddFieldViolation("page_size", "must be >= 0")
-	} else if request.PageSize == 0 {
+	case request.PageSize == 0:
 		r.pageSize = defaultPageSize
-	} else if request.PageSize > maxPageSize {
+	case request.PageSize > maxPageSize:
 		r.pageSize = maxPageSize
-	} else {
+	default:
 		r.pageSize = request.PageSize
 	}
 	if pageToken, err := pagination.ParsePageToken(request); err != nil {

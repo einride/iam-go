@@ -83,7 +83,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		expected := &iam.Policy{
 			Etag: []byte("W/0-00000000"),
@@ -106,7 +107,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		actual, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
@@ -126,7 +128,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		actual, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
@@ -146,7 +149,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -182,7 +186,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -213,7 +218,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -256,7 +262,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -308,7 +315,8 @@ func TestServer(t *testing.T) {
 					}
 					return nil
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -337,7 +345,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -366,7 +375,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user1),
@@ -394,7 +404,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -437,7 +448,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -481,7 +493,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -524,7 +537,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -568,7 +582,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		policy := &iam.Policy{
 			Bindings: []*iam.Binding{
@@ -612,7 +627,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		expected, ok := rolesRegistry.FindRoleByName("roles/test.admin")
 		assert.Assert(t, ok)
@@ -636,7 +652,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		expected := make([]*admin.Role, 0, rolesRegistry.Count())
 		rolesRegistry.RangeRoles(func(role *admin.Role) bool {
@@ -677,7 +694,8 @@ func TestServer(t *testing.T) {
 				ErrorHook: func(ctx context.Context, err error) {
 					t.Log(err)
 				},
-			})
+			},
+		)
 		assert.NilError(t, err)
 		expected := &iam.Policy{
 			Bindings: []*iam.Binding{

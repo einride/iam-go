@@ -128,21 +128,23 @@ func (r *updateShipmentRequest) ParseRequest(request *iamexamplev1.UpdateShipmen
 		request.Shipment.DeleteTime = nil
 		// origin_site = 5
 		if has("origin_site") || hasNoMask && len(request.Shipment.OriginSite) > 0 {
-			if len(request.Shipment.OriginSite) == 0 {
+			switch {
+			case len(request.Shipment.OriginSite) == 0:
 				v.AddFieldViolation("shipment.origin_site", "required_field")
-			} else if !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.OriginSite) {
+			case !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.OriginSite):
 				v.AddFieldViolation("shipment.origin_site", "invalid format")
-			} else if !resourcename.HasParent(request.Shipment.OriginSite, shipper) {
+			case !resourcename.HasParent(request.Shipment.OriginSite, shipper):
 				v.AddFieldViolation("shipment.origin_site", "must have same parent as shipment")
 			}
 		}
 		// destination_site = 6
 		if has("destination_site") || hasNoMask && len(request.Shipment.DestinationSite) > 0 {
-			if len(request.Shipment.DestinationSite) == 0 {
+			switch {
+			case len(request.Shipment.DestinationSite) == 0:
 				v.AddFieldViolation("shipment.destination_site", "required field")
-			} else if !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.DestinationSite) {
+			case !resourcename.Match("shippers/{shipper}/sites/{site}", request.Shipment.DestinationSite):
 				v.AddFieldViolation("shipment.destination_site", "invalid format")
-			} else if !resourcename.HasParent(request.Shipment.DestinationSite, shipper) {
+			case !resourcename.HasParent(request.Shipment.DestinationSite, shipper):
 				v.AddFieldViolation("shipment.destination_site", "must have same parent as shipment")
 			}
 		}

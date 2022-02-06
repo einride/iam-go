@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// nolint: gochecknoglobals
 var createShipmentCommand = &cobra.Command{
 	Use:   "create-shipment",
 	Short: "Create a shipment",
@@ -53,6 +54,7 @@ type createShipmentFlags struct {
 	DeliveryLatestTime   string `mapstructure:"delivery-latest-time"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	createShipmentCommand.Flags().String("parent", "", "parent shipper to use for the shipment")
 	createShipmentCommand.Flags().String("shipment-id", "", "ID to use for the Shipment")

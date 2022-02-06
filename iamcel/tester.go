@@ -9,6 +9,8 @@ import (
 // PermissionTester is an interface for testing IAM permissions.
 type PermissionTester interface {
 	TestPermissions(
-		ctx context.Context, caller *iamv1.Caller, resourcePermissions map[string]string,
+		ctx context.Context,
+		caller *iamv1.Caller,
+		resourcePermissions map[string]string,
 	) (map[string]bool, error)
 }

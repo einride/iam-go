@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var removeIAMPolicyBindingCommand = &cobra.Command{
 	Use:   "remove-iam-policy-binding <resource>",
 	Short: "Remove an IAM policy binding",
@@ -46,6 +47,7 @@ type removeIAMPolicyBindingFlags struct {
 	Role             string `mapstructure:"role"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	removeIAMPolicyBindingCommand.Flags().String("member", "", "member to remove")
 	removeIAMPolicyBindingCommand.Flags().String("role", "", "role to remove")

@@ -30,7 +30,7 @@ func NewAncestorFunctionDeclaration() *expr.Decl {
 func NewAncestorFunctionImplementation() *functions.Overload {
 	return &functions.Overload{
 		Operator: ancestorFunctionOverload,
-		Binary: func(nameVal ref.Val, patternVal ref.Val) ref.Val {
+		Binary: func(nameVal, patternVal ref.Val) ref.Val {
 			name, ok := nameVal.Value().(string)
 			if !ok {
 				return types.NewErr("parent: unexpected type of arg 1, expected string but got %T", nameVal.Value())

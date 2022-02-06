@@ -18,8 +18,7 @@ func ResolveMethodAuthorizationOptions(
 	startPackage protoreflect.FullName,
 ) (*iamv1.MethodAuthorizationOptions, error) {
 	result := proto.Clone(options).(*iamv1.MethodAuthorizationOptions)
-	switch permissions := result.Permissions.(type) {
-	case *iamv1.MethodAuthorizationOptions_ResourcePermissions:
+	if permissions, ok := result.Permissions.(*iamv1.MethodAuthorizationOptions_ResourcePermissions); ok {
 		for _, resourcePermission := range permissions.ResourcePermissions.GetResourcePermission() {
 			switch {
 			case resourcePermission.GetResource().GetType() == iamresource.Root:

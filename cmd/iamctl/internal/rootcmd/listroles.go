@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var listRolesCommand = &cobra.Command{
 	Use:   "list-roles",
 	Short: "List IAM roles",
@@ -43,6 +44,7 @@ type listRolesFlags struct {
 	Full             bool `mapstructure:"full"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	listRolesCommand.Flags().Bool("full", false, "list full roles")
 }

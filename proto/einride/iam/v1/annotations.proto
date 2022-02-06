@@ -21,6 +21,7 @@ extend google.protobuf.MethodOptions {
 
 // A list of predefined roles.
 message PredefinedRoles {
+  // The predefined roles.
   repeated google.iam.admin.v1.Role role = 1;
 }
 
@@ -69,16 +70,16 @@ message LongRunningOperationsAuthorizationOptions {
   oneof strategy {
     // A flag indicating if a standard authorization checked is performed before the request.
     bool before = 3;
-    // A flag indicating if custom-implemented authorization is required.
+    // A flag indicating if custom-implemented authorization is needed.
     bool custom = 4;
-    // A flag indicating if no authorization is required.
+    // A flag indicating if no authorization is needed.
     bool none = 5;
   }
 }
 
 // Permissions for a long-running operation.
 message LongRunningOperationPermissions {
-  // The long-running operation resource. The type field is required.
+  // The long-running operation resource. The type field is mandatory.
   google.api.ResourceDescriptor operation = 1;
   // Permission for listing operations.
   string list = 2;

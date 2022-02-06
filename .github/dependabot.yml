@@ -15,3 +15,8 @@ updates:
     directory: /cmd/iamctl
     schedule:
       interval: daily
+
+  - package-ecosystem: gomod
+    directory: .sage
+    schedule:
+      interval: weekly

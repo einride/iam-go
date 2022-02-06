@@ -1,4 +1,12 @@
----
 - included_paths: ["**"]
   disabled_rules:
     - core::0191 # file options managed by buf
+- included_paths: ["einride/iam/v1/annotations.proto"]
+  disabled_rules:
+    - core::0191 # file options managed by buf
+    - core::0140::prepositions # allow prepositions
+    - core::0140::reserved-words # allow reserved words
+- included_paths: ["einride/iam/v1/caller.proto"]
+  disabled_rules:
+    - core::0191 # file options managed by buf
+    - core::0142::time-field-names # allow time fields without time suffix

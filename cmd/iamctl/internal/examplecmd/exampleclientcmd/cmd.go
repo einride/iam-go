@@ -4,11 +4,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Command for the IAM example client.
+// nolint: gochecknoglobals
 var Command = &cobra.Command{
 	Use:   "client",
 	Short: "IAM example client",
 }
 
+// nolint: gochecknoinits
 func init() {
 	// shippers
 	Command.AddCommand(createShipperCommand)

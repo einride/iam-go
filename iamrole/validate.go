@@ -34,13 +34,13 @@ func ValidateName(name string) error {
 	if len(roleID) > 64 {
 		return fmt.Errorf("role name '%s' has a too long ID, it can be max 64 characters long", name)
 	}
-	if indexOfPeriod := strings.IndexByte(roleID, '.'); indexOfPeriod == -1 {
+	indexOfPeriod := strings.IndexByte(roleID, '.')
+	if indexOfPeriod == -1 {
 		return fmt.Errorf("role name '%s' is not on the format `roles/{service}.{role}`", name)
-	} else {
-		service, role := roleID[:indexOfPeriod], roleID[indexOfPeriod+1:]
-		if !isLowerCamelCase(service) || !isLowerCamelCase(role) {
-			return fmt.Errorf("each part of role name '%s' must be valid lowerCamelCase", name)
-		}
+	}
+	service, role := roleID[:indexOfPeriod], roleID[indexOfPeriod+1:]
+	if !isLowerCamelCase(service) || !isLowerCamelCase(role) {
+		return fmt.Errorf("each part of role name '%s' must be valid lowerCamelCase", name)
 	}
 	return nil
 }

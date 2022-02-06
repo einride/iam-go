@@ -3,11 +3,10 @@ package iamexample
 import (
 	"context"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // ListOperations implements longrunning.OperationsServer.

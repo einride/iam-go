@@ -40,9 +40,8 @@ func RequireAuthorizationUnaryInterceptor(
 	}
 	value := ctx.Value(contextKey{}).(*contextValue)
 	value.mu.Lock()
-	authorized := value.authorized
-	value.mu.Unlock()
-	if !authorized {
+	defer value.mu.Unlock()
+	if !value.authorized {
 		return nil, status.Error(codes.Internal, "server did not perform authorization")
 	}
 	return resp, err
@@ -50,8 +49,8 @@ func RequireAuthorizationUnaryInterceptor(
 
 var _ grpc.UnaryServerInterceptor = RequireAuthorizationUnaryInterceptor
 
-// RequireAuthorizationStreamInterceptor is a grpc.StreamServerInterceptor that aborts all incoming streams, pending implementation
-// of stream support in this package.
+// RequireAuthorizationStreamInterceptor is a grpc.StreamServerInterceptor that
+// aborts all incoming streams, pending implementation of stream support in this package.
 func RequireAuthorizationStreamInterceptor(
 	_ interface{},
 	_ grpc.ServerStream,

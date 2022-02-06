@@ -36,8 +36,7 @@ func (s *Server) getSite(
 		},
 	})
 	if err != nil {
-		switch code := status.Code(err); code {
-		case codes.NotFound:
+		if code := status.Code(err); code == codes.NotFound {
 			return nil, status.Errorf(code, "not found: %s", request.name)
 		}
 		return nil, s.handleStorageError(ctx, err)

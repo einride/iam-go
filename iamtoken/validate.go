@@ -8,6 +8,7 @@ import (
 )
 
 // timeNow is for mocking in tests.
+// nolint: gochecknoglobals
 var timeNow = time.Now
 
 // ValidateIdentityToken checks that an identity token is valid and acceptable for processing.

@@ -2,6 +2,7 @@ package iamauthz
 
 import (
 	"context"
+	"errors"
 	"net"
 	"testing"
 
@@ -21,7 +22,7 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 		healthpb.RegisterHealthServer(grpcServer, &authorizedHealthServer{})
 		errChan := make(chan error)
 		go func() {
-			if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+			if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 				errChan <- err
 				return
 			}
@@ -54,7 +55,7 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 		healthpb.RegisterHealthServer(grpcServer, &healthServer{})
 		errChan := make(chan error)
 		go func() {
-			if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+			if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 				errChan <- err
 				return
 			}

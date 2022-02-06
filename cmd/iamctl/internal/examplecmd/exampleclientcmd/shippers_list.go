@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// nolint: gochecknoglobals
 var listShippersCommand = &cobra.Command{
 	Use:   "list-shippers",
 	Short: "List shippers",
@@ -44,6 +45,7 @@ type listShipperFlags struct {
 	PageToken        string `mapstructure:"page-token"`
 }
 
+// nolint: gochecknoinits
 func init() {
 	listShippersCommand.Flags().Int32("page-size", 0, "page size")
 	listShippersCommand.Flags().String("page-token", "", "page token")
