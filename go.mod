@@ -6,9 +6,9 @@ require (
 	cloud.google.com/go/spanner v1.29.0
 	github.com/google/cel-go v0.9.0
 	go.einride.tech/aip v0.54.1
-	go.einride.tech/spanner-aip v0.39.0
-	google.golang.org/api v0.67.0
-	google.golang.org/genproto v0.0.0-20220126215142-9970aeb2e350
+	go.einride.tech/spanner-aip v0.40.0
+	google.golang.org/api v0.68.0
+	google.golang.org/genproto v0.0.0-20220204002441-d6cc3cc0770e
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
 	gotest.tools/v3 v3.1.0
@@ -16,7 +16,7 @@ require (
 
 require (
 	cloud.google.com/go v0.100.2 // indirect
-	cloud.google.com/go/compute v0.1.0 // indirect
+	cloud.google.com/go/compute v1.2.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211229183857-345cc17bf36c // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
@@ -34,7 +34,7 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
-	golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27 // indirect
+	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
