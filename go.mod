@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/spanner v1.29.0
-	github.com/google/cel-go v0.9.0
+	github.com/google/cel-go v0.10.0
 	go.einride.tech/aip v0.54.1
 	go.einride.tech/spanner-aip v0.40.0
 	google.golang.org/api v0.70.0
