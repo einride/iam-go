@@ -17,6 +17,14 @@ import "google/longrunning/operations.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
+// A shipper operation.
+option (google.api.resource_definition) = {
+  type: "iam-example.einride.tech/ShipperOperation"
+  pattern: "shippers/{shipper}/operations/{operation}"
+  plural: "shipperOperations"
+  singular: "shipperOperation"
+};
+
 // This API represents a simple freight service.
 //
 // It defines the following resource model:
@@ -211,8 +219,9 @@ service FreightService {
       permission: "freight.sites.get"
       before: {
         expression: "test(caller, request.parent) || test_all(caller, request.names)"
-        description: "The caller must have permission to get all sites under the parent shipper"
-                     ", or the caller must have permission to get each of the requested sites."
+        description:
+          "The caller must have permission to get all sites under the parent shipper"
+          ", or the caller must have permission to get each of the requested sites."
       }
     };
   }
@@ -226,10 +235,12 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
       after: {
-        expression: "test(caller, request.parent)"
-                    " || test_all(caller, response.sites.map(s, s.name))"
-        description: "The caller must have permission to get all sites under the parent shipper"
-                     ", or the caller must have permission to get each of the requested sites."
+        expression:
+          "test(caller, request.parent)"
+          " || test_all(caller, response.sites.map(s, s.name))"
+        description:
+          "The caller must have permission to get all sites under the parent shipper"
+          ", or the caller must have permission to get each of the requested sites."
       }
     };
   }
@@ -245,9 +256,10 @@ service FreightService {
       permission: "freight.shipments.get"
       after {
         expression: "test_any(caller, [request.name, response.origin_site, response.destination_site])"
-        description: "The caller must have permission to get the shipment"
-                     ", or the caller must have permission to get shipments from the shipment's origin site"
-                     ", or the caller must have permission to get shipments to the shipment's destination site."
+        description:
+          "The caller must have permission to get the shipment"
+          ", or the caller must have permission to get shipments from the shipment's origin site"
+          ", or the caller must have permission to get shipments to the shipment's destination site."
       }
     };
   }
@@ -280,9 +292,10 @@ service FreightService {
       permission: "freight.shipments.create"
       before {
         expression: "test_any(caller, [request.parent, request.shipment.origin_site, request.shipment.destination_site])"
-        description: "The caller must have permission to create shipments under the parent shipper"
-                     ", or the caller must have permission to create shipments from the shipment's origin site"
-                     ", or the caller must have permission to create shipments to the shipment's destination site."
+        description:
+          "The caller must have permission to create shipments under the parent shipper"
+          ", or the caller must have permission to create shipments from the shipment's origin site"
+          ", or the caller must have permission to create shipments to the shipment's destination site."
       }
     };
   }
@@ -328,17 +341,21 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.get"
       after: {
-        expression: "test(caller, request.parent)"
-                    " || response.shipments.all(s, test_any(caller, [s.name, s.origin_site, s.destination_site]))"
-        description: "The caller must have permission to get all shipments under the parent shipper"
-                     ", or the caller must have permission to get each of the requested shipments."
+        expression:
+          "test(caller, request.parent)"
+          " || response.shipments.all(s, test_any(caller, [s.name, s.origin_site, s.destination_site]))"
+        description:
+          "The caller must have permission to get all shipments under the parent shipper"
+          ", or the caller must have permission to get each of the requested shipments."
       }
     };
   }
 
   option (einride.iam.v1.long_running_operations_authorization) = {
     operation_permissions {
-      operation { type: "iam-example.einride.tech/ShipperOperation" }
+      operation {
+        type: "iam-example.einride.tech/ShipperOperation"
+      }
       list: "freight.shipperOperations.list"
       get: "freight.shipperOperations.get"
       cancel: "freight.shipperOperations.cancel"
@@ -403,19 +420,27 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       resource_permissions {
         resource_permission {
-          resource { type: "/" }
+          resource {
+            type: "/"
+          }
           permission: "freight.root.setIamPolicy"
         }
         resource_permission {
-          resource { type: "iam-example.einride.tech/Shipper" }
+          resource {
+            type: "iam-example.einride.tech/Shipper"
+          }
           permission: "freight.shippers.setIamPolicy"
         }
         resource_permission {
-          resource { type: "iam-example.einride.tech/Site" }
+          resource {
+            type: "iam-example.einride.tech/Site"
+          }
           permission: "freight.sites.setIamPolicy"
         }
         resource_permission {
-          resource { type: "iam-example.einride.tech/Shipment" }
+          resource {
+            type: "iam-example.einride.tech/Shipment"
+          }
           permission: "freight.shipments.setIamPolicy"
         }
       }
@@ -447,19 +472,27 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       resource_permissions {
         resource_permission {
-          resource { type: "/" }
+          resource {
+            type: "/"
+          }
           permission: "freight.root.getIamPolicy"
         }
         resource_permission {
-          resource { type: "iam-example.einride.tech/Shipper" }
+          resource {
+            type: "iam-example.einride.tech/Shipper"
+          }
           permission: "freight.shippers.getIamPolicy"
         }
         resource_permission {
-          resource { type: "iam-example.einride.tech/Site" }
+          resource {
+            type: "iam-example.einride.tech/Site"
+          }
           permission: "freight.sites.getIamPolicy"
         }
         resource_permission {
-          resource { type: "iam-example.einride.tech/Shipment" }
+          resource {
+            type: "iam-example.einride.tech/Shipment"
+          }
           permission: "freight.shipments.getIamPolicy"
         }
       }
@@ -683,11 +716,9 @@ message BatchGetSitesRequest {
   // If this is set, the parent of all of the sites specified in `names`
   // must match this field.
   // Format: `shippers/{shipper}`
-  string parent = 1 [
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
-  ];
+  string parent = 1 [(google.api.resource_reference) = {
+    type: "iam-example.einride.tech/Shipper"
+  }];
 
   // The names of the sites to retrieve.
   // A maximum of 1000 sites can be retrieved in a batch.
@@ -831,11 +862,9 @@ message BatchGetShipmentsRequest {
   // If this is set, the parent of all of the shipments specified in `names`
   // must match this field.
   // Format: `shippers/{shipper}`
-  string parent = 1 [
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
-  ];
+  string parent = 1 [(google.api.resource_reference) = {
+    type: "iam-example.einride.tech/Shipper"
+  }];
 
   // The names of the shipments to retrieve.
   // A maximum of 1000 shipments can be retrieved in a batch.
@@ -853,14 +882,6 @@ message BatchGetShipmentsResponse {
   // Shipments requested.
   repeated Shipment shipments = 1;
 }
-
-// A shipper operation.
-option (google.api.resource_definition) = {
-  type: "iam-example.einride.tech/ShipperOperation"
-  pattern: "shippers/{shipper}/operations/{operation}"
-  plural: "shipperOperations"
-  singular: "shipperOperation"
-};
 
 // Long-running operation metadata message for freight service operations.
 message DeleteShipperOperationMetadata {
