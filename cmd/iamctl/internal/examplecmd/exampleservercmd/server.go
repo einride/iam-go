@@ -73,7 +73,6 @@ func runServer(
 	ctx context.Context,
 	server *iamexample.Authorization,
 	address string,
-
 ) error {
 	callerResolver := iamcaller.ChainResolvers(
 		// Resolve members from the example members header.
