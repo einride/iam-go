@@ -33,6 +33,10 @@ all: $(sagefile)
 buf-breaking: $(sagefile)
 	@$(sagefile) Proto:BufBreaking
 
+.PHONY: buf-format
+buf-format: $(sagefile)
+	@$(sagefile) Proto:BufFormat
+
 .PHONY: buf-generate
 buf-generate: $(sagefile)
 	@$(sagefile) Proto:BufGenerate
@@ -44,10 +48,6 @@ buf-generate-example: $(sagefile)
 .PHONY: buf-lint
 buf-lint: $(sagefile)
 	@$(sagefile) Proto:BufLint
-
-.PHONY: clang-format-proto
-clang-format-proto: $(sagefile)
-	@$(sagefile) Proto:ClangFormatProto
 
 .PHONY: protoc-gen-go
 protoc-gen-go: $(sagefile)
