@@ -3,7 +3,7 @@ module go.einride.tech/iam/cmd/iamctl
 go 1.17
 
 require (
-	cloud.google.com/go/spanner v1.30.0
+	cloud.google.com/go/spanner v1.30.1
 	firebase.google.com/go/v4 v4.7.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
