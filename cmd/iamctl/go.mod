@@ -9,7 +9,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.11.0
 	go.einride.tech/iam v0.0.0-00010101000000-000000000000
-	google.golang.org/api v0.75.0
+	google.golang.org/api v0.76.0
 	google.golang.org/genproto v0.0.0-20220414192740-2d67ff6cf2b4
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
