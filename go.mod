@@ -3,7 +3,7 @@ module go.einride.tech/iam
 go 1.17
 
 require (
-	cloud.google.com/go/spanner v1.31.0
+	cloud.google.com/go/spanner v1.32.0
 	github.com/google/cel-go v0.11.2
 	go.einride.tech/aip v0.54.1
 	go.einride.tech/spanner-aip v0.40.0
