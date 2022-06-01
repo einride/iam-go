@@ -9,7 +9,7 @@ require (
 	go.einride.tech/spanner-aip v0.40.0
 	google.golang.org/api v0.77.0
 	google.golang.org/genproto v0.0.0-20220414192740-2d67ff6cf2b4
-	google.golang.org/grpc v1.46.2
+	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
 	gotest.tools/v3 v3.2.0
 )
