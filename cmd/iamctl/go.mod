@@ -3,7 +3,7 @@ module go.einride.tech/iam/cmd/iamctl
 go 1.17
 
 require (
-	cloud.google.com/go/spanner v1.34.0
+	cloud.google.com/go/spanner v1.34.1
 	firebase.google.com/go/v4 v4.8.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
@@ -16,7 +16,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.102.0 // indirect
+	cloud.google.com/go v0.102.1 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	cloud.google.com/go/firestore v1.6.1 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
