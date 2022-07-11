@@ -3,7 +3,7 @@ module go.einride.tech/iam
 go 1.17
 
 require (
-	cloud.google.com/go/spanner v1.34.0
+	cloud.google.com/go/spanner v1.34.1
 	github.com/google/cel-go v0.11.2
 	go.einride.tech/aip v0.54.1
 	go.einride.tech/spanner-aip v0.43.0
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.102.0 // indirect
+	cloud.google.com/go v0.102.1 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220314183648-97c793e446ba // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
