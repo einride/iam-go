@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/spanner v1.34.1
-	github.com/google/cel-go v0.11.2
+	github.com/google/cel-go v0.12.3
 	go.einride.tech/aip v0.54.1
 	go.einride.tech/spanner-aip v0.43.0
 	google.golang.org/api v0.87.0
@@ -17,7 +17,7 @@ require (
 require (
 	cloud.google.com/go v0.102.1 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
-	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220314183648-97c793e446ba // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cncf/udpa/go v0.0.0-20220112060539-c52dc94e7fbe // indirect
