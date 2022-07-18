@@ -94,6 +94,7 @@ func validateBeforeStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
+	// nolint: staticcheck // TODO: migrate to new top-level API
 	if !proto.Equal(checkedAst.ResultType(), decls.Bool) {
 		return fmt.Errorf("invalid result type: %v", ast.ResultType())
 	}
@@ -116,6 +117,7 @@ func validateAfterStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
+	// nolint: staticcheck // TODO: migrate to new top-level API
 	if !proto.Equal(checkedAst.ResultType(), decls.Bool) {
 		return fmt.Errorf("invalid result type: %v", ast.ResultType())
 	}
