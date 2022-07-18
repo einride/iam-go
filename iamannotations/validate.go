@@ -3,7 +3,7 @@ package iamannotations
 import (
 	"fmt"
 
-	"github.com/google/cel-go/checker/decls"
+	"github.com/google/cel-go/cel"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iamcel"
@@ -11,7 +11,6 @@ import (
 	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamrole"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
@@ -94,9 +93,8 @@ func validateBeforeStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
-	// nolint: staticcheck // TODO: migrate to new top-level API
-	if !proto.Equal(checkedAst.ResultType(), decls.Bool) {
-		return fmt.Errorf("invalid result type: %v", ast.ResultType())
+	if !checkedAst.OutputType().IsAssignableType(cel.BoolType) {
+		return fmt.Errorf("invalid output type: %v", ast.OutputType())
 	}
 	return nil
 }
@@ -117,9 +115,8 @@ func validateAfterStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
-	// nolint: staticcheck // TODO: migrate to new top-level API
-	if !proto.Equal(checkedAst.ResultType(), decls.Bool) {
-		return fmt.Errorf("invalid result type: %v", ast.ResultType())
+	if !checkedAst.OutputType().IsAssignableType(cel.BoolType) {
+		return fmt.Errorf("invalid output type: %v", ast.OutputType())
 	}
 	return nil
 }
