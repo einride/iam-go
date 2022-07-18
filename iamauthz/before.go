@@ -40,6 +40,7 @@ func NewBeforeMethodAuthorization(
 	}
 	program, err := env.Program(
 		ast,
+		// nolint: staticcheck // TODO: migrate to new top-level CEL API
 		cel.Functions(
 			iamcel.NewTestFunctionImplementation(options, permissionTester),
 			iamcel.NewTestAllFunctionImplementation(options, permissionTester),
