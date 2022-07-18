@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.einride.tech/sage/sg"
+	"go.einride.tech/sage/tools/sgcloudspanner"
 	"go.einride.tech/sage/tools/sgconvco"
 	"go.einride.tech/sage/tools/sggit"
 	"go.einride.tech/sage/tools/sggo"
@@ -66,6 +67,11 @@ func GoModTidy(ctx context.Context) error {
 
 func GoTest(ctx context.Context) error {
 	sg.Logger(ctx).Println("running Go tests...")
+	cleanup, err := sgcloudspanner.RunEmulator(ctx)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 	return sggo.TestCommand(ctx).Run()
 }
 
