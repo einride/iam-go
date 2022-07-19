@@ -3,6 +3,7 @@ package iamspanner
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
@@ -101,7 +102,7 @@ func (s *IAMServer) ReadBindingsByMembersAndPermissions(
 	permissions []string,
 	fn func(ctx context.Context, resource string, role *admin.Role, member string) error,
 ) error {
-	tx := s.client.Single()
+	tx := s.client.Single().WithTimestampBound(spanner.MaxStaleness(5 * time.Second))
 	defer tx.Close()
 	return s.ReadBindingsByMembersAndPermissionsInTransaction(ctx, tx, members, permissions, fn)
 }
