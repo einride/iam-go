@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/google/cel-go/cel"
-	"github.com/google/cel-go/checker/decls"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -18,10 +17,11 @@ func NewAfterEnv(method protoreflect.MethodDescriptor) (*cel.Env, error) {
 	}
 	env, err := cel.NewEnv(
 		cel.TypeDescs(dependencies),
+		cel.Variable("caller", cel.ObjectType(string(caller.FullName()))),
+		cel.Variable("request", cel.ObjectType(string(method.Input().FullName()))),
+		cel.Variable("response", cel.ObjectType(string(method.Output().FullName()))),
 		cel.Declarations(
-			decls.NewVar("caller", decls.NewObjectType(string(caller.FullName()))),
-			decls.NewVar("request", decls.NewObjectType(string(method.Input().FullName()))),
-			decls.NewVar("response", decls.NewObjectType(string(method.Output().FullName()))),
+			// TODO: Migrate declarations to new top-level API.
 			NewTestFunctionDeclaration(),
 			NewTestAllFunctionDeclaration(),
 			NewTestAnyFunctionDeclaration(),
