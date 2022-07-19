@@ -93,7 +93,7 @@ func validateBeforeStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
-	if !checkedAst.OutputType().IsAssignableType(cel.BoolType) {
+	if checkedAst.OutputType() != cel.BoolType {
 		return fmt.Errorf("invalid output type: %v", ast.OutputType())
 	}
 	return nil
@@ -115,7 +115,7 @@ func validateAfterStrategy(
 	if issues.Err() != nil {
 		return fmt.Errorf("type error: %w", issues.Err())
 	}
-	if !checkedAst.OutputType().IsAssignableType(cel.BoolType) {
+	if checkedAst.OutputType() != cel.BoolType {
 		return fmt.Errorf("invalid output type: %v", ast.OutputType())
 	}
 	return nil
