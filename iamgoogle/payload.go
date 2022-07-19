@@ -31,5 +31,5 @@ func IsGoogleCloudServiceAccountEmail(payload *idtoken.Payload) bool {
 		return false
 	}
 	email, ok := Email(payload)
-	return ok && strings.HasSuffix(email, ".iam.gserviceaccount.com")
+	return ok && strings.HasSuffix(email, ".gserviceaccount.com")
 }
