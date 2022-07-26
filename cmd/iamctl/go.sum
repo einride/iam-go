@@ -59,8 +59,8 @@ cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2k
 cloud.google.com/go/pubsub v1.1.0/go.mod h1:EwwdRX2sKPjnvnqCa270oGRyludottCI76h+R3AArQw=
 cloud.google.com/go/pubsub v1.2.0/go.mod h1:jhfEVHT8odbXTkndysNHCcx0awwzvfOlguIAii9o8iA=
 cloud.google.com/go/pubsub v1.3.1/go.mod h1:i+ucay31+CNRpDW4Lu78I4xXG+O1r/MAHgjpRVR+TSU=
-cloud.google.com/go/spanner v1.35.0 h1:XZl+XcVRyRFoYlcOcHQVU/SHMqT1ijaeOC6kECP/g1M=
-cloud.google.com/go/spanner v1.35.0/go.mod h1:RKVKnqXxTMDuBPAsjxohvcSTH6qiRB6E0oMljFIKPr0=
+cloud.google.com/go/spanner v1.36.0 h1:MYc3fKJlZZCpZymoKBqPR23Hxd1CFhH+zsQPMzeM1xI=
+cloud.google.com/go/spanner v1.36.0/go.mod h1:RKVKnqXxTMDuBPAsjxohvcSTH6qiRB6E0oMljFIKPr0=
 cloud.google.com/go/storage v1.0.0/go.mod h1:IhtSnM/ZTZV8YYJWCY8RULGVqBDmpoyjwiyrjsg+URw=
 cloud.google.com/go/storage v1.5.0/go.mod h1:tpKbwo567HUNpVclU5sGELwQWBDZ8gh0ZeosJ0Rtdos=
 cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohlUTyfDhBk=
@@ -301,7 +301,7 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.einride.tech/aip v0.54.1 h1:srys7sFWPixEqyOu0gWuZAC86p4UAnWJIQcA01Ys3R4=
 go.einride.tech/aip v0.54.1/go.mod h1:tUzBlpbLzt0LbL2GcO7RHQyHdnVFK25KvfZ638MTbgk=
-go.einride.tech/spanner-aip v0.43.1 h1:5mY+LxvJPIwGNa6tQAwcC0ArcAu9o7zWoesrCI4RCvI=
+go.einride.tech/spanner-aip v0.43.2 h1:Wc4wUHrgT2fyHiquIGq+rwdh/g9qD+1cJU93M8EQnhk=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
