@@ -41,10 +41,6 @@ format-yaml: $(sagefile)
 git-verify-no-diff: $(sagefile)
 	@$(sagefile) GitVerifyNoDiff
 
-.PHONY: go-iamctl
-go-iamctl: $(sagefile)
-	@$(sagefile) GoIamctl
-
 .PHONY: go-lint
 go-lint: $(sagefile)
 	@$(sagefile) GoLint

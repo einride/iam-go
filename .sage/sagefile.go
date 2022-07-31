@@ -30,7 +30,7 @@ func main() {
 
 func All(ctx context.Context) error {
 	sg.Deps(ctx, ConvcoCheck, FormatMarkdown, FormatYAML, Proto.All)
-	sg.Deps(ctx, GoLint, GoReview, GoTest, GoIamctl)
+	sg.Deps(ctx, GoLint, GoReview, GoTest)
 	sg.SerialDeps(ctx, GoModTidy, GitVerifyNoDiff)
 	return nil
 }
@@ -78,11 +78,4 @@ func GoTest(ctx context.Context) error {
 func GitVerifyNoDiff(ctx context.Context) error {
 	sg.Logger(ctx).Println("verifying that git has no diff...")
 	return sggit.VerifyNoDiff(ctx)
-}
-
-func GoIamctl(ctx context.Context) error {
-	sg.Logger(ctx).Println("installing iamctl...")
-	cmd := sg.Command(ctx, "go", "install", ".")
-	cmd.Dir = sg.FromGitRoot("cmd/iamctl")
-	return cmd.Run()
 }

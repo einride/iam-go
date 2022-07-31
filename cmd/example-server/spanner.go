@@ -1,4 +1,4 @@
-package exampleservercmd
+package main
 
 import (
 	"context"

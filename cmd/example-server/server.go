@@ -1,4 +1,4 @@
-package exampleservercmd
+package main
 
 import (
 	"context"
@@ -8,11 +8,9 @@ import (
 	"net"
 
 	"cloud.google.com/go/spanner"
-	firebase "firebase.google.com/go/v4"
 	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iamexample"
-	"go.einride.tech/iam/iamfirebase"
 	"go.einride.tech/iam/iamgoogle"
 	"go.einride.tech/iam/iammixin"
 	"go.einride.tech/iam/iamspanner"
@@ -146,8 +144,7 @@ func (googleIdentityTokenCallerResolver) ResolveCaller(ctx context.Context) (*ia
 	metadata := iamv1.Caller_Metadata{
 		IdentityToken: identityToken,
 	}
-	switch {
-	case iamgoogle.IsGoogleIdentityToken(identityToken):
+	if iamgoogle.IsGoogleIdentityToken(identityToken) {
 		googlePayload, err := idtoken.Validate(ctx, token, "")
 		if err != nil {
 			return nil, err
@@ -161,25 +158,6 @@ func (googleIdentityTokenCallerResolver) ResolveCaller(ctx context.Context) (*ia
 			metadata.Members = append(metadata.Members, fmt.Sprintf("domain:%s", hostedDomain))
 		}
 		iamcaller.Add(&result, authorizationKey, &metadata)
-	case iamfirebase.IsFirebaseIdentityToken(identityToken):
-		app, err := firebase.NewApp(ctx, &firebase.Config{
-			ProjectID: iamfirebase.ProjectID(identityToken),
-		})
-		if err != nil {
-			return nil, err
-		}
-		authClient, err := app.Auth(ctx)
-		if err != nil {
-			return nil, err
-		}
-		payload, err := authClient.VerifyIDToken(ctx, token)
-		if err != nil {
-			return nil, err
-		}
-		metadata.Members = append(metadata.Members, fmt.Sprintf("user:%s", payload.Subject))
-		if payload.Firebase.Tenant != "" {
-			metadata.Members = append(metadata.Members, fmt.Sprintf("tenant:%s", payload.Firebase.Tenant))
-		}
 	}
 	log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
 	return &result, nil
