@@ -67,7 +67,7 @@ func (a *BeforeMethodAuthorization) AuthorizeRequest(
 	if err != nil {
 		return nil, err
 	}
-	val, _, err := a.program.Eval(map[string]interface{}{
+	val, _, err := a.program.ContextEval(ctx, map[string]interface{}{
 		"caller":  caller,
 		"request": request,
 	})
