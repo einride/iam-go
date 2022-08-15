@@ -13,7 +13,7 @@ func TestResourceNameFunctions(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		ast, issues := env.Compile(`ancestor('foo/1/bar/2', 'foo/{foo}')`)
 		assert.NilError(t, issues.Err())
-		// nolint: staticcheck // TODO: migrate to new top-level API
+		//nolint: staticcheck // TODO: migrate to new top-level API
 		program, err := env.Program(ast, cel.Functions(NewAncestorFunctionImplementation()))
 		assert.NilError(t, err)
 		result, _, err := program.Eval(map[string]interface{}(nil))
@@ -23,7 +23,7 @@ func TestResourceNameFunctions(t *testing.T) {
 	t.Run("no match", func(t *testing.T) {
 		ast, issues := env.Compile(`ancestor('baz/1/bar/2', 'foo/{foo}')`)
 		assert.NilError(t, issues.Err())
-		// nolint: staticcheck // TODO: migrate to new top-level API
+		//nolint: staticcheck // TODO: migrate to new top-level API
 		program, err := env.Program(ast, cel.Functions(NewAncestorFunctionImplementation()))
 		assert.NilError(t, err)
 		result, _, err := program.Eval(map[string]interface{}(nil))
