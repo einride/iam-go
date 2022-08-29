@@ -3,12 +3,12 @@ module go.einride.tech/iam
 go 1.18
 
 require (
-	cloud.google.com/go/spanner v1.36.0
+	cloud.google.com/go/spanner v1.37.0
 	github.com/google/cel-go v0.12.5
 	go.einride.tech/aip v0.56.0
 	go.einride.tech/spanner-aip v0.43.2
 	google.golang.org/api v0.94.0
-	google.golang.org/genproto v0.0.0-20220715211116-798f69b842b9
+	google.golang.org/genproto v0.0.0-20220815135757-37a418bb8959
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gotest.tools/v3 v3.3.0
