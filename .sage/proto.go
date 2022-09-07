@@ -13,8 +13,7 @@ type Proto sg.Namespace
 
 func (Proto) All(ctx context.Context) error {
 	sg.Deps(ctx, Proto.BufFormat)
-	// TODO: Re-enable break checking after stabilizing BSR breaking change.
-	sg.Deps(ctx, Proto.BufLint)
+	sg.Deps(ctx, Proto.BufLint, Proto.BufBreaking)
 	sg.Deps(ctx, Proto.APILinterLint)
 	sg.Deps(ctx, Proto.BufGenerate)
 	sg.Deps(ctx, Proto.BufGenerateExample)
