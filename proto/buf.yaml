@@ -3,7 +3,7 @@ version: v1
 name: buf.build/einride/iam
 
 deps:
-  - buf.build/googleapis/googleapis
+  - buf.build/einride/googleapis
 
 lint:
   use:
@@ -12,11 +12,7 @@ lint:
     - RPC_RESPONSE_STANDARD_NAME
     - RPC_REQUEST_RESPONSE_UNIQUE
     - ENUM_VALUE_PREFIX
-  ignore:
-    - google
 
 breaking:
   use:
     - PACKAGE
-  ignore:
-    - google
