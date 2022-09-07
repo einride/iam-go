@@ -6,6 +6,7 @@ managed:
     default: go.einride.tech/iam/proto/gen
     except:
       - buf.build/googleapis/googleapis
+      - buf.build/einride/googleapis
 
 plugins:
   - name: go
