@@ -4,7 +4,7 @@ deps:
   - remote: buf.build
     owner: einride
     repository: googleapis
-    commit: 625fcaf6adb343be8ae8ef0ee7be7b77
+    commit: 4b867c1ec59445ff95009ca2a3e6cb4c
   - remote: buf.build
     owner: googleapis
     repository: googleapis
