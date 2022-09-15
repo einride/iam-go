@@ -7,7 +7,7 @@ require (
 	github.com/google/cel-go v0.12.5
 	go.einride.tech/aip v0.56.0
 	go.einride.tech/spanner-aip v0.43.2
-	google.golang.org/api v0.95.0
+	google.golang.org/api v0.96.0
 	google.golang.org/genproto v0.0.0-20220829175752-36a9c930ecbf
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
@@ -32,9 +32,9 @@ require (
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
-	golang.org/x/sys v0.0.0-20220624220833-87e55d714810 // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
