@@ -5,8 +5,8 @@ go 1.18
 require (
 	cloud.google.com/go/spanner v1.39.0
 	github.com/google/cel-go v0.12.5
-	go.einride.tech/aip v0.56.0
-	go.einride.tech/spanner-aip v0.43.2
+	go.einride.tech/aip v0.57.0
+	go.einride.tech/spanner-aip v0.44.0
 	google.golang.org/api v0.98.0
 	google.golang.org/genproto v0.0.0-20220916134934-764224ccc2d1
 	google.golang.org/grpc v1.49.0
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.102.1 // indirect
+	cloud.google.com/go v0.104.0 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
