@@ -5,17 +5,17 @@ go 1.18
 require (
 	cloud.google.com/go/spanner v1.39.0
 	github.com/google/cel-go v0.12.5
-	go.einride.tech/aip v0.56.0
-	go.einride.tech/spanner-aip v0.43.2
+	go.einride.tech/aip v0.58.1
+	go.einride.tech/spanner-aip v0.45.0
 	google.golang.org/api v0.98.0
-	google.golang.org/genproto v0.0.0-20220916134934-764224ccc2d1
+	google.golang.org/genproto v0.0.0-20220930163606-c98284e70a91
 	google.golang.org/grpc v1.50.0
 	google.golang.org/protobuf v1.28.1
 	gotest.tools/v3 v3.4.0
 )
 
 require (
-	cloud.google.com/go v0.102.1 // indirect
+	cloud.google.com/go v0.104.0 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
@@ -26,7 +26,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v0.6.7 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
