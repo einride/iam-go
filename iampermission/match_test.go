@@ -89,8 +89,7 @@ func TestMatch(t *testing.T) {
 	}
 }
 
-//nolint: gochecknoglobals
-var boolSink bool
+var boolSink bool //nolint: gochecknoglobals
 
 func BenchmarkMatch(b *testing.B) {
 	b.ReportAllocs()
