@@ -8,8 +8,7 @@ import (
 )
 
 // timeNow is for mocking in tests.
-//nolint: gochecknoglobals
-var timeNow = time.Now
+var timeNow = time.Now //nolint: gochecknoglobals
 
 // ValidateIdentityToken checks that an identity token is valid and acceptable for processing.
 func ValidateIdentityToken(token *iamv1.IdentityToken) error {
