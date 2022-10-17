@@ -18,6 +18,15 @@ type ShipperOperationResourceName struct {
 	Operation string
 }
 
+func (n ShipperResourceName) ShipperOperationResourceName(
+	operation string,
+) ShipperOperationResourceName {
+	return ShipperOperationResourceName{
+		Shipper:   n.Shipper,
+		Operation: operation,
+	}
+}
+
 func (n ShipperOperationResourceName) Validate() error {
 	if n.Shipper == "" {
 		return fmt.Errorf("shipper: empty")
