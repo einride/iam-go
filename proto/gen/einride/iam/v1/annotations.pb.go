@@ -82,12 +82,14 @@ type MethodAuthorizationOptions struct {
 	// Permission to use for authorization.
 	//
 	// Types that are assignable to Permissions:
+	//
 	//	*MethodAuthorizationOptions_Permission
 	//	*MethodAuthorizationOptions_ResourcePermissions
 	Permissions isMethodAuthorizationOptions_Permissions `protobuf_oneof:"permissions"`
 	// Strategy that decides if the request is authorized.
 	//
 	// Types that are assignable to Strategy:
+	//
 	//	*MethodAuthorizationOptions_Before
 	//	*MethodAuthorizationOptions_After
 	//	*MethodAuthorizationOptions_Custom
@@ -352,6 +354,7 @@ type LongRunningOperationsAuthorizationOptions struct {
 	// Strategy that decides if the request is authorized.
 	//
 	// Types that are assignable to Strategy:
+	//
 	//	*LongRunningOperationsAuthorizationOptions_Before
 	//	*LongRunningOperationsAuthorizationOptions_Custom
 	//	*LongRunningOperationsAuthorizationOptions_None
