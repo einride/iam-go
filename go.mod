@@ -5,11 +5,11 @@ go 1.18
 require (
 	cloud.google.com/go/spanner v1.39.0
 	github.com/google/cel-go v0.12.5
-	go.einride.tech/aip v0.59.0
+	go.einride.tech/aip v0.59.1
 	go.einride.tech/spanner-aip v0.45.0
 	google.golang.org/api v0.98.0
 	google.golang.org/genproto v0.0.0-20220930163606-c98284e70a91
-	google.golang.org/grpc v1.50.0
+	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gotest.tools/v3 v3.4.0
 )
