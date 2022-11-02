@@ -31,6 +31,13 @@ func (s *IAMServer) SetIamPolicy(
 			unfresh = true
 			return nil
 		}
+
+		for _, fn := range getInsideSetTransactionFuncs(ctx) {
+			if err := fn(ctx, tx, request.Policy); err != nil {
+				return err
+			}
+		}
+
 		mutations := []*spanner.Mutation{deleteIAMPolicyMutation(request.Resource)}
 		mutations = append(mutations, insertIAMPolicyMutations(request.Resource, request.Policy)...)
 		return tx.BufferWrite(mutations)
@@ -47,6 +54,34 @@ func (s *IAMServer) SetIamPolicy(
 	}
 	request.Policy.Etag = etag
 	return request.Policy, nil
+}
+
+// InsideSetIamPolicyTransaction describes a function that is called within the spanner.ReadWriteTransaction in
+// IAMServer.SetIamPolicy. The policy provided is the request policy that is applied afterwards. If the function returns
+// a non-nil error, the transaction will not be committed.
+type InsideSetIamPolicyTransaction func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error
+
+type insideSetIamPolicyTransactionCtxKey struct{}
+
+// WithFuncInsideSetIamPolicyTransaction creates a context with function pointers that are called within the
+// spanned.ReadWriteTransaction in IAMServer.SetIamPolicy. This makes it possible to write data to other tables
+// within the same transaction, e.g. to implement an outbox pattern.
+func WithFuncInsideSetIamPolicyTransaction(ctx context.Context, fns ...InsideSetIamPolicyTransaction) context.Context {
+	ctxFns := getInsideSetTransactionFuncs(ctx)
+	ctxFns = append(ctxFns, fns...)
+	return context.WithValue(ctx, insideSetIamPolicyTransactionCtxKey{}, ctxFns)
+}
+
+func getInsideSetTransactionFuncs(ctx context.Context) []InsideSetIamPolicyTransaction {
+	val := ctx.Value(insideSetIamPolicyTransactionCtxKey{})
+	if val == nil {
+		return nil
+	}
+	fns, ok := val.([]InsideSetIamPolicyTransaction)
+	if !ok {
+		return nil
+	}
+	return fns
 }
 
 func (s *IAMServer) validateSetIamPolicyRequest(request *iam.SetIamPolicyRequest) error {
