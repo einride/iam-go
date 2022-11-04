@@ -365,6 +365,102 @@ func TestServer(t *testing.T) {
 		assert.Assert(t, actual == nil)
 	})
 
+	t.Run("set with transaction functions", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			},
+		)
+		assert.NilError(t, err)
+
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
+			},
+		}
+		expected := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
+			},
+			Etag: []byte("W/114-946EB3AA"),
+		}
+
+		var calledOne, calledTwo, calledThree bool
+		actual, err := server.SetIamPolicyWithFunctionsInTransaction(
+			withMembers(ctx, user1),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+				calledOne = true
+				return nil
+			},
+			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+				calledTwo = true
+				return nil
+			},
+			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+				calledThree = true
+				return nil
+			},
+		)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected, actual, protocmp.Transform())
+		assert.Equal(t, calledOne, true)
+		assert.Equal(t, calledTwo, true)
+		assert.Equal(t, calledThree, true)
+	})
+
+	t.Run("set with transaction function failing", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			},
+		)
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.admin", Members: []string{user1, user2}},
+				{Role: "roles/test.user", Members: []string{user3}},
+			},
+		}
+
+		actual, err := server.SetIamPolicyWithFunctionsInTransaction(
+			withMembers(ctx, user1),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+				return nil
+			},
+			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+				return fmt.Errorf("transaction function error")
+			},
+			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+				return nil
+			},
+		)
+		assert.Equal(t, codes.Internal, status.Code(err))
+		assert.ErrorContains(t, err, "storage error")
+		assert.Assert(t, actual == nil)
+	})
+
 	t.Run("test no permissions", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
