@@ -13,10 +13,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// InsideSetIamPolicyTransaction describes a function that is called within the spanner.ReadWriteTransaction in
+// IAMServer.SetIamPolicyWithFunctionsInTransaction. The policy provided is the request policy that is applied
+// afterwards. If the function returns a non-nil error, the transaction will not be committed.
+type InsideSetIamPolicyTransaction func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error
+
 // SetIamPolicy implements iam.IAMPolicyServer.
 func (s *IAMServer) SetIamPolicy(
 	ctx context.Context,
 	request *iam.SetIamPolicyRequest,
+) (*iam.Policy, error) {
+	return s.SetIamPolicyWithFunctionsInTransaction(ctx, request)
+}
+
+// SetIamPolicyWithFunctionsInTransaction handles a SetIamPolicy request but allows for functions to be called
+// within the spanner.ReadWriteTransaction.
+func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
+	ctx context.Context,
+	request *iam.SetIamPolicyRequest,
+	fns ...InsideSetIamPolicyTransaction,
 ) (*iam.Policy, error) {
 	if err := s.validateSetIamPolicyRequest(request); err != nil {
 		return nil, err
@@ -31,6 +46,13 @@ func (s *IAMServer) SetIamPolicy(
 			unfresh = true
 			return nil
 		}
+
+		for _, fn := range fns {
+			if err := fn(ctx, tx, request.Policy); err != nil {
+				return err
+			}
+		}
+
 		mutations := []*spanner.Mutation{deleteIAMPolicyMutation(request.Resource)}
 		mutations = append(mutations, insertIAMPolicyMutations(request.Resource, request.Policy)...)
 		return tx.BufferWrite(mutations)
