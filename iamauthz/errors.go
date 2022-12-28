@@ -16,6 +16,7 @@ func forwardErrorCodes(err error) error {
 		codes.PermissionDenied,
 		codes.Unauthenticated,
 		codes.DeadlineExceeded,
+		codes.Unavailable,
 	} {
 		codeStr := code.String()
 		if strings.HasPrefix(errStr, codeStr) {
