@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 
+	"cloud.google.com/go/longrunning/autogen/longrunningpb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamauthz"
 	"go.einride.tech/iam/iamcaller"
@@ -18,7 +19,6 @@ import (
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"google.golang.org/api/idtoken"
-	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -87,7 +87,7 @@ func runServer(
 		grpc.StreamInterceptor(iamauthz.RequireAuthorizationStreamInterceptor),
 	)
 	iammixin.Register(grpcServer, server)
-	longrunning.RegisterOperationsServer(grpcServer, server)
+	longrunningpb.RegisterOperationsServer(grpcServer, server)
 	iamexamplev1.RegisterFreightServiceServer(grpcServer, server)
 	go func() {
 		<-ctx.Done()
