@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/spanner v1.39.0
 	github.com/google/cel-go v0.12.5
 	go.einride.tech/aip v0.60.0
-	go.einride.tech/spanner-aip v0.47.1
+	go.einride.tech/spanner-aip v0.48.0
 	google.golang.org/api v0.101.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.51.0

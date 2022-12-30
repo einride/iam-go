@@ -101,8 +101,8 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.einride.tech/aip v0.60.0 h1:h6bgabZ5BCfAptbGex8jbh3VvPBRLa6xq+pQ1CAjHYw=
 go.einride.tech/aip v0.60.0/go.mod h1:SdLbSbgSU60Xkb4TMkmsZEQPHeEWx0ikBoq5QnqZvdg=
-go.einride.tech/spanner-aip v0.47.1 h1:4Qwno2UEdo2YzTlGWClRryjmtKWVzPfGJTpw4THClwI=
-go.einride.tech/spanner-aip v0.47.1/go.mod h1:lX3rWyXTuFJ+inZoyL36i4BTLIZw9mHxeXjZ1WWLBxA=
+go.einride.tech/spanner-aip v0.48.0 h1:E+W3xWuGV4IClbxJl1RVVWTuUniIf1qlG9zXelwkqP0=
+go.einride.tech/spanner-aip v0.48.0/go.mod h1:lX3rWyXTuFJ+inZoyL36i4BTLIZw9mHxeXjZ1WWLBxA=
 go.opencensus.io v0.23.0 h1:gqCw0LfLxScz8irSi8exQc7fyQ0fKQU/qnC/X8+V/1M=
 go.opencensus.io v0.23.0/go.mod h1:XItmlyltB5F7CS4xOC1DcqMoFqwtC6OG2xF7mCv7P7E=
 go.opentelemetry.io/proto/otlp v0.7.0/go.mod h1:PqfVotwruBrMGOCsRd/89rSnXhoiJIqeYNgFYFoEGnI=
