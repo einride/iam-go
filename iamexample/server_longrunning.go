@@ -3,48 +3,48 @@ package iamexample
 import (
 	"context"
 
-	"google.golang.org/genproto/googleapis/longrunning"
+	"cloud.google.com/go/longrunning/autogen/longrunningpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// ListOperations implements longrunning.OperationsServer.
+// ListOperations implements longrunningpb.OperationsServer.
 func (s *Server) ListOperations(
 	ctx context.Context,
-	request *longrunning.ListOperationsRequest,
-) (*longrunning.ListOperationsResponse, error) {
-	return &longrunning.ListOperationsResponse{}, nil
+	request *longrunningpb.ListOperationsRequest,
+) (*longrunningpb.ListOperationsResponse, error) {
+	return &longrunningpb.ListOperationsResponse{}, nil
 }
 
-// GetOperation implements longrunning.OperationsServer.
+// GetOperation implements longrunningpb.OperationsServer.
 func (s *Server) GetOperation(
 	ctx context.Context,
-	request *longrunning.GetOperationRequest,
-) (*longrunning.Operation, error) {
+	request *longrunningpb.GetOperationRequest,
+) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
 
-// DeleteOperation implements longrunning.OperationsServer.
+// DeleteOperation implements longrunningpb.OperationsServer.
 func (s *Server) DeleteOperation(
 	ctx context.Context,
-	request *longrunning.DeleteOperationRequest,
+	request *longrunningpb.DeleteOperationRequest,
 ) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
 
-// CancelOperation implements longrunning.OperationsServer.
+// CancelOperation implements longrunningpb.OperationsServer.
 func (s *Server) CancelOperation(
 	ctx context.Context,
-	request *longrunning.CancelOperationRequest,
+	request *longrunningpb.CancelOperationRequest,
 ) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
 
-// WaitOperation implements longrunning.OperationsServer.
+// WaitOperation implements longrunningpb.OperationsServer.
 func (s *Server) WaitOperation(
 	ctx context.Context,
-	request *longrunning.WaitOperationRequest,
-) (*longrunning.Operation, error) {
+	request *longrunningpb.WaitOperationRequest,
+) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }

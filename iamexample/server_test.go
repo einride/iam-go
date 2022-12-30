@@ -7,6 +7,7 @@ import (
 	"net"
 	"testing"
 
+	"cloud.google.com/go/longrunning/autogen/longrunningpb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamauthz"
@@ -15,7 +16,6 @@ import (
 	"go.einride.tech/iam/iamtest"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
 	"go.einride.tech/spanner-aip/spantest"
-	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gotest.tools/v3/assert"
@@ -100,7 +100,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 		),
 	)
 	iamexamplev1.RegisterFreightServiceServer(grpcServer, serverWithAuthorization)
-	longrunning.RegisterOperationsServer(grpcServer, serverWithAuthorization)
+	longrunningpb.RegisterOperationsServer(grpcServer, serverWithAuthorization)
 	errChan := make(chan error)
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
@@ -124,7 +124,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	)
 	assert.NilError(t, err)
 	serviceClient := iamexamplev1.NewFreightServiceClient(conn)
-	longRunningClient := longrunning.NewOperationsClient(conn)
+	longRunningClient := longrunningpb.NewOperationsClient(conn)
 	return &serverTestFixture{
 		iam:               iamtest.NewFixture(iamServer),
 		spanner:           spannerClient,
@@ -137,7 +137,7 @@ type serverTestFixture struct {
 	iam               *iamtest.Fixture
 	spanner           *spanner.Client
 	client            iamexamplev1.FreightServiceClient
-	longRunningClient longrunning.OperationsClient
+	longRunningClient longrunningpb.OperationsClient
 }
 
 func (fx *serverTestFixture) createShipper(t *testing.T, name string) {

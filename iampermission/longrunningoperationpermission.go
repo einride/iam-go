@@ -3,9 +3,9 @@ package iampermission
 import (
 	"strings"
 
+	"cloud.google.com/go/longrunning/autogen/longrunningpb"
 	"go.einride.tech/aip/resourcename"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
-	"google.golang.org/genproto/googleapis/longrunning"
 )
 
 // LongRunningOperationRequest is an interface for long-running operation requests.
@@ -18,7 +18,7 @@ func ResolveLongRunningOperationPermission(
 	operationsPermissions []*iamv1.LongRunningOperationPermissions,
 	operationRequest LongRunningOperationRequest,
 ) (string, bool) {
-	_, isListRequest := operationRequest.(*longrunning.ListOperationsRequest)
+	_, isListRequest := operationRequest.(*longrunningpb.ListOperationsRequest)
 	var match *iamv1.LongRunningOperationPermissions
 OperationLoop:
 	for _, operationPermissions := range operationsPermissions {
@@ -36,15 +36,15 @@ OperationLoop:
 		return "", false
 	}
 	switch operationRequest.(type) {
-	case *longrunning.GetOperationRequest:
+	case *longrunningpb.GetOperationRequest:
 		return match.Get, match.Get != ""
-	case *longrunning.ListOperationsRequest:
+	case *longrunningpb.ListOperationsRequest:
 		return match.List, match.List != ""
-	case *longrunning.CancelOperationRequest:
+	case *longrunningpb.CancelOperationRequest:
 		return match.Cancel, match.Cancel != ""
-	case *longrunning.DeleteOperationRequest:
+	case *longrunningpb.DeleteOperationRequest:
 		return match.Delete, match.Delete != ""
-	case *longrunning.WaitOperationRequest:
+	case *longrunningpb.WaitOperationRequest:
 		return match.Wait, match.Wait != ""
 	default:
 		return "", false
