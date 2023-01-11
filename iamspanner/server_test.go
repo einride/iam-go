@@ -335,6 +335,67 @@ func TestServer(t *testing.T) {
 		assert.Assert(t, actual == nil)
 	})
 
+	t.Run("set policy with duplicate members", func(t *testing.T) {
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			},
+		)
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.user", Members: []string{user3, user3}},
+			},
+			Etag: []byte("W/0-00000000"),
+		}
+
+		_, err = server.SetIamPolicy(
+			withMembers(ctx, user1),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Error(t, err, "field violation on policy.bindings[0].members[1]: duplicate member")
+	})
+
+	t.Run("set policy with duplicate roles", func(t *testing.T) {
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			},
+		)
+		assert.NilError(t, err)
+		policy := &iam.Policy{
+			Bindings: []*iam.Binding{
+				{Role: "roles/test.user", Members: []string{user3}},
+				{Role: "roles/test.user", Members: []string{user3}},
+			},
+			Etag: []byte("W/0-00000000"),
+		}
+
+		_, err = server.SetIamPolicy(
+			withMembers(ctx, user1),
+			&iam.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   policy,
+			},
+		)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Error(t, err, "field violation on policy.bindings[1].role: duplicate role: 'roles/test.user'")
+	})
+
 	t.Run("set invalid role", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
