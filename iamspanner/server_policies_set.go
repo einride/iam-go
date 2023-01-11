@@ -84,6 +84,8 @@ func (s *IAMServer) validateSetIamPolicyRequest(request *iam.SetIamPolicyRequest
 			result.AddFieldViolation("resource", "must not contain wildcard")
 		}
 	}
+
+	roleSet := map[string]bool{}
 	for i, binding := range request.GetPolicy().GetBindings() {
 		if binding.GetRole() == "" {
 			result.AddFieldViolation(fmt.Sprintf("policy.bindings[%d].role", i), "missing required field")
@@ -95,13 +97,30 @@ func (s *IAMServer) validateSetIamPolicyRequest(request *iam.SetIamPolicyRequest
 				binding.GetRole(),
 			)
 		}
+		_, ok := roleSet[binding.GetRole()]
+		if ok {
+			result.AddFieldViolation(
+				fmt.Sprintf("policy.bindings[%d].role", i),
+				"duplicate role: '%s'",
+				binding.GetRole(),
+			)
+		}
+		roleSet[binding.GetRole()] = true
+
 		if len(binding.Members) == 0 {
 			result.AddFieldViolation(fmt.Sprintf("policy.bindings[%d].members", i), "missing required field")
 		}
+		memberSet := map[string]bool{}
 		for j, member := range binding.Members {
 			if err := s.validateMember(member); err != nil {
 				result.AddFieldError(fmt.Sprintf("policy.bindings[%d].members[%d]", i, j), err)
 			}
+			_, ok := memberSet[member]
+			if ok {
+				// duplicate member
+				result.AddFieldViolation(fmt.Sprintf("policy.bindings[%d].members[%d]", i, j), "duplicate member")
+			}
+			memberSet[member] = true
 		}
 	}
 	return result.Err()
