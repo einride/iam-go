@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iamresource"
-	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -16,13 +16,13 @@ import (
 // InsideSetIamPolicyTransaction describes a function that is called within the spanner.ReadWriteTransaction in
 // IAMServer.SetIamPolicyWithFunctionsInTransaction. The policy provided is the request policy that is applied
 // afterwards. If the function returns a non-nil error, the transaction will not be committed.
-type InsideSetIamPolicyTransaction func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error
+type InsideSetIamPolicyTransaction func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error
 
-// SetIamPolicy implements iam.IAMPolicyServer.
+// SetIamPolicy implements iampb.IAMPolicyServer.
 func (s *IAMServer) SetIamPolicy(
 	ctx context.Context,
-	request *iam.SetIamPolicyRequest,
-) (*iam.Policy, error) {
+	request *iampb.SetIamPolicyRequest,
+) (*iampb.Policy, error) {
 	return s.SetIamPolicyWithFunctionsInTransaction(ctx, request)
 }
 
@@ -30,9 +30,9 @@ func (s *IAMServer) SetIamPolicy(
 // within the spanner.ReadWriteTransaction.
 func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
 	ctx context.Context,
-	request *iam.SetIamPolicyRequest,
+	request *iampb.SetIamPolicyRequest,
 	fns ...InsideSetIamPolicyTransaction,
-) (*iam.Policy, error) {
+) (*iampb.Policy, error) {
 	if err := s.validateSetIamPolicyRequest(request); err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
 	return request.Policy, nil
 }
 
-func (s *IAMServer) validateSetIamPolicyRequest(request *iam.SetIamPolicyRequest) error {
+func (s *IAMServer) validateSetIamPolicyRequest(request *iampb.SetIamPolicyRequest) error {
 	var result validation.MessageValidator
 	switch request.Resource {
 	case iamresource.Root: // OK

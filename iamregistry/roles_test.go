@@ -3,14 +3,14 @@ package iamregistry
 import (
 	"testing"
 
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"gotest.tools/v3/assert"
 )
 
 func TestRoles_RangeRolesByPermission(t *testing.T) {
 	t.Run("wildcard", func(t *testing.T) {
 		roles, err := NewRoles(
-			&admin.Role{
+			&adminpb.Role{
 				Name:                "roles/test.admin",
 				Title:               "Test admin",
 				Description:         "Test description",
@@ -19,7 +19,7 @@ func TestRoles_RangeRolesByPermission(t *testing.T) {
 		)
 		assert.NilError(t, err)
 		var found bool
-		roles.RangeRolesByPermission("test.foo.bar", func(role *admin.Role) bool {
+		roles.RangeRolesByPermission("test.foo.bar", func(role *adminpb.Role) bool {
 			assert.Equal(t, "roles/test.admin", role.Name)
 			found = true
 			return true

@@ -3,11 +3,11 @@ package iamspanner
 import (
 	"context"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamrole"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
 )
 
 // TestPermissions implements iamcel.PermissionTester.
@@ -28,7 +28,7 @@ func (s *IAMServer) TestPermissions(
 		tx,
 		resources,
 		caller.Members,
-		func(ctx context.Context, boundResource string, role *admin.Role, _ string) error {
+		func(ctx context.Context, boundResource string, role *adminpb.Role, _ string) error {
 			for resource, permission := range resourcePermissions {
 				result[resource] = result[resource] ||
 					(boundResource == iamresource.Root ||

@@ -5,9 +5,9 @@ import (
 	"context"
 	"fmt"
 
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
-	"google.golang.org/genproto/googleapis/iam/v1"
 )
 
 // ReadPolicyInTransaction reads the IAM policy for a resource within the provided transaction.
@@ -15,9 +15,9 @@ func (s *IAMServer) ReadPolicyInTransaction(
 	ctx context.Context,
 	tx ReadTransaction,
 	resource string,
-) (*iam.Policy, error) {
-	var policy iam.Policy
-	var binding *iam.Binding
+) (*iampb.Policy, error) {
+	var policy iampb.Policy
+	var binding *iampb.Binding
 	iamPolicyBindings := iamspannerdb.Descriptor().IamPolicyBindings()
 	if err := tx.Read(
 		ctx,
@@ -42,7 +42,7 @@ func (s *IAMServer) ReadPolicyInTransaction(
 			return err
 		}
 		if binding == nil || int(bindingIndex) >= len(policy.Bindings) {
-			binding = &iam.Binding{Role: role}
+			binding = &iampb.Binding{Role: role}
 			policy.Bindings = append(policy.Bindings, binding)
 		}
 		binding.Members = append(binding.Members, member)
@@ -62,9 +62,9 @@ func (s *IAMServer) ReadPolicyInTransaction(
 func (s *IAMServer) ReadWritePolicy(
 	ctx context.Context,
 	resource string,
-	fn func(*iam.Policy) (*iam.Policy, error),
-) (*iam.Policy, error) {
-	var result *iam.Policy
+	fn func(*iampb.Policy) (*iampb.Policy, error),
+) (*iampb.Policy, error) {
+	var result *iampb.Policy
 	if _, err := s.client.ReadWriteTransaction(
 		ctx,
 		func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {

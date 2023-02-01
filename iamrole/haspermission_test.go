@@ -3,20 +3,20 @@ package iamrole
 import (
 	"testing"
 
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"gotest.tools/v3/assert"
 )
 
 func TestHasPermission(t *testing.T) {
 	for _, tt := range []struct {
 		name       string
-		role       *admin.Role
+		role       *adminpb.Role
 		permission string
 		expected   bool
 	}{
 		{
 			name: "via service wildcard",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				IncludedPermissions: []string{"pubsub.*", "storage.buckets.*", "kms.keys.create"},
 			},
 			permission: "pubsub.subscriptions.consume",
@@ -25,7 +25,7 @@ func TestHasPermission(t *testing.T) {
 
 		{
 			name: "via resource wildcard",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				IncludedPermissions: []string{"pubsub.*", "storage.buckets.*", "kms.keys.create"},
 			},
 			permission: "storage.buckets.create",
@@ -34,7 +34,7 @@ func TestHasPermission(t *testing.T) {
 
 		{
 			name: "via exact match",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				IncludedPermissions: []string{"pubsub.*", "storage.buckets.*", "kms.keys.create"},
 			},
 			permission: "kms.keys.create",
@@ -43,7 +43,7 @@ func TestHasPermission(t *testing.T) {
 
 		{
 			name: "no match",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				IncludedPermissions: []string{"pubsub.*", "storage.buckets.*", "kms.keys.create"},
 			},
 			permission: "kms.keys.get",
@@ -52,7 +52,7 @@ func TestHasPermission(t *testing.T) {
 
 		{
 			name: "no match with wildcard",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				IncludedPermissions: []string{"pubsub.*", "storage.buckets.*", "kms.keys.create"},
 			},
 			permission: "storage.objects.get",

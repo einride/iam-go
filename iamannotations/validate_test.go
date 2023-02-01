@@ -3,8 +3,8 @@ package iamannotations
 import (
 	"testing"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -20,7 +20,7 @@ func TestValidateRoles(t *testing.T) {
 		{
 			name: "valid",
 			roles: &iamv1.PredefinedRoles{
-				Role: []*admin.Role{
+				Role: []*adminpb.Role{
 					{
 						Name:                "roles/foo.barBaz",
 						Title:               "Foo Bar Baz",
@@ -40,7 +40,7 @@ func TestValidateRoles(t *testing.T) {
 		{
 			name: "invalid name format",
 			roles: &iamv1.PredefinedRoles{
-				Role: []*admin.Role{
+				Role: []*adminpb.Role{
 					{
 						Name:                "foobarbaz",
 						Title:               "Foo Bar Baz",

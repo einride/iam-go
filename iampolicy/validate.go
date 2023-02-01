@@ -3,12 +3,12 @@ package iampolicy
 import (
 	"fmt"
 
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"go.einride.tech/aip/validation"
-	"google.golang.org/genproto/googleapis/iam/v1"
 )
 
 // Validate an IAM policy.
-func Validate(policy *iam.Policy) error {
+func Validate(policy *iampb.Policy) error {
 	var result validation.MessageValidator
 	for i, binding := range policy.GetBindings() {
 		if len(binding.Role) == 0 {

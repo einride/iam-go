@@ -3,15 +3,15 @@ package iampolicy
 import (
 	"testing"
 
-	"google.golang.org/genproto/googleapis/iam/v1"
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gotest.tools/v3/assert"
 )
 
 func TestRemoveBinding(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		actual := &iam.Policy{
-			Bindings: []*iam.Binding{
+		actual := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{
 					Role:    "roles/test",
 					Members: []string{"foo", "bar"},
@@ -23,8 +23,8 @@ func TestRemoveBinding(t *testing.T) {
 			},
 		}
 		RemoveBinding(actual, "roles/test2", "bar")
-		expected := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{
 					Role:    "roles/test",
 					Members: []string{"foo", "bar"},

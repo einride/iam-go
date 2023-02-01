@@ -3,12 +3,12 @@ package iamexampledata
 import (
 	"context"
 
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamexample/iamexampledb"
 	"go.einride.tech/iam/iamresource"
 	iamexamplev1 "go.einride.tech/iam/proto/gen/einride/iam/example/v1"
-	"google.golang.org/genproto/googleapis/iam/v1"
 )
 
 // BootstrapRootAdmin bootstraps an IAM database with RootAdminMember as iamexamplev1.FreightServiceServer root admin.
@@ -62,7 +62,7 @@ func InitializeResources(ctx context.Context, server iamexamplev1.FreightService
 			return err
 		}
 	}
-	for _, request := range []*iam.SetIamPolicyRequest{
+	for _, request := range []*iampb.SetIamPolicyRequest{
 		EinrideSetIamPolicyRequest(),
 		EinrideGothenburgOfficeSetIamPolicyRequest(),
 		EinrideBatcaveSetIamPolicyRequest(),

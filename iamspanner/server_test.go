@@ -6,6 +6,8 @@ import (
 	"sort"
 	"testing"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iampolicy"
@@ -13,8 +15,6 @@ import (
 	"go.einride.tech/iam/iamresource"
 	iamv1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
 	"go.einride.tech/spanner-aip/spantest"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -39,7 +39,7 @@ func TestServer(t *testing.T) {
 		user2 = "email:user2@example.com"
 		user3 = "email:user3@example.com"
 	)
-	roles := []*admin.Role{
+	roles := []*adminpb.Role{
 		{
 			Name:        "roles/test.admin",
 			Title:       "Admin",
@@ -86,12 +86,12 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		expected := &iam.Policy{
+		expected := &iampb.Policy{
 			Etag: []byte("W/0-00000000"),
 		}
 		actual, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.GetIamPolicyRequest{Resource: "resources/1"},
+			&iampb.GetIamPolicyRequest{Resource: "resources/1"},
 		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
@@ -112,7 +112,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		actual, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.GetIamPolicyRequest{Resource: "ice cream is best"},
+			&iampb.GetIamPolicyRequest{Resource: "ice cream is best"},
 		)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Assert(t, actual == nil)
@@ -133,7 +133,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		actual, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.GetIamPolicyRequest{Resource: "resources/-"},
+			&iampb.GetIamPolicyRequest{Resource: "resources/-"},
 		)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Assert(t, actual == nil)
@@ -152,14 +152,14 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
 		}
-		expected := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -167,7 +167,7 @@ func TestServer(t *testing.T) {
 		}
 		actual, err := server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -189,8 +189,8 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -199,7 +199,7 @@ func TestServer(t *testing.T) {
 		}
 		actual, err := server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -221,15 +221,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		expected := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -237,7 +237,7 @@ func TestServer(t *testing.T) {
 		}
 		actual, err := server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -246,7 +246,7 @@ func TestServer(t *testing.T) {
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
 		got, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.GetIamPolicyRequest{Resource: "resources/1"},
+			&iampb.GetIamPolicyRequest{Resource: "resources/1"},
 		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, got, protocmp.Transform())
@@ -265,15 +265,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
-		expected := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -281,19 +281,19 @@ func TestServer(t *testing.T) {
 		}
 		actual, err := server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
 		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected, actual, protocmp.Transform())
-		emptyPolicy := &iam.Policy{
+		emptyPolicy := &iampb.Policy{
 			Etag: []byte("W/0-00000000"),
 		}
 		got, err := server.GetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.GetIamPolicyRequest{Resource: "resources/2"},
+			&iampb.GetIamPolicyRequest{Resource: "resources/2"},
 		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, emptyPolicy, got, protocmp.Transform())
@@ -318,14 +318,14 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, "invalid:member"}},
 			},
 		}
 		actual, err := server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -347,8 +347,8 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.user", Members: []string{user3, user3}},
 			},
 			Etag: []byte("W/0-00000000"),
@@ -356,7 +356,7 @@ func TestServer(t *testing.T) {
 
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -377,8 +377,8 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.user", Members: []string{user3}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -387,7 +387,7 @@ func TestServer(t *testing.T) {
 
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -409,14 +409,14 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.fooBar", Members: []string{user1}},
 			},
 		}
 		actual, err := server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -440,14 +440,14 @@ func TestServer(t *testing.T) {
 		)
 		assert.NilError(t, err)
 
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
 		}
-		expected := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -457,19 +457,19 @@ func TestServer(t *testing.T) {
 		var calledOne, calledTwo, calledThree bool
 		actual, err := server.SetIamPolicyWithFunctionsInTransaction(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
-			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+			func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error {
 				calledOne = true
 				return nil
 			},
-			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+			func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error {
 				calledTwo = true
 				return nil
 			},
-			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+			func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error {
 				calledThree = true
 				return nil
 			},
@@ -494,8 +494,8 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1, user2}},
 				{Role: "roles/test.user", Members: []string{user3}},
 			},
@@ -503,17 +503,17 @@ func TestServer(t *testing.T) {
 
 		actual, err := server.SetIamPolicyWithFunctionsInTransaction(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
-			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+			func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error {
 				return nil
 			},
-			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+			func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error {
 				return fmt.Errorf("transaction function error")
 			},
-			func(context.Context, *spanner.ReadWriteTransaction, *iam.Policy) error {
+			func(context.Context, *spanner.ReadWriteTransaction, *iampb.Policy) error {
 				return nil
 			},
 		)
@@ -537,7 +537,7 @@ func TestServer(t *testing.T) {
 		assert.NilError(t, err)
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user1),
-			&iam.TestIamPermissionsRequest{
+			&iampb.TestIamPermissionsRequest{
 				Resource: "resources/1",
 				Permissions: []string{
 					"test.resources.create",
@@ -564,15 +564,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -586,7 +586,7 @@ func TestServer(t *testing.T) {
 		}
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user1),
-			&iam.TestIamPermissionsRequest{
+			&iampb.TestIamPermissionsRequest{
 				Resource:    "resources/1",
 				Permissions: permissions,
 			},
@@ -608,15 +608,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.viewer", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -631,7 +631,7 @@ func TestServer(t *testing.T) {
 		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user1),
-			&iam.TestIamPermissionsRequest{
+			&iampb.TestIamPermissionsRequest{
 				Resource:    "resources/1",
 				Permissions: permissions,
 			},
@@ -653,15 +653,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.admin", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "resources/1",
 				Policy:   policy,
 			},
@@ -675,7 +675,7 @@ func TestServer(t *testing.T) {
 		}
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user2),
-			&iam.TestIamPermissionsRequest{
+			&iampb.TestIamPermissionsRequest{
 				Resource:    "resources/1",
 				Permissions: permissions,
 			},
@@ -697,15 +697,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.viewer", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: "parents/1",
 				Policy:   policy,
 			},
@@ -720,7 +720,7 @@ func TestServer(t *testing.T) {
 		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user1),
-			&iam.TestIamPermissionsRequest{
+			&iampb.TestIamPermissionsRequest{
 				Resource:    "parents/1/resources/1",
 				Permissions: permissions,
 			},
@@ -742,15 +742,15 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		policy := &iam.Policy{
-			Bindings: []*iam.Binding{
+		policy := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{Role: "roles/test.viewer", Members: []string{user1}},
 			},
 			Etag: []byte("W/0-00000000"),
 		}
 		_, err = server.SetIamPolicy(
 			withMembers(ctx, user1),
-			&iam.SetIamPolicyRequest{
+			&iampb.SetIamPolicyRequest{
 				Resource: iamresource.Root,
 				Policy:   policy,
 			},
@@ -765,7 +765,7 @@ func TestServer(t *testing.T) {
 		expected := []string{"test.resources.get"}
 		response, err := server.TestIamPermissions(
 			withMembers(ctx, user1),
-			&iam.TestIamPermissionsRequest{
+			&iampb.TestIamPermissionsRequest{
 				Resource:    "parents/1/resources/1",
 				Permissions: permissions,
 			},
@@ -791,7 +791,7 @@ func TestServer(t *testing.T) {
 		assert.Assert(t, ok)
 		actual, err := server.GetRole(
 			withMembers(ctx, user1),
-			&admin.GetRoleRequest{
+			&adminpb.GetRoleRequest{
 				Name: "roles/test.admin",
 			},
 		)
@@ -812,23 +812,23 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		expected := make([]*admin.Role, 0, rolesRegistry.Count())
-		rolesRegistry.RangeRoles(func(role *admin.Role) bool {
+		expected := make([]*adminpb.Role, 0, rolesRegistry.Count())
+		rolesRegistry.RangeRoles(func(role *adminpb.Role) bool {
 			expected = append(expected, role)
 			return true
 		})
 		sort.Slice(expected, func(i, j int) bool {
 			return expected[i].Name < expected[j].Name
 		})
-		actual := make([]*admin.Role, 0, rolesRegistry.Count())
+		actual := make([]*adminpb.Role, 0, rolesRegistry.Count())
 		var nextPageToken string
 		for {
 			response, err := server.ListRoles(
 				withMembers(ctx, user1),
-				&admin.ListRolesRequest{
+				&adminpb.ListRolesRequest{
 					PageSize:  1,
 					PageToken: nextPageToken,
-					View:      admin.RoleView_FULL,
+					View:      adminpb.RoleView_FULL,
 				},
 			)
 			assert.NilError(t, err)
@@ -854,22 +854,22 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		expected := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{
 					Role:    "roles/test.admin",
 					Members: []string{"user:user1"},
 				},
 			},
 		}
-		actual, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iam.Policy) (*iam.Policy, error) {
+		actual, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iampb.Policy) (*iampb.Policy, error) {
 			iampolicy.AddBinding(policy, "roles/test.admin", "user:user1")
 			return policy, nil
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected.Bindings, actual.Bindings, protocmp.Transform())
-		expected2 := &iam.Policy{
-			Bindings: []*iam.Binding{
+		expected2 := &iampb.Policy{
+			Bindings: []*iampb.Binding{
 				{
 					Role:    "roles/test.admin",
 					Members: []string{"user:user1"},
@@ -880,7 +880,7 @@ func TestServer(t *testing.T) {
 				},
 			},
 		}
-		actual2, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iam.Policy) (*iam.Policy, error) {
+		actual2, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iampb.Policy) (*iampb.Policy, error) {
 			assert.DeepEqual(t, actual, policy, protocmp.Transform())
 			iampolicy.AddBinding(policy, "roles/test.user", "user:user2")
 			return policy, nil

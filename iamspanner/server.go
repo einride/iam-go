@@ -5,22 +5,22 @@ import (
 	"fmt"
 	"hash/crc32"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/iam/iamcaller"
 	"go.einride.tech/iam/iammember"
 	"go.einride.tech/iam/iamregistry"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/genproto/googleapis/iam/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
-// IAMServer is a Spanner implementation of the iam.IAMPolicyServer interface.
+// IAMServer is a Spanner implementation of the iampb.IAMPolicyServer interface.
 type IAMServer struct {
-	iam.UnimplementedIAMPolicyServer
-	admin.UnimplementedIAMServer
+	iampb.UnimplementedIAMPolicyServer
+	adminpb.UnimplementedIAMServer
 	client         *spanner.Client
 	roles          *iamregistry.Roles
 	callerResolver iamcaller.Resolver
@@ -45,7 +45,7 @@ type ReadTransaction interface {
 // NewIAMServer creates a new Spanner IAM policy server.
 func NewIAMServer(
 	client *spanner.Client,
-	roles []*admin.Role,
+	roles []*adminpb.Role,
 	callerResolver iamcaller.Resolver,
 	config ServerConfig,
 ) (*IAMServer, error) {
@@ -76,7 +76,7 @@ func deleteIAMPolicyMutation(resource string) *spanner.Mutation {
 	)
 }
 
-func insertIAMPolicyMutations(resource string, policy *iam.Policy) []*spanner.Mutation {
+func insertIAMPolicyMutations(resource string, policy *iampb.Policy) []*spanner.Mutation {
 	var mutations []*spanner.Mutation
 	for i, binding := range policy.GetBindings() {
 		for j, member := range binding.GetMembers() {
@@ -109,7 +109,7 @@ func (s *IAMServer) handleStorageError(ctx context.Context, err error) error {
 	}
 }
 
-func computeETag(policy *iam.Policy) ([]byte, error) {
+func computeETag(policy *iampb.Policy) ([]byte, error) {
 	data, err := proto.Marshal(policy)
 	if err != nil {
 		return nil, fmt.Errorf("compute etag: %w", err)
