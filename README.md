@@ -88,6 +88,42 @@ message YourMethodRequest {
 };
 ```
 
+```proto
+package your.pkg;
+
+import "einride/iam/v1/annotations.proto";
+
+service YourService {
+  rpc YourMethod(YourMethodRequest) returns YourMethodResponse {
+      option (einride.iam.v1.method_authorization) = {
+        resource_permissions {
+          resource_permission {
+            resource: {
+              type: "example.com/Entity1"
+            }
+            permission: "namespace.entity1.method"
+          }
+          resource_permission {
+            resource: {
+              type: "example.com/Entity2"
+            }
+            permission: "namespace.entity2.method"
+          }
+        }
+        after: {
+          expression: "test_all(caller, response.entities)" // iamcel expression
+          description: "The caller must have method permission against all entities"
+        }
+      };
+    };
+}
+
+message YourMethodResponse {
+  // Elements in this list are either Entity1 or Entity2 references
+  repeated string entities = 1;
+};
+```
+
 Expresssions in the `method_authorization` annotation use [cel-go](https://github.com/google/cel-go) with [iamcel](./iamcel) extensions. The `iamcel` extensions provide the following cel functions.
 
 #### [`test(caller Caller, resource string) bool`](./iamcel/test.go)
