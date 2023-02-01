@@ -3,18 +3,18 @@ package iamspanner
 import (
 	"context"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-// GetRole implements admin.IAMServer.
+// GetRole implements adminpb.IAMServer.
 func (s *IAMServer) GetRole(
 	ctx context.Context,
-	request *admin.GetRoleRequest,
-) (*admin.Role, error) {
+	request *adminpb.GetRoleRequest,
+) (*adminpb.Role, error) {
 	var parsedRequest getRoleRequest
 	if err := parsedRequest.parse(request); err != nil {
 		return nil, err
@@ -22,11 +22,11 @@ func (s *IAMServer) GetRole(
 	return s.getRole(ctx, &parsedRequest)
 }
 
-// GetRole implements admin.IAMServer.
+// GetRole implements adminpb.IAMServer.
 func (s *IAMServer) getRole(
 	_ context.Context,
 	request *getRoleRequest,
-) (*admin.Role, error) {
+) (*adminpb.Role, error) {
 	role, ok := s.roles.FindRoleByName(request.name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "not found")
@@ -38,7 +38,7 @@ type getRoleRequest struct {
 	name string
 }
 
-func (r *getRoleRequest) parse(request *admin.GetRoleRequest) error {
+func (r *getRoleRequest) parse(request *adminpb.GetRoleRequest) error {
 	var v validation.MessageValidator
 	// name = 1
 	switch {

@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"cloud.google.com/go/spanner"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/iam/iamresource"
 	"go.einride.tech/iam/iamspanner/iamspannerdb"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
 )
 
 // ReadBindingsByResourcesAndMembers reads all roles bound to the provided members and resources.
@@ -16,7 +16,7 @@ func (s *IAMServer) ReadBindingsByResourcesAndMembers(
 	ctx context.Context,
 	resources []string,
 	members []string,
-	fn func(ctx context.Context, resource string, role *admin.Role, member string) error,
+	fn func(ctx context.Context, resource string, role *adminpb.Role, member string) error,
 ) error {
 	tx := s.client.Single()
 	defer tx.Close()
@@ -31,7 +31,7 @@ func (s *IAMServer) ReadBindingsByResourcesAndMembersInTransaction(
 	tx ReadTransaction,
 	resources []string,
 	members []string,
-	fn func(ctx context.Context, resource string, role *admin.Role, member string) error,
+	fn func(ctx context.Context, resource string, role *adminpb.Role, member string) error,
 ) error {
 	// Deduplicate resources and parents to read.
 	resourcesAndParents := make(map[string]struct{}, len(resources))
@@ -99,7 +99,7 @@ func (s *IAMServer) ReadBindingsByMembersAndPermissions(
 	ctx context.Context,
 	members []string,
 	permissions []string,
-	fn func(ctx context.Context, resource string, role *admin.Role, member string) error,
+	fn func(ctx context.Context, resource string, role *adminpb.Role, member string) error,
 ) error {
 	tx := s.client.Single()
 	defer tx.Close()
@@ -113,12 +113,12 @@ func (s *IAMServer) ReadBindingsByMembersAndPermissionsInTransaction(
 	tx ReadTransaction,
 	members []string,
 	permissions []string,
-	fn func(ctx context.Context, resource string, role *admin.Role, member string) error,
+	fn func(ctx context.Context, resource string, role *adminpb.Role, member string) error,
 ) error {
 	memberRoleKeySets := make([]spanner.KeySet, 0, len(members)*len(permissions))
 	for _, member := range members {
 		for _, permission := range permissions {
-			s.roles.RangeRolesByPermission(permission, func(role *admin.Role) bool {
+			s.roles.RangeRolesByPermission(permission, func(role *adminpb.Role) bool {
 				for _, existingKeySet := range memberRoleKeySets {
 					existingKey := existingKeySet.(spanner.KeyRange).Start
 					if member == existingKey[0] && role.Name == existingKey[1].(string) {

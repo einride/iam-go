@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"google.golang.org/genproto/googleapis/iam/v1"
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gotest.tools/v3/assert"
@@ -24,7 +24,7 @@ func (ts *serverTestSuite) testIAM(t *testing.T) {
 			fx.iam.AddPolicyBinding(t, "/", "roles/freight.admin", member)
 			got, err := fx.client.GetIamPolicy(
 				WithOutgoingMembers(ctx, member),
-				&iam.GetIamPolicyRequest{
+				&iampb.GetIamPolicyRequest{
 					Resource: "resources/foo",
 				},
 			)

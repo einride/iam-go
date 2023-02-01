@@ -3,46 +3,46 @@ package iamexample
 import (
 	"context"
 
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/genproto/googleapis/iam/v1"
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
+	"cloud.google.com/go/iam/apiv1/iampb"
 )
 
-// SetIamPolicy implements iam.IAMPolicyServer.
+// SetIamPolicy implements iampb.IAMPolicyServer.
 func (s *Server) SetIamPolicy(
 	ctx context.Context,
-	request *iam.SetIamPolicyRequest,
-) (*iam.Policy, error) {
+	request *iampb.SetIamPolicyRequest,
+) (*iampb.Policy, error) {
 	return s.IAM.SetIamPolicy(ctx, request)
 }
 
-// GetIamPolicy implements iam.IAMPolicyServer.
+// GetIamPolicy implements iampb.IAMPolicyServer.
 func (s *Server) GetIamPolicy(
 	ctx context.Context,
-	request *iam.GetIamPolicyRequest,
-) (*iam.Policy, error) {
+	request *iampb.GetIamPolicyRequest,
+) (*iampb.Policy, error) {
 	return s.IAM.GetIamPolicy(ctx, request)
 }
 
-// TestIamPermissions implements iam.IAMPolicyServer.
+// TestIamPermissions implements iampb.IAMPolicyServer.
 func (s *Server) TestIamPermissions(
 	ctx context.Context,
-	request *iam.TestIamPermissionsRequest,
-) (*iam.TestIamPermissionsResponse, error) {
+	request *iampb.TestIamPermissionsRequest,
+) (*iampb.TestIamPermissionsResponse, error) {
 	return s.IAM.TestIamPermissions(ctx, request)
 }
 
-// ListRoles implements admin.IAMServer.
+// ListRoles implements adminpb.IAMServer.
 func (s *Server) ListRoles(
 	ctx context.Context,
-	request *admin.ListRolesRequest,
-) (*admin.ListRolesResponse, error) {
+	request *adminpb.ListRolesRequest,
+) (*adminpb.ListRolesResponse, error) {
 	return s.IAM.ListRoles(ctx, request)
 }
 
-// GetRole implements admin.IAMServer.
+// GetRole implements adminpb.IAMServer.
 func (s *Server) GetRole(
 	ctx context.Context,
-	request *admin.GetRoleRequest,
-) (*admin.Role, error) {
+	request *adminpb.GetRoleRequest,
+) (*adminpb.Role, error) {
 	return s.IAM.GetRole(ctx, request)
 }

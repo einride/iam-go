@@ -5,13 +5,13 @@ import (
 	"strings"
 	"unicode"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iampermission"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
 )
 
 // Validate checks that an IAM role is valid.
-func Validate(role *admin.Role) error {
+func Validate(role *adminpb.Role) error {
 	var result validation.MessageValidator
 	if err := ValidateName(role.GetName()); err != nil {
 		result.AddFieldError("name", err)

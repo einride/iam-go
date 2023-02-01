@@ -4,19 +4,19 @@ import (
 	"context"
 	"fmt"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iampermission"
 	"go.einride.tech/iam/iamresource"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
-	"google.golang.org/genproto/googleapis/iam/v1"
 )
 
-// TestIamPermissions implements iam.IAMPolicyServer.
+// TestIamPermissions implements iampb.IAMPolicyServer.
 func (s *IAMServer) TestIamPermissions(
 	ctx context.Context,
-	request *iam.TestIamPermissionsRequest,
-) (*iam.TestIamPermissionsResponse, error) {
+	request *iampb.TestIamPermissionsRequest,
+) (*iampb.TestIamPermissionsResponse, error) {
 	if err := validateTestIamPermissionsRequest(request); err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (s *IAMServer) TestIamPermissions(
 		tx,
 		[]string{request.Resource},
 		caller.Members,
-		func(ctx context.Context, _ string, role *admin.Role, _ string) error {
+		func(ctx context.Context, _ string, role *adminpb.Role, _ string) error {
 			for _, permission := range request.Permissions {
 				if s.roles.RoleHasPermission(role.Name, permission) {
 					permissions[permission] = struct{}{}
@@ -43,7 +43,7 @@ func (s *IAMServer) TestIamPermissions(
 	); err != nil {
 		return nil, s.handleStorageError(ctx, err)
 	}
-	response := &iam.TestIamPermissionsResponse{
+	response := &iampb.TestIamPermissionsResponse{
 		Permissions: make([]string, 0, len(permissions)),
 	}
 	for _, permission := range request.Permissions {
@@ -54,7 +54,7 @@ func (s *IAMServer) TestIamPermissions(
 	return response, nil
 }
 
-func validateTestIamPermissionsRequest(request *iam.TestIamPermissionsRequest) error {
+func validateTestIamPermissionsRequest(request *iampb.TestIamPermissionsRequest) error {
 	var result validation.MessageValidator
 	switch request.Resource {
 	case iamresource.Root: // OK

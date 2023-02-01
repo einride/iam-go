@@ -1,11 +1,13 @@
 package iampolicy
 
-import "google.golang.org/genproto/googleapis/iam/v1"
+import (
+	"cloud.google.com/go/iam/apiv1/iampb"
+)
 
 // RemoveBinding removes the provided role and member binding from the policy.
-// If a binding of the the role and member don't exist, no updates are made.
+// If a binding of the role and member don't exist, no updates are made.
 // No validation on the role or member is performed.
-func RemoveBinding(policy *iam.Policy, role, member string) {
+func RemoveBinding(policy *iampb.Policy, role, member string) {
 	for _, binding := range policy.Bindings {
 		if binding.Role == role {
 			binding.Members = removeMember(binding.Members, member)
@@ -26,7 +28,7 @@ func removeMember(members []string, member string) []string {
 	return members
 }
 
-func removeRole(bindings []*iam.Binding, role string) []*iam.Binding {
+func removeRole(bindings []*iampb.Binding, role string) []*iampb.Binding {
 	for i, binding := range bindings {
 		if binding.Role == role {
 			return append(bindings[:i], bindings[i+1:]...)

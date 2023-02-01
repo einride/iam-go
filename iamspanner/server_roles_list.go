@@ -4,17 +4,17 @@ import (
 	"context"
 	"sort"
 
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"go.einride.tech/aip/pagination"
 	"go.einride.tech/aip/validation"
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
 	"google.golang.org/protobuf/proto"
 )
 
-// ListRoles implements admin.IAMServer.
+// ListRoles implements adminpb.IAMServer.
 func (s *IAMServer) ListRoles(
 	ctx context.Context,
-	request *admin.ListRolesRequest,
-) (*admin.ListRolesResponse, error) {
+	request *adminpb.ListRolesRequest,
+) (*adminpb.ListRolesResponse, error) {
 	var parsedRequest listRolesRequest
 	if err := parsedRequest.parse(request); err != nil {
 		return nil, err
@@ -25,17 +25,17 @@ func (s *IAMServer) ListRoles(
 func (s *IAMServer) listRoles(
 	_ context.Context,
 	request *listRolesRequest,
-) (*admin.ListRolesResponse, error) {
-	roles := make([]*admin.Role, 0, s.roles.Count())
-	s.roles.RangeRoles(func(role *admin.Role) bool {
+) (*adminpb.ListRolesResponse, error) {
+	roles := make([]*adminpb.Role, 0, s.roles.Count())
+	s.roles.RangeRoles(func(role *adminpb.Role) bool {
 		roles = append(roles, role)
 		return true
 	})
 	sort.Slice(roles, func(i, j int) bool {
 		return roles[i].Name < roles[j].Name
 	})
-	response := admin.ListRolesResponse{
-		Roles: make([]*admin.Role, 0, request.pageSize),
+	response := adminpb.ListRolesResponse{
+		Roles: make([]*adminpb.Role, 0, request.pageSize),
 	}
 	from := int(request.pageToken.Offset)
 	to := int(request.pageToken.Offset) + int(request.pageSize)
@@ -46,10 +46,10 @@ func (s *IAMServer) listRoles(
 	}
 	for _, role := range roles[from:to] {
 		switch request.view {
-		case admin.RoleView_FULL:
+		case adminpb.RoleView_FULL:
 			response.Roles = append(response.Roles, role)
 		default:
-			clone := proto.Clone(role).(*admin.Role)
+			clone := proto.Clone(role).(*adminpb.Role)
 			clone.IncludedPermissions = nil
 			response.Roles = append(response.Roles, clone)
 		}
@@ -60,11 +60,11 @@ func (s *IAMServer) listRoles(
 type listRolesRequest struct {
 	pageSize  int32
 	pageToken pagination.PageToken
-	view      admin.RoleView
-	request   *admin.ListRolesRequest
+	view      adminpb.RoleView
+	request   *adminpb.ListRolesRequest
 }
 
-func (r *listRolesRequest) parse(request *admin.ListRolesRequest) error {
+func (r *listRolesRequest) parse(request *adminpb.ListRolesRequest) error {
 	const (
 		defaultPageSize = 300
 		maxPageSize     = 1_000
@@ -93,7 +93,7 @@ func (r *listRolesRequest) parse(request *admin.ListRolesRequest) error {
 	}
 	r.pageToken = pageToken
 	switch request.View {
-	case admin.RoleView_BASIC, admin.RoleView_FULL:
+	case adminpb.RoleView_BASIC, adminpb.RoleView_FULL:
 		r.view = request.View
 	default:
 		v.AddFieldViolation("view", "unsupported value: %d", request.View.Number())

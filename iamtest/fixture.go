@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"go.einride.tech/iam/iampolicy"
 	"go.einride.tech/iam/iamspanner"
-	"google.golang.org/genproto/googleapis/iam/v1"
 	"gotest.tools/v3/assert"
 )
 
@@ -24,13 +24,13 @@ func NewFixture(server *iamspanner.IAMServer) *Fixture {
 func (fx *Fixture) AddPolicyBinding(t *testing.T, resource, role, member string) {
 	ctx := withTestDeadline(context.Background(), t)
 	// Get current policy.
-	policy, err := fx.server.GetIamPolicy(ctx, &iam.GetIamPolicyRequest{
+	policy, err := fx.server.GetIamPolicy(ctx, &iampb.GetIamPolicyRequest{
 		Resource: resource,
 	})
 	assert.NilError(t, err)
 	iampolicy.AddBinding(policy, role, member)
 	// Set updated policy.
-	_, err = fx.server.SetIamPolicy(ctx, &iam.SetIamPolicyRequest{
+	_, err = fx.server.SetIamPolicy(ctx, &iampb.SetIamPolicyRequest{
 		Resource: resource,
 		Policy:   policy,
 	})

@@ -1,11 +1,13 @@
 package iampolicy
 
-import "google.golang.org/genproto/googleapis/iam/v1"
+import (
+	"cloud.google.com/go/iam/apiv1/iampb"
+)
 
 // AddBinding adds the provided role and member binding to the policy.
 // If the role and member already exists, no updates are made.
 // No validation on the role or member is performed.
-func AddBinding(policy *iam.Policy, role, member string) {
+func AddBinding(policy *iampb.Policy, role, member string) {
 	// Add binding to policy.
 	var added bool
 	for _, binding := range policy.Bindings {
@@ -20,7 +22,7 @@ func AddBinding(policy *iam.Policy, role, member string) {
 		}
 	}
 	if !added {
-		policy.Bindings = append(policy.Bindings, &iam.Binding{
+		policy.Bindings = append(policy.Bindings, &iampb.Binding{
 			Role:    role,
 			Members: []string{member},
 		})

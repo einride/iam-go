@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/genproto/googleapis/iam/admin/v1"
+	"cloud.google.com/go/iam/admin/apiv1/adminpb"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -14,12 +14,12 @@ import (
 func TestValidate(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
-		role     *admin.Role
+		role     *adminpb.Role
 		expected *errdetails.BadRequest
 	}{
 		{
 			name: "valid",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				Name:                "roles/foo.barBaz",
 				Title:               "Foo Bar Baz",
 				Description:         "Longer description",
@@ -29,7 +29,7 @@ func TestValidate(t *testing.T) {
 
 		{
 			name: "invalid name format",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				Name:                "foobarbaz",
 				Title:               "Foo Bar Baz",
 				Description:         "Longer description",
@@ -47,7 +47,7 @@ func TestValidate(t *testing.T) {
 
 		{
 			name: "too long title",
-			role: &admin.Role{
+			role: &adminpb.Role{
 				Name:                "roles/foo.barBaz",
 				Title:               strings.Repeat("a", 101),
 				Description:         "Longer description",

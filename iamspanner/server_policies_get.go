@@ -3,17 +3,17 @@ package iamspanner
 import (
 	"context"
 
+	"cloud.google.com/go/iam/apiv1/iampb"
 	"go.einride.tech/aip/resourcename"
 	"go.einride.tech/aip/validation"
 	"go.einride.tech/iam/iamresource"
-	"google.golang.org/genproto/googleapis/iam/v1"
 )
 
-// GetIamPolicy implements iam.IAMPolicyServer.
+// GetIamPolicy implements iampb.IAMPolicyServer.
 func (s *IAMServer) GetIamPolicy(
 	ctx context.Context,
-	request *iam.GetIamPolicyRequest,
-) (*iam.Policy, error) {
+	request *iampb.GetIamPolicyRequest,
+) (*iampb.Policy, error) {
 	if err := validateGetIamPolicyRequest(request); err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func (s *IAMServer) GetIamPolicy(
 	return s.ReadPolicyInTransaction(ctx, tx, request.Resource)
 }
 
-func validateGetIamPolicyRequest(request *iam.GetIamPolicyRequest) error {
+func validateGetIamPolicyRequest(request *iampb.GetIamPolicyRequest) error {
 	var result validation.MessageValidator
 	switch request.Resource {
 	case iamresource.Root: // OK
