@@ -17,25 +17,17 @@ $ go get go.einride.tech/iam
 See [google.iam.v1.IAMPolicy](https://github.com/googleapis/googleapis/blob/master/google/iam/v1/iam_policy.proto).
 
 ```proto
-/* ... */
 package your.pkg;
-
-/* ... */
 
 import "google/iam/v1/iam_policy.proto";
 import "google/iam/v1/policy.proto";
 
-/* ... */
-
 service YourService {
   /* ... */
 
-  rpc SetIamPolicy(google.iam.v1.SetIamPolicyRequest)
-    returns (google.iam.v1.Policy);
-  rpc GetIamPolicy(google.iam.v1.GetIamPolicyRequest)
-    returns (google.iam.v1.Policy);
-  rpc TestIamPermissions(google.iam.v1.TestIamPermissionsRequest)
-    returns (google.iam.v1.TestIamPermissionsResponse);
+  rpc SetIamPolicy(google.iam.v1.SetIamPolicyRequest) returns (google.iam.v1.Policy);
+  rpc GetIamPolicy(google.iam.v1.GetIamPolicyRequest) returns (google.iam.v1.Policy);
+  rpc TestIamPermissions(google.iam.v1.TestIamPermissionsRequest) returns (google.iam.v1.TestIamPermissionsResponse);
 }
 ```
 
