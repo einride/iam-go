@@ -43,9 +43,7 @@ service FreightService {
   // Get a shipper.
   // See: https://google.aip.dev/131 (Standard methods: Get).
   rpc GetShipper(GetShipperRequest) returns (Shipper) {
-    option (google.api.http) = {
-      get: "/v1/{name=shippers/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=shippers/*}"};
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.get"
@@ -59,9 +57,7 @@ service FreightService {
   // List shippers.
   // See: https://google.aip.dev/132 (Standard methods: List).
   rpc ListShippers(ListShippersRequest) returns (ListShippersResponse) {
-    option (google.api.http) = {
-      get: "/v1/shippers"
-    };
+    option (google.api.http) = {get: "/v1/shippers"};
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.list"
       before {
@@ -109,9 +105,7 @@ service FreightService {
   // See: https://google.aip.dev/135 (Standard methods: Delete).
   // See: https://google.aip.dev/151 (Long-running operations).
   rpc DeleteShipper(DeleteShipperRequest) returns (google.longrunning.Operation) {
-    option (google.api.http) = {
-      delete: "/v1/{name=shippers/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=shippers/*}"};
     option (google.api.method_signature) = "name";
     option (google.longrunning.operation_info) = {
       response_type: "Shipper"
@@ -129,9 +123,7 @@ service FreightService {
   // Get a site.
   // See: https://google.aip.dev/131 (Standard methods: Get).
   rpc GetSite(GetSiteRequest) returns (Site) {
-    option (google.api.http) = {
-      get: "/v1/{name=shippers/*/sites/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=shippers/*/sites/*}"};
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
@@ -145,9 +137,7 @@ service FreightService {
   // List sites for a shipper.
   // See: https://google.aip.dev/132 (Standard methods: List).
   rpc ListSites(ListSitesRequest) returns (ListSitesResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=shippers/*}/sites"
-    };
+    option (google.api.http) = {get: "/v1/{parent=shippers/*}/sites"};
     option (google.api.method_signature) = "parent";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.list"
@@ -196,9 +186,7 @@ service FreightService {
   // See: https://google.aip.dev/135 (Standard methods: Delete).
   // See: https://google.aip.dev/164 (Soft delete).
   rpc DeleteSite(DeleteSiteRequest) returns (Site) {
-    option (google.api.http) = {
-      delete: "/v1/{name=shippers/*/sites/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=shippers/*/sites/*}"};
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.delete"
@@ -212,9 +200,7 @@ service FreightService {
   // Batch get sites.
   // See: https://google.aip.dev/231 (Batch methods: Get).
   rpc BatchGetSites(BatchGetSitesRequest) returns (BatchGetSitesResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=shippers/*}/sites:batchGet"
-    };
+    option (google.api.http) = {get: "/v1/{parent=shippers/*}/sites:batchGet"};
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
       before: {
@@ -229,9 +215,7 @@ service FreightService {
   // Search sites.
   // See: https://google.aip.dev/136 (Custom methods).
   rpc SearchSites(SearchSitesRequest) returns (SearchSitesResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=shippers/*}/sites:search"
-    };
+    option (google.api.http) = {get: "/v1/{parent=shippers/*}/sites:search"};
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.sites.get"
       after: {
@@ -248,9 +232,7 @@ service FreightService {
   // Get a shipment.
   // See: https://google.aip.dev/131 (Standard methods: Get).
   rpc GetShipment(GetShipmentRequest) returns (Shipment) {
-    option (google.api.http) = {
-      get: "/v1/{name=shippers/*/shipments/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=shippers/*/shipments/*}"};
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.get"
@@ -267,9 +249,7 @@ service FreightService {
   // List shipments for a shipper.
   // See: https://google.aip.dev/132 (Standard methods: List).
   rpc ListShipments(ListShipmentsRequest) returns (ListShipmentsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=shippers/*}/shipments"
-    };
+    option (google.api.http) = {get: "/v1/{parent=shippers/*}/shipments"};
     option (google.api.method_signature) = "parent";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.list"
@@ -319,9 +299,7 @@ service FreightService {
   // See: https://google.aip.dev/135 (Standard methods: Delete).
   // See: https://google.aip.dev/164 (Soft delete).
   rpc DeleteShipment(DeleteShipmentRequest) returns (Shipment) {
-    option (google.api.http) = {
-      delete: "/v1/{name=shippers/*/shipments/*}"
-    };
+    option (google.api.http) = {delete: "/v1/{name=shippers/*/shipments/*}"};
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.delete"
@@ -335,9 +313,7 @@ service FreightService {
   // Batch get shipments.
   // See: https://google.aip.dev/231 (Batch methods: Get).
   rpc BatchGetShipments(BatchGetShipmentsRequest) returns (BatchGetShipmentsResponse) {
-    option (google.api.http) = {
-      get: "/v1/{parent=shippers/*}/shipments:batchGet"
-    };
+    option (google.api.http) = {get: "/v1/{parent=shippers/*}/shipments:batchGet"};
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.get"
       after: {
@@ -353,9 +329,7 @@ service FreightService {
 
   option (einride.iam.v1.long_running_operations_authorization) = {
     operation_permissions {
-      operation {
-        type: "iam-example.einride.tech/ShipperOperation"
-      }
+      operation {type: "iam-example.einride.tech/ShipperOperation"}
       list: "freight.shipperOperations.list"
       get: "freight.shipperOperations.get"
       cancel: "freight.shipperOperations.cancel"
@@ -420,27 +394,19 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       resource_permissions {
         resource_permission {
-          resource {
-            type: "/"
-          }
+          resource {type: "/"}
           permission: "freight.root.setIamPolicy"
         }
         resource_permission {
-          resource {
-            type: "iam-example.einride.tech/Shipper"
-          }
+          resource {type: "iam-example.einride.tech/Shipper"}
           permission: "freight.shippers.setIamPolicy"
         }
         resource_permission {
-          resource {
-            type: "iam-example.einride.tech/Site"
-          }
+          resource {type: "iam-example.einride.tech/Site"}
           permission: "freight.sites.setIamPolicy"
         }
         resource_permission {
-          resource {
-            type: "iam-example.einride.tech/Shipment"
-          }
+          resource {type: "iam-example.einride.tech/Shipment"}
           permission: "freight.shipments.setIamPolicy"
         }
       }
@@ -472,27 +438,19 @@ service FreightService {
     option (einride.iam.v1.method_authorization) = {
       resource_permissions {
         resource_permission {
-          resource {
-            type: "/"
-          }
+          resource {type: "/"}
           permission: "freight.root.getIamPolicy"
         }
         resource_permission {
-          resource {
-            type: "iam-example.einride.tech/Shipper"
-          }
+          resource {type: "iam-example.einride.tech/Shipper"}
           permission: "freight.shippers.getIamPolicy"
         }
         resource_permission {
-          resource {
-            type: "iam-example.einride.tech/Site"
-          }
+          resource {type: "iam-example.einride.tech/Site"}
           permission: "freight.sites.getIamPolicy"
         }
         resource_permission {
-          resource {
-            type: "iam-example.einride.tech/Shipment"
-          }
+          resource {type: "iam-example.einride.tech/Shipment"}
           permission: "freight.shipments.getIamPolicy"
         }
       }
@@ -529,9 +487,7 @@ service FreightService {
   // Lists every predefined role that this service supports.
   // (-- api-linter: core::0132=disabled --)
   rpc ListRoles(google.iam.admin.v1.ListRolesRequest) returns (google.iam.admin.v1.ListRolesResponse) {
-    option (google.api.http) = {
-      get: "/v1/roles"
-    };
+    option (google.api.http) = {get: "/v1/roles"};
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.roles.list"
       before: {
@@ -543,9 +499,7 @@ service FreightService {
 
   // Get a predefined role.
   rpc GetRole(google.iam.admin.v1.GetRoleRequest) returns (google.iam.admin.v1.Role) {
-    option (google.api.http) = {
-      get: "/v1/{name=roles/*}"
-    };
+    option (google.api.http) = {get: "/v1/{name=roles/*}"};
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.roles.get"
@@ -641,9 +595,7 @@ message ListSitesRequest {
   // Format: shippers/{shipper}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
   ];
 
   // Requested page size. Server may return fewer sites than requested.
@@ -675,9 +627,7 @@ message CreateSiteRequest {
   // Format: shippers/{shipper}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
   ];
   // The site to create.
   Site site = 2 [(google.api.field_behavior) = REQUIRED];
@@ -716,18 +666,14 @@ message BatchGetSitesRequest {
   // If this is set, the parent of all of the sites specified in `names`
   // must match this field.
   // Format: `shippers/{shipper}`
-  string parent = 1 [(google.api.resource_reference) = {
-    type: "iam-example.einride.tech/Shipper"
-  }];
+  string parent = 1 [(google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}];
 
   // The names of the sites to retrieve.
   // A maximum of 1000 sites can be retrieved in a batch.
   // Format: `shippers/{shipper}/sites/{site}`
   repeated string names = 2 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Site"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Site"}
   ];
 }
 
@@ -743,9 +689,7 @@ message SearchSitesRequest {
   // Format: shippers/{shipper}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
   ];
 
   // Requested page size. Server may return fewer sites than requested.
@@ -787,9 +731,7 @@ message ListShipmentsRequest {
   // Format: shippers/{shipper}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
   ];
 
   // Requested page size. Server may return fewer shipments than requested.
@@ -821,9 +763,7 @@ message CreateShipmentRequest {
   // Format: shippers/{shipper}
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipper"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
   ];
   // The shipment to create.
   Shipment shipment = 2 [(google.api.field_behavior) = REQUIRED];
@@ -862,18 +802,14 @@ message BatchGetShipmentsRequest {
   // If this is set, the parent of all of the shipments specified in `names`
   // must match this field.
   // Format: `shippers/{shipper}`
-  string parent = 1 [(google.api.resource_reference) = {
-    type: "iam-example.einride.tech/Shipper"
-  }];
+  string parent = 1 [(google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}];
 
   // The names of the shipments to retrieve.
   // A maximum of 1000 shipments can be retrieved in a batch.
   // Format: `shippers/{shipper}/shipments/{shipment}`
   repeated string names = 2 [
     (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "iam-example.einride.tech/Shipment"
-    }
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipment"}
   ];
 }
 
