@@ -88,8 +88,8 @@ github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.einride.tech/aip v0.60.0 h1:h6bgabZ5BCfAptbGex8jbh3VvPBRLa6xq+pQ1CAjHYw=
 go.einride.tech/aip v0.60.0/go.mod h1:SdLbSbgSU60Xkb4TMkmsZEQPHeEWx0ikBoq5QnqZvdg=
-go.einride.tech/spanner-aip v0.49.1 h1:qsmKs9STSjW2WacuKyFBooS8b6h3s2g+K83NDhUQTmI=
-go.einride.tech/spanner-aip v0.49.1/go.mod h1:U+PNFdmqFDVgGeJZa71PQGmk46IT7K15My93Ably4BQ=
+go.einride.tech/spanner-aip v0.49.2 h1:oVQaRfmtgYdqET83TjBFVcBPlwdC0wq/a6ZFYX5gNxU=
+go.einride.tech/spanner-aip v0.49.2/go.mod h1:U+PNFdmqFDVgGeJZa71PQGmk46IT7K15My93Ably4BQ=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
 go.opencensus.io v0.24.0/go.mod h1:vNK8G9p7aAivkbmorf4v+7Hgx+Zs0yY+0fOtgBfjQKo=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
