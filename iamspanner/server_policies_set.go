@@ -48,7 +48,7 @@ func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
 		}
 
 		for _, fn := range fns {
-			if err := fn(ctx, tx, request.Policy); err != nil {
+			if err := fn(ctx, tx, request.GetPolicy()); err != nil {
 				return err
 			}
 		}
@@ -62,13 +62,19 @@ func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
 	if unfresh {
 		return nil, status.Error(codes.Aborted, "resource freshness validation failed")
 	}
-	request.Policy.Etag = nil
-	etag, err := computeETag(request.Policy)
+
+	returned := request.GetPolicy()
+	if returned == nil {
+		returned = &iampb.Policy{}
+	}
+
+	returned.Etag = nil
+	etag, err := computeETag(returned)
 	if err != nil {
 		return nil, err
 	}
-	request.Policy.Etag = etag
-	return request.Policy, nil
+	returned.Etag = etag
+	return returned, nil
 }
 
 func (s *IAMServer) validateSetIamPolicyRequest(request *iampb.SetIamPolicyRequest) error {
