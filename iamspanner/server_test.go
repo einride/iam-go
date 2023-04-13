@@ -522,6 +522,34 @@ func TestServer(t *testing.T) {
 		assert.Assert(t, actual == nil)
 	})
 
+	t.Run("set empty", func(t *testing.T) {
+		t.Parallel()
+		server, err := NewIAMServer(
+			newDatabase(t),
+			roles,
+			iamcaller.FromContextResolver(),
+			ServerConfig{
+				ErrorHook: func(ctx context.Context, err error) {
+					t.Log(err)
+				},
+			},
+		)
+		assert.NilError(t, err)
+		expected := &iampb.Policy{
+			Bindings: []*iampb.Binding{},
+			Etag:     []byte("W/0-00000000"),
+		}
+		actual, err := server.SetIamPolicy(
+			withMembers(ctx, user1),
+			&iampb.SetIamPolicyRequest{
+				Resource: "resources/1",
+				Policy:   nil,
+			},
+		)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, expected, actual, protocmp.Transform())
+	})
+
 	t.Run("test no permissions", func(t *testing.T) {
 		t.Parallel()
 		server, err := NewIAMServer(
