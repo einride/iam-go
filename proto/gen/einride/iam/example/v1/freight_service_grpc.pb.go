@@ -7,10 +7,10 @@
 package examplev1
 
 import (
+	adminpb "cloud.google.com/go/iam/admin/apiv1/adminpb"
+	iampb "cloud.google.com/go/iam/apiv1/iampb"
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	context "context"
-	v11 "google.golang.org/genproto/googleapis/iam/admin/v1"
-	v1 "google.golang.org/genproto/googleapis/iam/v1"
-	longrunning "google.golang.org/genproto/googleapis/longrunning"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -40,7 +40,7 @@ type FreightServiceClient interface {
 	// Delete a shipper.
 	// See: https://google.aip.dev/135 (Standard methods: Delete).
 	// See: https://google.aip.dev/151 (Long-running operations).
-	DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*longrunning.Operation, error)
+	DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Get a site.
 	// See: https://google.aip.dev/131 (Standard methods: Get).
 	GetSite(ctx context.Context, in *GetSiteRequest, opts ...grpc.CallOption) (*Site, error)
@@ -83,24 +83,24 @@ type FreightServiceClient interface {
 	// See: https://google.aip.dev/231 (Batch methods: Get).
 	BatchGetShipments(ctx context.Context, in *BatchGetShipmentsRequest, opts ...grpc.CallOption) (*BatchGetShipmentsResponse, error)
 	// Sets the access control policy on the specified shipper, site or shipment.
-	SetIamPolicy(ctx context.Context, in *v1.SetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error)
+	SetIamPolicy(ctx context.Context, in *iampb.SetIamPolicyRequest, opts ...grpc.CallOption) (*iampb.Policy, error)
 	// Gets the access control policy for a shipper, site or shipment resource.
 	//
 	// Returns an empty policy if the resource exists and does not have a policy
 	// set.
-	GetIamPolicy(ctx context.Context, in *v1.GetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error)
+	GetIamPolicy(ctx context.Context, in *iampb.GetIamPolicyRequest, opts ...grpc.CallOption) (*iampb.Policy, error)
 	// Returns the permissions that a caller has on the specified shipper or
 	// site or shipment.
 	//
 	// Note: This operation is designed to be used for building permission-aware
 	// UIs and command-line tools, not for authorization checking. This operation
 	// may "fail open" without warning.
-	TestIamPermissions(ctx context.Context, in *v1.TestIamPermissionsRequest, opts ...grpc.CallOption) (*v1.TestIamPermissionsResponse, error)
+	TestIamPermissions(ctx context.Context, in *iampb.TestIamPermissionsRequest, opts ...grpc.CallOption) (*iampb.TestIamPermissionsResponse, error)
 	// Lists every predefined role that this service supports.
 	// (-- api-linter: core::0132=disabled --)
-	ListRoles(ctx context.Context, in *v11.ListRolesRequest, opts ...grpc.CallOption) (*v11.ListRolesResponse, error)
+	ListRoles(ctx context.Context, in *adminpb.ListRolesRequest, opts ...grpc.CallOption) (*adminpb.ListRolesResponse, error)
 	// Get a predefined role.
-	GetRole(ctx context.Context, in *v11.GetRoleRequest, opts ...grpc.CallOption) (*v11.Role, error)
+	GetRole(ctx context.Context, in *adminpb.GetRoleRequest, opts ...grpc.CallOption) (*adminpb.Role, error)
 }
 
 type freightServiceClient struct {
@@ -147,8 +147,8 @@ func (c *freightServiceClient) UpdateShipper(ctx context.Context, in *UpdateShip
 	return out, nil
 }
 
-func (c *freightServiceClient) DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*longrunning.Operation, error) {
-	out := new(longrunning.Operation)
+func (c *freightServiceClient) DeleteShipper(ctx context.Context, in *DeleteShipperRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/DeleteShipper", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -273,8 +273,8 @@ func (c *freightServiceClient) BatchGetShipments(ctx context.Context, in *BatchG
 	return out, nil
 }
 
-func (c *freightServiceClient) SetIamPolicy(ctx context.Context, in *v1.SetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error) {
-	out := new(v1.Policy)
+func (c *freightServiceClient) SetIamPolicy(ctx context.Context, in *iampb.SetIamPolicyRequest, opts ...grpc.CallOption) (*iampb.Policy, error) {
+	out := new(iampb.Policy)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/SetIamPolicy", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -282,8 +282,8 @@ func (c *freightServiceClient) SetIamPolicy(ctx context.Context, in *v1.SetIamPo
 	return out, nil
 }
 
-func (c *freightServiceClient) GetIamPolicy(ctx context.Context, in *v1.GetIamPolicyRequest, opts ...grpc.CallOption) (*v1.Policy, error) {
-	out := new(v1.Policy)
+func (c *freightServiceClient) GetIamPolicy(ctx context.Context, in *iampb.GetIamPolicyRequest, opts ...grpc.CallOption) (*iampb.Policy, error) {
+	out := new(iampb.Policy)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/GetIamPolicy", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -291,8 +291,8 @@ func (c *freightServiceClient) GetIamPolicy(ctx context.Context, in *v1.GetIamPo
 	return out, nil
 }
 
-func (c *freightServiceClient) TestIamPermissions(ctx context.Context, in *v1.TestIamPermissionsRequest, opts ...grpc.CallOption) (*v1.TestIamPermissionsResponse, error) {
-	out := new(v1.TestIamPermissionsResponse)
+func (c *freightServiceClient) TestIamPermissions(ctx context.Context, in *iampb.TestIamPermissionsRequest, opts ...grpc.CallOption) (*iampb.TestIamPermissionsResponse, error) {
+	out := new(iampb.TestIamPermissionsResponse)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/TestIamPermissions", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -300,8 +300,8 @@ func (c *freightServiceClient) TestIamPermissions(ctx context.Context, in *v1.Te
 	return out, nil
 }
 
-func (c *freightServiceClient) ListRoles(ctx context.Context, in *v11.ListRolesRequest, opts ...grpc.CallOption) (*v11.ListRolesResponse, error) {
-	out := new(v11.ListRolesResponse)
+func (c *freightServiceClient) ListRoles(ctx context.Context, in *adminpb.ListRolesRequest, opts ...grpc.CallOption) (*adminpb.ListRolesResponse, error) {
+	out := new(adminpb.ListRolesResponse)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/ListRoles", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -309,8 +309,8 @@ func (c *freightServiceClient) ListRoles(ctx context.Context, in *v11.ListRolesR
 	return out, nil
 }
 
-func (c *freightServiceClient) GetRole(ctx context.Context, in *v11.GetRoleRequest, opts ...grpc.CallOption) (*v11.Role, error) {
-	out := new(v11.Role)
+func (c *freightServiceClient) GetRole(ctx context.Context, in *adminpb.GetRoleRequest, opts ...grpc.CallOption) (*adminpb.Role, error) {
+	out := new(adminpb.Role)
 	err := c.cc.Invoke(ctx, "/einride.iam.example.v1.FreightService/GetRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -337,7 +337,7 @@ type FreightServiceServer interface {
 	// Delete a shipper.
 	// See: https://google.aip.dev/135 (Standard methods: Delete).
 	// See: https://google.aip.dev/151 (Long-running operations).
-	DeleteShipper(context.Context, *DeleteShipperRequest) (*longrunning.Operation, error)
+	DeleteShipper(context.Context, *DeleteShipperRequest) (*longrunningpb.Operation, error)
 	// Get a site.
 	// See: https://google.aip.dev/131 (Standard methods: Get).
 	GetSite(context.Context, *GetSiteRequest) (*Site, error)
@@ -380,24 +380,24 @@ type FreightServiceServer interface {
 	// See: https://google.aip.dev/231 (Batch methods: Get).
 	BatchGetShipments(context.Context, *BatchGetShipmentsRequest) (*BatchGetShipmentsResponse, error)
 	// Sets the access control policy on the specified shipper, site or shipment.
-	SetIamPolicy(context.Context, *v1.SetIamPolicyRequest) (*v1.Policy, error)
+	SetIamPolicy(context.Context, *iampb.SetIamPolicyRequest) (*iampb.Policy, error)
 	// Gets the access control policy for a shipper, site or shipment resource.
 	//
 	// Returns an empty policy if the resource exists and does not have a policy
 	// set.
-	GetIamPolicy(context.Context, *v1.GetIamPolicyRequest) (*v1.Policy, error)
+	GetIamPolicy(context.Context, *iampb.GetIamPolicyRequest) (*iampb.Policy, error)
 	// Returns the permissions that a caller has on the specified shipper or
 	// site or shipment.
 	//
 	// Note: This operation is designed to be used for building permission-aware
 	// UIs and command-line tools, not for authorization checking. This operation
 	// may "fail open" without warning.
-	TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error)
+	TestIamPermissions(context.Context, *iampb.TestIamPermissionsRequest) (*iampb.TestIamPermissionsResponse, error)
 	// Lists every predefined role that this service supports.
 	// (-- api-linter: core::0132=disabled --)
-	ListRoles(context.Context, *v11.ListRolesRequest) (*v11.ListRolesResponse, error)
+	ListRoles(context.Context, *adminpb.ListRolesRequest) (*adminpb.ListRolesResponse, error)
 	// Get a predefined role.
-	GetRole(context.Context, *v11.GetRoleRequest) (*v11.Role, error)
+	GetRole(context.Context, *adminpb.GetRoleRequest) (*adminpb.Role, error)
 }
 
 // UnimplementedFreightServiceServer should be embedded to have forward compatible implementations.
@@ -416,7 +416,7 @@ func (UnimplementedFreightServiceServer) CreateShipper(context.Context, *CreateS
 func (UnimplementedFreightServiceServer) UpdateShipper(context.Context, *UpdateShipperRequest) (*Shipper, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateShipper not implemented")
 }
-func (UnimplementedFreightServiceServer) DeleteShipper(context.Context, *DeleteShipperRequest) (*longrunning.Operation, error) {
+func (UnimplementedFreightServiceServer) DeleteShipper(context.Context, *DeleteShipperRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteShipper not implemented")
 }
 func (UnimplementedFreightServiceServer) GetSite(context.Context, *GetSiteRequest) (*Site, error) {
@@ -458,19 +458,19 @@ func (UnimplementedFreightServiceServer) DeleteShipment(context.Context, *Delete
 func (UnimplementedFreightServiceServer) BatchGetShipments(context.Context, *BatchGetShipmentsRequest) (*BatchGetShipmentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchGetShipments not implemented")
 }
-func (UnimplementedFreightServiceServer) SetIamPolicy(context.Context, *v1.SetIamPolicyRequest) (*v1.Policy, error) {
+func (UnimplementedFreightServiceServer) SetIamPolicy(context.Context, *iampb.SetIamPolicyRequest) (*iampb.Policy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetIamPolicy not implemented")
 }
-func (UnimplementedFreightServiceServer) GetIamPolicy(context.Context, *v1.GetIamPolicyRequest) (*v1.Policy, error) {
+func (UnimplementedFreightServiceServer) GetIamPolicy(context.Context, *iampb.GetIamPolicyRequest) (*iampb.Policy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetIamPolicy not implemented")
 }
-func (UnimplementedFreightServiceServer) TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error) {
+func (UnimplementedFreightServiceServer) TestIamPermissions(context.Context, *iampb.TestIamPermissionsRequest) (*iampb.TestIamPermissionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestIamPermissions not implemented")
 }
-func (UnimplementedFreightServiceServer) ListRoles(context.Context, *v11.ListRolesRequest) (*v11.ListRolesResponse, error) {
+func (UnimplementedFreightServiceServer) ListRoles(context.Context, *adminpb.ListRolesRequest) (*adminpb.ListRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
-func (UnimplementedFreightServiceServer) GetRole(context.Context, *v11.GetRoleRequest) (*v11.Role, error) {
+func (UnimplementedFreightServiceServer) GetRole(context.Context, *adminpb.GetRoleRequest) (*adminpb.Role, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
 }
 
@@ -810,7 +810,7 @@ func _FreightService_BatchGetShipments_Handler(srv interface{}, ctx context.Cont
 }
 
 func _FreightService_SetIamPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.SetIamPolicyRequest)
+	in := new(iampb.SetIamPolicyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -822,13 +822,13 @@ func _FreightService_SetIamPolicy_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/einride.iam.example.v1.FreightService/SetIamPolicy",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FreightServiceServer).SetIamPolicy(ctx, req.(*v1.SetIamPolicyRequest))
+		return srv.(FreightServiceServer).SetIamPolicy(ctx, req.(*iampb.SetIamPolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FreightService_GetIamPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.GetIamPolicyRequest)
+	in := new(iampb.GetIamPolicyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -840,13 +840,13 @@ func _FreightService_GetIamPolicy_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/einride.iam.example.v1.FreightService/GetIamPolicy",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FreightServiceServer).GetIamPolicy(ctx, req.(*v1.GetIamPolicyRequest))
+		return srv.(FreightServiceServer).GetIamPolicy(ctx, req.(*iampb.GetIamPolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FreightService_TestIamPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.TestIamPermissionsRequest)
+	in := new(iampb.TestIamPermissionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -858,13 +858,13 @@ func _FreightService_TestIamPermissions_Handler(srv interface{}, ctx context.Con
 		FullMethod: "/einride.iam.example.v1.FreightService/TestIamPermissions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FreightServiceServer).TestIamPermissions(ctx, req.(*v1.TestIamPermissionsRequest))
+		return srv.(FreightServiceServer).TestIamPermissions(ctx, req.(*iampb.TestIamPermissionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FreightService_ListRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v11.ListRolesRequest)
+	in := new(adminpb.ListRolesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -876,13 +876,13 @@ func _FreightService_ListRoles_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/einride.iam.example.v1.FreightService/ListRoles",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FreightServiceServer).ListRoles(ctx, req.(*v11.ListRolesRequest))
+		return srv.(FreightServiceServer).ListRoles(ctx, req.(*adminpb.ListRolesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FreightService_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v11.GetRoleRequest)
+	in := new(adminpb.GetRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -894,7 +894,7 @@ func _FreightService_GetRole_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/einride.iam.example.v1.FreightService/GetRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FreightServiceServer).GetRole(ctx, req.(*v11.GetRoleRequest))
+		return srv.(FreightServiceServer).GetRole(ctx, req.(*adminpb.GetRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -25,10 +25,7 @@ func (c descriptorCodeGenerator) ConstructorGoName() string {
 
 func (c descriptorCodeGenerator) GenerateCode(g *protogen.GeneratedFile) error {
 	c.generateStruct(g)
-	if err := c.generateConstructor(g); err != nil {
-		return err
-	}
-	return nil
+	return c.generateConstructor(g)
 }
 
 func (c descriptorCodeGenerator) GeneratesCode() bool {

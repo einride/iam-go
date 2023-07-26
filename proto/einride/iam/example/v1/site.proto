@@ -29,5 +29,5 @@ message Site {
   // The display name of the site.
   string display_name = 5 [(google.api.field_behavior) = REQUIRED];
   // The geographic location of the site.
-  google.type.LatLng lat_lng = 6;
+  google.type.LatLng lat_lng = 6 [(google.api.field_behavior) = OPTIONAL];
 }
