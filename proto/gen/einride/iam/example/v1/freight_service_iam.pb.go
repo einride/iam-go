@@ -5,14 +5,15 @@
 package examplev1
 
 import (
+	adminpb "cloud.google.com/go/iam/admin/apiv1/adminpb"
+	iampb "cloud.google.com/go/iam/apiv1/iampb"
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	context "context"
 	fmt "fmt"
 	iamauthz "go.einride.tech/iam/iamauthz"
 	iamcaller "go.einride.tech/iam/iamcaller"
 	iamcel "go.einride.tech/iam/iamcel"
 	v1 "go.einride.tech/iam/proto/gen/einride/iam/v1"
-	v12 "google.golang.org/genproto/googleapis/iam/admin/v1"
-	v11 "google.golang.org/genproto/googleapis/iam/v1"
 	longrunning "google.golang.org/genproto/googleapis/longrunning"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -708,7 +709,7 @@ func (a *FreightServiceAuthorization) UpdateShipper(
 func (a *FreightServiceAuthorization) DeleteShipper(
 	ctx context.Context,
 	request *DeleteShipperRequest,
-) (*longrunning.Operation, error) {
+) (*longrunningpb.Operation, error) {
 	ctx, err := a.beforeDeleteShipper.AuthorizeRequest(ctx, request)
 	if err != nil {
 		return nil, err
@@ -860,8 +861,8 @@ func (a *FreightServiceAuthorization) BatchGetShipments(
 
 func (a *FreightServiceAuthorization) SetIamPolicy(
 	ctx context.Context,
-	request *v11.SetIamPolicyRequest,
-) (*v11.Policy, error) {
+	request *iampb.SetIamPolicyRequest,
+) (*iampb.Policy, error) {
 	ctx, err := a.beforeSetIamPolicy.AuthorizeRequest(ctx, request)
 	if err != nil {
 		return nil, err
@@ -871,8 +872,8 @@ func (a *FreightServiceAuthorization) SetIamPolicy(
 
 func (a *FreightServiceAuthorization) GetIamPolicy(
 	ctx context.Context,
-	request *v11.GetIamPolicyRequest,
-) (*v11.Policy, error) {
+	request *iampb.GetIamPolicyRequest,
+) (*iampb.Policy, error) {
 	ctx, err := a.beforeGetIamPolicy.AuthorizeRequest(ctx, request)
 	if err != nil {
 		return nil, err
@@ -882,16 +883,16 @@ func (a *FreightServiceAuthorization) GetIamPolicy(
 
 func (a *FreightServiceAuthorization) TestIamPermissions(
 	ctx context.Context,
-	request *v11.TestIamPermissionsRequest,
-) (*v11.TestIamPermissionsResponse, error) {
+	request *iampb.TestIamPermissionsRequest,
+) (*iampb.TestIamPermissionsResponse, error) {
 	iamauthz.Authorize(ctx)
 	return a.next.TestIamPermissions(ctx, request)
 }
 
 func (a *FreightServiceAuthorization) ListRoles(
 	ctx context.Context,
-	request *v12.ListRolesRequest,
-) (*v12.ListRolesResponse, error) {
+	request *adminpb.ListRolesRequest,
+) (*adminpb.ListRolesResponse, error) {
 	ctx, err := a.beforeListRoles.AuthorizeRequest(ctx, request)
 	if err != nil {
 		return nil, err
@@ -901,8 +902,8 @@ func (a *FreightServiceAuthorization) ListRoles(
 
 func (a *FreightServiceAuthorization) GetRole(
 	ctx context.Context,
-	request *v12.GetRoleRequest,
-) (*v12.Role, error) {
+	request *adminpb.GetRoleRequest,
+) (*adminpb.Role, error) {
 	ctx, err := a.beforeGetRole.AuthorizeRequest(ctx, request)
 	if err != nil {
 		return nil, err

@@ -525,13 +525,13 @@ message GetShipperRequest {
 message ListShippersRequest {
   // Requested page size. Server may return fewer shippers than requested.
   // If unspecified, server will pick an appropriate default.
-  int32 page_size = 1;
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
 
   // A token identifying a page of results the server should return.
   // Typically, this is the value of
   // [ListShippersResponse.next_page_token][einride.example.freight.v1.ListShippersResponse.next_page_token]
   // returned from the previous call to `ListShippers` method.
-  string page_token = 2;
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Response message for FreightService.ListShippers.
@@ -555,7 +555,7 @@ message CreateShipperRequest {
   //
   // This value should be 4-63 characters, and valid characters
   // are /[a-z][0-9]-/.
-  string shipper_id = 2;
+  string shipper_id = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.UpdateShipper.
@@ -566,7 +566,7 @@ message UpdateShipperRequest {
   Shipper shipper = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The list of fields to be updated.
-  google.protobuf.FieldMask update_mask = 2;
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.DeleteShipper.
@@ -600,13 +600,13 @@ message ListSitesRequest {
 
   // Requested page size. Server may return fewer sites than requested.
   // If unspecified, server will pick an appropriate default.
-  int32 page_size = 2;
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A token identifying a page of results the server should return.
   // Typically, this is the value of
   // [ListSitesResponse.next_page_token][einride.example.freight.v1.ListSitesResponse.next_page_token]
   // returned from the previous call to `ListSites` method.
-  string page_token = 3;
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Response message for FreightService.ListSites.
@@ -636,7 +636,7 @@ message CreateSiteRequest {
   //
   // This value should be 4-63 characters, and valid characters
   // are /[a-z][0-9]-/.
-  string site_id = 3;
+  string site_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.UpdateSite.
@@ -647,7 +647,7 @@ message UpdateSiteRequest {
   Site site = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The list of fields to be updated.
-  google.protobuf.FieldMask update_mask = 2;
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.DeleteSite.
@@ -666,7 +666,10 @@ message BatchGetSitesRequest {
   // If this is set, the parent of all of the sites specified in `names`
   // must match this field.
   // Format: `shippers/{shipper}`
-  string parent = 1 [(google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}];
+  string parent = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
+  ];
 
   // The names of the sites to retrieve.
   // A maximum of 1000 sites can be retrieved in a batch.
@@ -694,13 +697,13 @@ message SearchSitesRequest {
 
   // Requested page size. Server may return fewer sites than requested.
   // If unspecified, server will pick an appropriate default.
-  int32 page_size = 2;
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A token identifying a page of results the server should return.
   // Typically, this is the value of
   // [ListSitesResponse.next_page_token][einride.example.freight.v1.ListSitesResponse.next_page_token]
   // returned from the previous call to `ListSites` method.
-  string page_token = 3;
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Response message for FreightService.SearchSites.
@@ -736,13 +739,13 @@ message ListShipmentsRequest {
 
   // Requested page size. Server may return fewer shipments than requested.
   // If unspecified, server will pick an appropriate default.
-  int32 page_size = 2;
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A token identifying a page of results the server should return.
   // Typically, this is the value of
   // [ListShipmentsResponse.next_page_token][einride.example.freight.v1.ListShipmentsResponse.next_page_token]
   // returned from the previous call to `ListShipments` method.
-  string page_token = 3;
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Response message for FreightService.ListShipments.
@@ -772,7 +775,7 @@ message CreateShipmentRequest {
   //
   // This value should be 4-63 characters, and valid characters
   // are /[a-z][0-9]-/.
-  string shipment_id = 3;
+  string shipment_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.UpdateShipment.
@@ -783,7 +786,7 @@ message UpdateShipmentRequest {
   Shipment shipment = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The list of fields to be updated.
-  google.protobuf.FieldMask update_mask = 2;
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.DeleteShipment.
@@ -802,7 +805,10 @@ message BatchGetShipmentsRequest {
   // If this is set, the parent of all of the shipments specified in `names`
   // must match this field.
   // Format: `shippers/{shipper}`
-  string parent = 1 [(google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}];
+  string parent = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.resource_reference) = {type: "iam-example.einride.tech/Shipper"}
+  ];
 
   // The names of the shipments to retrieve.
   // A maximum of 1000 shipments can be retrieved in a batch.

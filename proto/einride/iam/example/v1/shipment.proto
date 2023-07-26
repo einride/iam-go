@@ -58,10 +58,10 @@ message Shipment {
   google.protobuf.Timestamp delivery_latest_time = 10 [(google.api.field_behavior) = REQUIRED];
 
   // The line items of the shipment.
-  repeated LineItem line_items = 11;
+  repeated LineItem line_items = 11 [(google.api.field_behavior) = OPTIONAL];
 
   // Annotations of the shipment.
-  map<string, string> annotations = 12;
+  map<string, string> annotations = 12 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // A shipment line item.
@@ -71,7 +71,7 @@ message LineItem {
   // The quantity of the line item.
   float quantity = 2 [(google.api.field_behavior) = REQUIRED];
   // The weight of the line item in kilograms.
-  float weight_kg = 3;
+  float weight_kg = 3 [(google.api.field_behavior) = OPTIONAL];
   // The volume of the line item in cubic meters.
-  float volume_m3 = 4;
+  float volume_m3 = 4 [(google.api.field_behavior) = OPTIONAL];
 }

@@ -9,8 +9,8 @@ import (
 )
 
 func (s *Server) SearchSites(
-	ctx context.Context,
-	request *iamexamplev1.SearchSitesRequest,
+	context.Context,
+	*iamexamplev1.SearchSitesRequest,
 ) (*iamexamplev1.SearchSitesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "TODO: implement me")
 }

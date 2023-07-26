@@ -10,3 +10,7 @@
   disabled_rules:
     - core::0191 # file options managed by buf
     - core::0142::time-field-names # allow time fields without time suffix
+- included_paths: ["einride/iam/example/v1/freight_service.proto"]
+  disabled_rules:
+    # false positive from google.longrunning.Operation
+    - core::0203::field-behavior-required

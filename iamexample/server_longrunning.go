@@ -11,40 +11,40 @@ import (
 
 // ListOperations implements longrunningpb.OperationsServer.
 func (s *Server) ListOperations(
-	ctx context.Context,
-	request *longrunningpb.ListOperationsRequest,
+	context.Context,
+	*longrunningpb.ListOperationsRequest,
 ) (*longrunningpb.ListOperationsResponse, error) {
 	return &longrunningpb.ListOperationsResponse{}, nil
 }
 
 // GetOperation implements longrunningpb.OperationsServer.
 func (s *Server) GetOperation(
-	ctx context.Context,
-	request *longrunningpb.GetOperationRequest,
+	context.Context,
+	*longrunningpb.GetOperationRequest,
 ) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
 
 // DeleteOperation implements longrunningpb.OperationsServer.
 func (s *Server) DeleteOperation(
-	ctx context.Context,
-	request *longrunningpb.DeleteOperationRequest,
+	context.Context,
+	*longrunningpb.DeleteOperationRequest,
 ) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
 
 // CancelOperation implements longrunningpb.OperationsServer.
 func (s *Server) CancelOperation(
-	ctx context.Context,
-	request *longrunningpb.CancelOperationRequest,
+	context.Context,
+	*longrunningpb.CancelOperationRequest,
 ) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
 
 // WaitOperation implements longrunningpb.OperationsServer.
 func (s *Server) WaitOperation(
-	ctx context.Context,
-	request *longrunningpb.WaitOperationRequest,
+	context.Context,
+	*longrunningpb.WaitOperationRequest,
 ) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.NotFound, "operation not found")
 }
