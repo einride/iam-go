@@ -3,7 +3,7 @@ module go.einride.tech/iam
 go 1.18
 
 require (
-	cloud.google.com/go/iam v1.1.1
+	cloud.google.com/go/iam v1.1.2
 	cloud.google.com/go/longrunning v0.5.1
 	cloud.google.com/go/spanner v1.47.0
 	github.com/google/cel-go v0.17.1
