@@ -5,7 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/iam v1.1.2
 	cloud.google.com/go/longrunning v0.5.1
-	cloud.google.com/go/spanner v1.47.0
+	cloud.google.com/go/spanner v1.49.0
 	github.com/google/cel-go v0.18.0
 	go.einride.tech/aip v0.62.0
 	go.einride.tech/spanner-aip v0.52.0
