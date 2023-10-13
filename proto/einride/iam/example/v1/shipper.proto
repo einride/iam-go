@@ -15,7 +15,7 @@ message Shipper {
     plural: "shippers"
   };
   // The resource name of the shipper.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
   // The creation timestamp of the shipper.
   google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
   // The last update timestamp of the shipper.
