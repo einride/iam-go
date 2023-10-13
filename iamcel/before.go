@@ -24,6 +24,7 @@ func NewBeforeEnv(method protoreflect.MethodDescriptor) (*cel.Env, error) {
 			NewTestFunctionDeclaration(),
 			NewTestAllFunctionDeclaration(),
 			NewTestAnyFunctionDeclaration(),
+			NewTestNamespaceFunctionDeclaration(),
 			NewAncestorFunctionDeclaration(),
 		),
 	)

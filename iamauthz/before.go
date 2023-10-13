@@ -45,6 +45,7 @@ func NewBeforeMethodAuthorization(
 			iamcel.NewTestFunctionImplementation(options, permissionTester),
 			iamcel.NewTestAllFunctionImplementation(options, permissionTester),
 			iamcel.NewTestAnyFunctionImplementation(options, permissionTester),
+			iamcel.NewTestNamespaceFunctionImplementation(options, permissionTester),
 			iamcel.NewAncestorFunctionImplementation(),
 		),
 	)

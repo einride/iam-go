@@ -130,6 +130,12 @@ Tests `caller`s permissions against all `resources`. This test asserts that the 
 
 Tests `caller`s permissions against any `resources`. This test asserts that the caller has the permission against at least one resource.
 
+#### [`test_namespace(caller Caller, namespace string, resource string) bool`](./iamcel/test_namespace.go)
+
+Tests `caller`s permissions against `resource` under the namespace `namespace`.
+
+Namespaces are currently implemented as implicit resource parents, meaning that permissions are tested on the resource name `{namespace}/{resource}`.
+
 #### [`ancestor(resource string, pattern string) string`](./iamcel/ancestor.go)
 
 Resolves an ancestor of `resource` using `pattern`. An input of `ancestor("foo/1/bar/2", "foo/{foo}")` will yield the result `"foo/1"`.
