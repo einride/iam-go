@@ -5,9 +5,7 @@ deps:
     owner: einride
     repository: googleapis
     commit: 0f781e7c2b454728ac7d71b8bffdffb0
-    digest: shake256:ed1d0731c85a6cbc8dca5dd5e3c1152bee9a41233d69d4cca4f6f4f84d937b7d8ed8140f449a8150d75ab353b4f1eaeede61e2a1e754d2a1440f86be0d0ef8a6
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: cc916c31859748a68fd229a3c8d7a2e8
-    digest: shake256:469b049d0eb04203d5272062636c078decefc96fec69739159c25d85349c50c34c7706918a8b216c5c27f76939df48452148cff8c5c3ae77fa6ba5c25c1b8bf8
+    commit: 28151c0d0a1641bf938a7672c500e01d

@@ -577,6 +577,9 @@ message DeleteShipperRequest {
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "iam-example.einride.tech/Shipper"
   ];
+
+  // Set force as true to perform a cascading delete.
+  bool force = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request message for FreightService.GetSite.

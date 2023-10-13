@@ -18,7 +18,7 @@ message Shipment {
   };
 
   // The resource name of the shipment.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
 
   // The creation timestamp of the shipment.
   google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];

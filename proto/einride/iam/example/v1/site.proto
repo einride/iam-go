@@ -17,7 +17,7 @@ message Site {
     plural: "sites"
   };
   // The resource name of the site.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
   // The creation timestamp of the site.
   google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
   // The last update timestamp of the site.
