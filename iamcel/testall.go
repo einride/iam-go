@@ -45,7 +45,11 @@ func NewTestAllFunctionImplementation(
 		Binary: func(callerVal, resourcesVal ref.Val) ref.Val {
 			caller, ok := callerVal.Value().(*iamv1.Caller)
 			if !ok {
-				return types.NewErr("test_all: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, caller)
+				return types.NewErr(
+					"test_all: unexpected type of arg 1, expected %T but got %T",
+					&iamv1.Caller{},
+					callerVal.Value(),
+				)
 			}
 			convertedResources, err := resourcesVal.ConvertToNative(reflect.TypeOf([]string(nil)))
 			if err != nil {

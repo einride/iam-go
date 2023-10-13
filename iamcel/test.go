@@ -45,11 +45,11 @@ func NewTestFunctionImplementation(
 		Binary: func(callerVal, resourceVal ref.Val) ref.Val {
 			caller, ok := callerVal.Value().(*iamv1.Caller)
 			if !ok {
-				return types.NewErr("test: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, caller)
+				return types.NewErr("test: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, callerVal.Value())
 			}
 			resource, ok := resourceVal.Value().(string)
 			if !ok {
-				return types.NewErr("test: unexpected type of arg 2, expected string but got %T", resource)
+				return types.NewErr("test: unexpected type of arg 2, expected string but got %T", resourceVal.Value())
 			}
 			permission, ok := iampermission.ResolveMethodPermission(options, resource)
 			if !ok {
