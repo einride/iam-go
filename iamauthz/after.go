@@ -46,6 +46,7 @@ func NewAfterMethodAuthorization(
 			iamcel.NewTestAllFunctionImplementation(options, permissionTester),
 			iamcel.NewTestAnyFunctionImplementation(options, permissionTester),
 			iamcel.NewAncestorFunctionImplementation(),
+			iamcel.NewMemberFunctionImplementation(),
 		),
 	)
 	if err != nil {

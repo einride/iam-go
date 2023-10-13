@@ -26,6 +26,7 @@ func NewAfterEnv(method protoreflect.MethodDescriptor) (*cel.Env, error) {
 			NewTestAllFunctionDeclaration(),
 			NewTestAnyFunctionDeclaration(),
 			NewAncestorFunctionDeclaration(),
+			NewMemberFunctionDeclaration(),
 		),
 	)
 	if err != nil {
