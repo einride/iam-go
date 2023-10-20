@@ -87,8 +87,8 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.3 h1:RP3t2pwF7cMEbC1dqtB6poj3niw/9gnV4Cjg5oW5gtY=
-go.einride.tech/aip v0.62.0 h1:DVHT0kgIhHfEqcbTUZ/tKTc+YButvOuTVT4JQFWDGo0=
-go.einride.tech/aip v0.62.0/go.mod h1:YVrCQRL7SCB5Mv7i2ZF1R6vkLPh844RQBCLrrLcefaU=
+go.einride.tech/aip v0.62.1 h1:qqdh0drjx+e1loreR3MKumeIN6QbDZysz+K6+x64lgY=
+go.einride.tech/aip v0.62.1/go.mod h1:kK5nO4xh3JoniXp64dxgT474Egmr5L7SlsGD6xvP6fU=
 go.einride.tech/spanner-aip v0.53.0 h1:t9thNf7sAA5nDGmRdAXIv9ekerVboUASPSXm67BnC8I=
 go.einride.tech/spanner-aip v0.53.0/go.mod h1:ckdDj396+YDxDWjnrifR4pDBnvV7gfgjUGCOznqdq1Q=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
