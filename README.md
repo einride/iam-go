@@ -134,6 +134,10 @@ Tests `caller`s permissions against any `resources`. This test asserts that the 
 
 Resolves an ancestor of `resource` using `pattern`. An input of `ancestor("foo/1/bar/2", "foo/{foo}")` will yield the result `"foo/1"`.
 
+#### [`join(parent string, resource string) string`](./iamcel/join.go)
+
+Joins a `resource` name with a `parent` resource name. An input of `join("foo/1", "bar/2")` will yield the result `"foo/1/bar/2"`.
+
 #### [`caller.member(kind string) string`](./iamcel/member.go)
 
 Returns the first IAM member value from the caller's member list which matches the member kind, or fails if there are no such kind.

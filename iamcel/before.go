@@ -26,6 +26,7 @@ func NewBeforeEnv(method protoreflect.MethodDescriptor) (*cel.Env, error) {
 			NewTestAnyFunctionDeclaration(),
 			NewAncestorFunctionDeclaration(),
 			NewMemberFunctionDeclaration(),
+			NewJoinFunctionDeclaration(),
 		),
 	)
 	if err != nil {
