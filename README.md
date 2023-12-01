@@ -1,10 +1,11 @@
-IAM Go
-======
+# IAM Go
 
-An opinionated Open Source implementation of the [google.iam.v1.IAMPolicy](https://github.com/googleapis/googleapis/blob/master/google/iam/v1/iam_policy.proto) service API, using [Cloud Spanner](https://cloud.google.com/spanner) for storage.
+An opinionated Open Source implementation of the
+[google.iam.v1.IAMPolicy](https://github.com/googleapis/googleapis/blob/master/google/iam/v1/iam_policy.proto)
+service API, using [Cloud Spanner](https://cloud.google.com/spanner) for
+storage.
 
-Usage
------
+## Usage
 
 ### 1) Install
 
@@ -14,7 +15,8 @@ $ go get go.einride.tech/iam
 
 ### 2) Include the IAMPolicy mixin in your gRPC service
 
-See [google.iam.v1.IAMPolicy](https://github.com/googleapis/googleapis/blob/master/google/iam/v1/iam_policy.proto).
+See
+[google.iam.v1.IAMPolicy](https://github.com/googleapis/googleapis/blob/master/google/iam/v1/iam_policy.proto).
 
 ```proto
 package your.pkg;
@@ -52,7 +54,8 @@ See [schema.sql](./iamspanner/schema.sql).
 
 ### 5) Annotate your gRPC methods
 
-Buf annotations for rpc method authorization are described in [annotations.proto](../proto/einride/iam/v1/annotations.proto)
+Buf annotations for rpc method authorization are described in
+[annotations.proto](../proto/einride/iam/v1/annotations.proto)
 
 ```proto
 package your.pkg;
@@ -116,7 +119,9 @@ message YourMethodResponse {
 };
 ```
 
-Expresssions in the `method_authorization` annotation use [cel-go](https://github.com/google/cel-go) with [iamcel](./iamcel) extensions. The `iamcel` extensions provide the following cel functions.
+Expresssions in the `method_authorization` annotation use
+[cel-go](https://github.com/google/cel-go) with [iamcel](./iamcel) extensions.
+The `iamcel` extensions provide the following cel functions.
 
 #### [`test(caller Caller, resource string) bool`](./iamcel/test.go)
 
@@ -124,23 +129,28 @@ Tests `caller`s permissions against `resource`.
 
 #### [`test_all(caller Caller, resources []string) bool`](./iamcel/testall.go)
 
-Tests `caller`s permissions against all `resources`. This test asserts that the caller has the permission against all resources.
+Tests `caller`s permissions against all `resources`. This test asserts that the
+caller has the permission against all resources.
 
 #### [`test_any(caller Caller, resources []string) bool`](./iamcel/testany.go)
 
-Tests `caller`s permissions against any `resources`. This test asserts that the caller has the permission against at least one resource.
+Tests `caller`s permissions against any `resources`. This test asserts that the
+caller has the permission against at least one resource.
 
 #### [`ancestor(resource string, pattern string) string`](./iamcel/ancestor.go)
 
-Resolves an ancestor of `resource` using `pattern`. An input of `ancestor("foo/1/bar/2", "foo/{foo}")` will yield the result `"foo/1"`.
+Resolves an ancestor of `resource` using `pattern`. An input of
+`ancestor("foo/1/bar/2", "foo/{foo}")` will yield the result `"foo/1"`.
 
 #### [`join(parent string, resource string) string`](./iamcel/join.go)
 
-Joins a `resource` name with a `parent` resource name. An input of `join("foo/1", "bar/2")` will yield the result `"foo/1/bar/2"`.
+Joins a `resource` name with a `parent` resource name. An input of
+`join("foo/1", "bar/2")` will yield the result `"foo/1/bar/2"`.
 
 #### [`caller.member(kind string) string`](./iamcel/member.go)
 
-Returns the first IAM member value from the caller's member list which matches the member kind, or fails if there are no such kind.
+Returns the first IAM member value from the caller's member list which matches
+the member kind, or fails if there are no such kind.
 
 ### 6) Generate authorization middleware
 
