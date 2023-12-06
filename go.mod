@@ -9,7 +9,7 @@ require (
 	github.com/google/cel-go v0.18.2
 	go.einride.tech/aip v0.66.0
 	go.einride.tech/spanner-aip v0.53.0
-	google.golang.org/api v0.152.0
+	google.golang.org/api v0.153.0
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17
 	google.golang.org/genproto/googleapis/api v0.0.0-20231106174013-bbf56f31fb17
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f
