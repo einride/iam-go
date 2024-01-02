@@ -5,7 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/iam v1.1.5
 	cloud.google.com/go/longrunning v0.5.4
-	cloud.google.com/go/spanner v1.53.1
+	cloud.google.com/go/spanner v1.54.0
 	github.com/google/cel-go v0.18.2
 	go.einride.tech/aip v0.66.0
 	go.einride.tech/spanner-aip v0.54.0
@@ -39,6 +39,9 @@ require (
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.46.1 // indirect
