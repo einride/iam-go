@@ -9,10 +9,10 @@ require (
 	github.com/google/cel-go v0.18.2
 	go.einride.tech/aip v0.66.0
 	go.einride.tech/spanner-aip v0.55.0
-	google.golang.org/api v0.154.0
-	google.golang.org/genproto v0.0.0-20231120223509-83a465c0220f
-	google.golang.org/genproto/googleapis/api v0.0.0-20231120223509-83a465c0220f
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231127180814-3a041ad873d4
+	google.golang.org/api v0.155.0
+	google.golang.org/genproto v0.0.0-20231211222908-989df2bf70f3
+	google.golang.org/genproto/googleapis/api v0.0.0-20231211222908-989df2bf70f3
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0
 	google.golang.org/grpc v1.60.1
 	google.golang.org/protobuf v1.32.0
 	gotest.tools/v3 v3.5.1
@@ -36,7 +36,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
-	github.com/google/uuid v1.4.0 // indirect
+	github.com/google/uuid v1.5.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
