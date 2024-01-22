@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/iam v1.1.5
 	cloud.google.com/go/longrunning v0.5.4
 	cloud.google.com/go/spanner v1.55.0
-	github.com/google/cel-go v0.18.2
+	github.com/google/cel-go v0.19.0
 	go.einride.tech/aip v0.66.0
 	go.einride.tech/spanner-aip v0.56.0
 	google.golang.org/api v0.156.0
