@@ -2,13 +2,11 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: iam-go
+  title: IAM Go
   description: |
     An opinionated Open Source implementation of the google.iam.v1.IAMPolicy service API, using Cloud Spanner for storage.
-  annotations:
-    github.com/project-slug: einride/iam-go
-    github.com/team-slug: einride/team-cloud-control
-    backstage.io/source-location: url:https://github.com/einride/iam-go/tree/master/
 spec:
-  type: library
+  type: go-library
+  system: backend-sdk
   lifecycle: production
-  owner: team-cloud-control
+  owner: platform-enginering
