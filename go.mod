@@ -3,7 +3,7 @@ module go.einride.tech/iam
 go 1.18
 
 require (
-	cloud.google.com/go/iam v1.1.5
+	cloud.google.com/go/iam v1.1.6
 	cloud.google.com/go/longrunning v0.5.4
 	cloud.google.com/go/spanner v1.56.0
 	github.com/google/cel-go v0.19.0
@@ -11,7 +11,7 @@ require (
 	go.einride.tech/spanner-aip v0.56.0
 	google.golang.org/api v0.164.0
 	google.golang.org/genproto v0.0.0-20240125205218-1f4bbc51befe
-	google.golang.org/genproto/googleapis/api v0.0.0-20240122161410-6c6643bf1457
+	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240205150955-31a09d347014
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
