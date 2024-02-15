@@ -32,7 +32,7 @@ func (s *IAMServer) TestIamPermissions(
 		tx,
 		[]string{request.Resource},
 		caller.Members,
-		func(ctx context.Context, _ string, role *adminpb.Role, _ string) error {
+		func(_ context.Context, _ string, role *adminpb.Role, _ string) error {
 			for _, permission := range request.Permissions {
 				if s.roles.RoleHasPermission(role.Name, permission) {
 					permissions[permission] = struct{}{}

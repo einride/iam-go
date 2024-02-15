@@ -35,7 +35,7 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 		iamDescriptor.PredefinedRoles.Role,
 		iamcaller.FromContextResolver(),
 		iamspanner.ServerConfig{
-			ErrorHook: func(ctx context.Context, err error) {
+			ErrorHook: func(_ context.Context, err error) {
 				log.Println(err)
 			},
 		},
@@ -47,7 +47,7 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 		IAM:     iamServer,
 		Spanner: spannerClient,
 		Config: iamexample.Config{
-			ErrorHook: func(ctx context.Context, err error) {
+			ErrorHook: func(_ context.Context, err error) {
 				log.Println(err)
 			},
 		},

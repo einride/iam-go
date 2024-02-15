@@ -80,7 +80,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -104,7 +104,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -125,7 +125,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -146,7 +146,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -183,7 +183,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -215,7 +215,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -259,7 +259,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -306,7 +306,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 				ValidateMember: func(s string) error {
@@ -341,7 +341,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -371,7 +371,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -403,7 +403,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -433,7 +433,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -488,7 +488,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -529,7 +529,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -557,7 +557,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -586,7 +586,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -630,7 +630,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -675,7 +675,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -719,7 +719,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -764,7 +764,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -809,7 +809,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -834,7 +834,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
@@ -876,7 +876,7 @@ func TestServer(t *testing.T) {
 			roles,
 			iamcaller.FromContextResolver(),
 			ServerConfig{
-				ErrorHook: func(ctx context.Context, err error) {
+				ErrorHook: func(_ context.Context, err error) {
 					t.Log(err)
 				},
 			},
