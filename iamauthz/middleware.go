@@ -35,7 +35,9 @@ func RequireAuthorizationUnaryInterceptor(
 ) (interface{}, error) {
 	ctx = WithAuthorization(ctx)
 	resp, err := handler(ctx, req)
-	if code := status.Code(err); code == codes.Unauthenticated || code == codes.PermissionDenied {
+	if code := status.Code(err); code == codes.Unauthenticated ||
+		code == codes.PermissionDenied ||
+		code == codes.ResourceExhausted {
 		return nil, err
 	}
 	value := ctx.Value(contextKey{}).(*contextValue)
