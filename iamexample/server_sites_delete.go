@@ -68,7 +68,7 @@ func (s *Server) deleteSite(
 		}
 	}
 	result.UpdateTime = timestamppb.New(commitTime)
-	result.DeleteTime = result.UpdateTime
+	result.DeleteTime = result.GetUpdateTime()
 	return result, nil
 }
 
@@ -81,16 +81,16 @@ type deleteSiteRequest struct {
 func (r *deleteSiteRequest) parse(request *iamexamplev1.DeleteSiteRequest) error {
 	var v validation.MessageValidator
 	// name = 1
-	if request.Name == "" {
+	if request.GetName() == "" {
 		v.AddFieldViolation("name", "required field")
 	} else if err := resourcename.Sscan(
-		request.Name,
+		request.GetName(),
 		"shippers/{shipper}/sites/{site}",
 		&r.shipperID,
 		&r.siteID,
 	); err != nil {
 		v.AddFieldError("name", err)
 	}
-	r.name = request.Name
+	r.name = request.GetName()
 	return v.Err()
 }

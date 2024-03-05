@@ -17,7 +17,7 @@ func ResolveLongRunningOperationsAuthorizationOptions(
 	startPackage protoreflect.FullName,
 ) (*iamv1.LongRunningOperationsAuthorizationOptions, error) {
 	result := proto.Clone(options).(*iamv1.LongRunningOperationsAuthorizationOptions)
-	for _, operationPermissions := range result.OperationPermissions {
+	for _, operationPermissions := range result.GetOperationPermissions() {
 		operation, ok := resolveResource(files, startPackage, operationPermissions.GetOperation().GetType())
 		if !ok {
 			return nil, fmt.Errorf(
@@ -26,7 +26,7 @@ func ResolveLongRunningOperationsAuthorizationOptions(
 				operationPermissions.GetOperation().GetType(),
 			)
 		}
-		operationPermissions.Operation.Pattern = append(operationPermissions.Operation.Pattern, operation.Pattern...)
+		operationPermissions.Operation.Pattern = append(operationPermissions.Operation.Pattern, operation.GetPattern()...)
 	}
 	return result, nil
 }

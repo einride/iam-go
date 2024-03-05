@@ -27,7 +27,7 @@ func (s *IAMServer) TestPermissions(
 		ctx,
 		tx,
 		resources,
-		caller.Members,
+		caller.GetMembers(),
 		func(_ context.Context, boundResource string, role *adminpb.Role, _ string) error {
 			for resource, permission := range resourcePermissions {
 				result[resource] = result[resource] ||

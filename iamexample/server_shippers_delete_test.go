@@ -35,20 +35,20 @@ func (ts *serverTestSuite) testDeleteShipper(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, input.DisplayName, created.DisplayName)
+			assert.Equal(t, input.GetDisplayName(), created.GetDisplayName())
 			operation, err := fx.client.DeleteShipper(
 				WithOutgoingMembers(ctx, member),
 				&iamexamplev1.DeleteShipperRequest{
-					Name: created.Name,
+					Name: created.GetName(),
 				},
 			)
 			assert.NilError(t, err)
-			assert.Assert(t, operation.Done)
+			assert.Assert(t, operation.GetDone())
 			response, err := anypb.UnmarshalNew(operation.GetResponse(), proto.UnmarshalOptions{})
 			assert.NilError(t, err)
 			deleted, ok := response.(*iamexamplev1.Shipper)
 			assert.Assert(t, ok)
-			assert.Equal(t, created.Name, deleted.Name)
+			assert.Equal(t, created.GetName(), deleted.GetName())
 		})
 	})
 

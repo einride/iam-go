@@ -36,7 +36,7 @@ func (ts *serverTestSuite) testCreateSite(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, input.DisplayName, got.DisplayName)
+			assert.Equal(t, input.GetDisplayName(), got.GetDisplayName())
 		})
 	})
 

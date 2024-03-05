@@ -33,12 +33,12 @@ func (c chainResolver) ResolveCaller(ctx context.Context) (*iamv1.Caller, error)
 		if err := Validate(nextCaller); err != nil {
 			return nil, fmt.Errorf("chain callers: resolver %d: %w", i, err)
 		}
-		for key, value := range nextCaller.Metadata {
+		for key, value := range nextCaller.GetMetadata() {
 			Add(&result, key, value)
 		}
 		// TODO: Remove this when CEL-Go supports async functions with context arguments.
-		if result.Context == nil && nextCaller.Context != nil {
-			result.Context = nextCaller.Context
+		if result.GetContext() == nil && nextCaller.GetContext() != nil {
+			result.Context = nextCaller.GetContext()
 		}
 	}
 	return &result, nil

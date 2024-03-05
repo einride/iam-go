@@ -53,14 +53,14 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 				})
 				assert.NilError(t, err)
 				expected = append(expected, created)
-				names = append(names, created.Name)
+				names = append(names, created.GetName())
 			}
 			response, err := fx.client.BatchGetShipments(ctx, &iamexamplev1.BatchGetShipmentsRequest{
 				Parent: parent,
 				Names:  names,
 			})
 			assert.NilError(t, err)
-			assert.DeepEqual(t, expected, response.Shipments, protocmp.Transform())
+			assert.DeepEqual(t, expected, response.GetShipments(), protocmp.Transform())
 		})
 
 		t.Run("permission on parent without requested parent", func(t *testing.T) {
@@ -100,7 +100,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 				)
 				assert.NilError(t, err)
 				expected = append(expected, created)
-				names = append(names, created.Name)
+				names = append(names, created.GetName())
 			}
 			response, err := fx.client.BatchGetShipments(
 				WithOutgoingMembers(ctx, member),
@@ -109,7 +109,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.DeepEqual(t, expected, response.Shipments, protocmp.Transform())
+			assert.DeepEqual(t, expected, response.GetShipments(), protocmp.Transform())
 		})
 	})
 
@@ -150,7 +150,7 @@ func (ts *serverTestSuite) testBatchGetShipments(t *testing.T) {
 		response, err := fx.client.BatchGetShipments(
 			WithOutgoingMembers(ctx, user),
 			&iamexamplev1.BatchGetShipmentsRequest{
-				Names: []string{created.Name},
+				Names: []string{created.GetName()},
 			},
 		)
 		assert.Equal(t, codes.PermissionDenied, status.Code(err), "unexpected status: %v", err)

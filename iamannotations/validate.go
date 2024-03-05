@@ -18,12 +18,12 @@ import (
 // ValidatePredefinedRoles validates a set of predefined roles.
 func ValidatePredefinedRoles(roles *iamv1.PredefinedRoles) error {
 	var result validation.MessageValidator
-	roleNames := make(map[string]struct{}, len(roles.Role))
-	for i, role := range roles.Role {
-		if _, ok := roleNames[role.Name]; ok {
+	roleNames := make(map[string]struct{}, len(roles.GetRole()))
+	for i, role := range roles.GetRole() {
+		if _, ok := roleNames[role.GetName()]; ok {
 			result.AddFieldViolation(fmt.Sprintf("role[%d].name", i), "name must be unique among all predefined roles")
 		} else {
-			roleNames[role.Name] = struct{}{}
+			roleNames[role.GetName()] = struct{}{}
 		}
 		if err := iamrole.Validate(role); err != nil {
 			result.AddFieldError(fmt.Sprintf("role[%d]", i), err)
@@ -38,7 +38,7 @@ func ValidateMethodAuthorizationOptions(
 	files *protoregistry.Files,
 ) error {
 	var result validation.MessageValidator
-	switch permissions := methodAuthorization.Permissions.(type) {
+	switch permissions := methodAuthorization.GetPermissions().(type) {
 	case *iamv1.MethodAuthorizationOptions_Permission:
 		if err := iampermission.Validate(permissions.Permission); err != nil {
 			result.AddFieldError("permission", err)
@@ -54,7 +54,7 @@ func ValidateMethodAuthorizationOptions(
 			result.AddFieldViolation("permissions", "one of (permission|resource_permissions) must be specified")
 		}
 	}
-	switch strategy := methodAuthorization.Strategy.(type) {
+	switch strategy := methodAuthorization.GetStrategy().(type) {
 	case *iamv1.MethodAuthorizationOptions_Before:
 		if err := validateBeforeStrategy(strategy, method); err != nil {
 			result.AddFieldError("before", err)
@@ -148,7 +148,7 @@ func validateResourcePermissions(
 			}
 		default:
 			if resource, ok := resolveResource(files, startPackage, resourcePermission.GetResource().GetType()); ok {
-				if len(resource.Pattern) == 0 {
+				if len(resource.GetPattern()) == 0 {
 					result.AddFieldViolation(
 						fmt.Sprintf("resource_permission[%d].resource.type", i),
 						"resolved resource '%s' has no patterns",
@@ -172,7 +172,7 @@ func ValidateLongRunningOperationsAuthorization(
 	options *iamv1.LongRunningOperationsAuthorizationOptions,
 ) error {
 	var result validation.MessageValidator
-	switch strategy := options.Strategy.(type) {
+	switch strategy := options.GetStrategy().(type) {
 	case *iamv1.LongRunningOperationsAuthorizationOptions_Before:
 		if !strategy.Before {
 			result.AddFieldViolation("before", "must be true")
@@ -188,10 +188,10 @@ func ValidateLongRunningOperationsAuthorization(
 	default:
 		result.AddFieldViolation("strategy", "one of (before|custom|none) must be specified")
 	}
-	if len(options.OperationPermissions) == 0 {
+	if len(options.GetOperationPermissions()) == 0 {
 		result.AddFieldViolation("operation_permissions", "required field")
 	}
-	for i, operationPermissions := range options.OperationPermissions {
+	for i, operationPermissions := range options.GetOperationPermissions() {
 		if err := validateOperationPermissions(operationPermissions); err != nil {
 			result.AddFieldError(fmt.Sprintf("operation_permissions[%d]", i), err)
 		}
@@ -201,40 +201,40 @@ func ValidateLongRunningOperationsAuthorization(
 
 func validateOperationPermissions(operationPermissions *iamv1.LongRunningOperationPermissions) error {
 	var result validation.MessageValidator
-	if operationPermissions.Operation == nil {
+	if operationPermissions.GetOperation() == nil {
 		result.AddFieldViolation("operation", "required field")
 	} else {
-		if operationPermissions.Operation.GetType() == "" {
+		if operationPermissions.GetOperation().GetType() == "" {
 			result.AddFieldViolation("operation.type", "required field")
 		}
-		for i, pattern := range operationPermissions.Operation.GetPattern() {
+		for i, pattern := range operationPermissions.GetOperation().GetPattern() {
 			if err := resourcename.ValidatePattern(pattern); err != nil {
 				result.AddFieldError(fmt.Sprintf("operation.type.pattern[%d]", i), err)
 			}
 		}
 	}
-	if operationPermissions.List != "" {
-		if err := iampermission.Validate(operationPermissions.List); err != nil {
+	if operationPermissions.GetList() != "" {
+		if err := iampermission.Validate(operationPermissions.GetList()); err != nil {
 			result.AddFieldError("list", err)
 		}
 	}
-	if operationPermissions.Get != "" {
-		if err := iampermission.Validate(operationPermissions.Get); err != nil {
+	if operationPermissions.GetGet() != "" {
+		if err := iampermission.Validate(operationPermissions.GetGet()); err != nil {
 			result.AddFieldError("get", err)
 		}
 	}
-	if operationPermissions.Cancel != "" {
-		if err := iampermission.Validate(operationPermissions.Cancel); err != nil {
+	if operationPermissions.GetCancel() != "" {
+		if err := iampermission.Validate(operationPermissions.GetCancel()); err != nil {
 			result.AddFieldError("cancel", err)
 		}
 	}
-	if operationPermissions.Delete != "" {
-		if err := iampermission.Validate(operationPermissions.Delete); err != nil {
+	if operationPermissions.GetDelete() != "" {
+		if err := iampermission.Validate(operationPermissions.GetDelete()); err != nil {
 			result.AddFieldError("delete", err)
 		}
 	}
-	if operationPermissions.Wait != "" {
-		if err := iampermission.Validate(operationPermissions.Wait); err != nil {
+	if operationPermissions.GetWait() != "" {
+		if err := iampermission.Validate(operationPermissions.GetWait()); err != nil {
 			result.AddFieldError("wait", err)
 		}
 	}

@@ -40,13 +40,13 @@ func (s *Server) createShipper(
 	if err != nil {
 		switch code := status.Code(err); code {
 		case codes.AlreadyExists:
-			return nil, status.Errorf(code, "shipper %s already exists", request.shipper.Name)
+			return nil, status.Errorf(code, "shipper %s already exists", request.shipper.GetName())
 		default:
 			return nil, s.handleStorageError(ctx, err)
 		}
 	}
 	request.shipper.CreateTime = timestamppb.New(commitTime)
-	request.shipper.UpdateTime = request.shipper.CreateTime
+	request.shipper.UpdateTime = request.shipper.GetCreateTime()
 	return request.shipper, nil
 }
 
@@ -58,15 +58,15 @@ type createShipperRequest struct {
 func (r *createShipperRequest) parse(request *iamexamplev1.CreateShipperRequest) error {
 	var v validation.MessageValidator
 	// shipper_id = 3
-	if request.ShipperId != "" {
-		if err := resourceid.ValidateUserSettable(request.ShipperId); err != nil {
+	if request.GetShipperId() != "" {
+		if err := resourceid.ValidateUserSettable(request.GetShipperId()); err != nil {
 			v.AddFieldError("shipper_id", err)
 		}
-		r.shipperID = request.ShipperId
+		r.shipperID = request.GetShipperId()
 	} else {
 		r.shipperID = resourceid.NewSystemGeneratedBase32()
 	}
-	if request.Shipper == nil {
+	if request.GetShipper() == nil {
 		v.AddFieldViolation("shipment", "required field")
 	} else {
 		// name = 1
@@ -78,12 +78,12 @@ func (r *createShipperRequest) parse(request *iamexamplev1.CreateShipperRequest)
 		// delete_time = 4
 		request.Shipper.DeleteTime = nil
 		// display_name = 5
-		if len(request.Shipper.DisplayName) == 0 {
+		if len(request.GetShipper().GetDisplayName()) == 0 {
 			v.AddFieldViolation("shipper.display_name", "required field")
-		} else if len(request.Shipper.DisplayName) >= 64 {
+		} else if len(request.GetShipper().GetDisplayName()) >= 64 {
 			v.AddFieldViolation("shipper.display_name", "should be <= 63 characters")
 		}
-		r.shipper = request.Shipper
+		r.shipper = request.GetShipper()
 	}
 	return v.Err()
 }

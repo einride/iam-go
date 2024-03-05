@@ -26,7 +26,7 @@ func NewBeforeMethodAuthorization(
 	permissionTester iamcel.PermissionTester,
 	callerResolver iamcaller.Resolver,
 ) (*BeforeMethodAuthorization, error) {
-	beforeStrategy, ok := options.Strategy.(*iamv1.MethodAuthorizationOptions_Before)
+	beforeStrategy, ok := options.GetStrategy().(*iamv1.MethodAuthorizationOptions_Before)
 	if !ok {
 		return nil, fmt.Errorf("strategy must be 'before'")
 	}
@@ -34,7 +34,7 @@ func NewBeforeMethodAuthorization(
 	if err != nil {
 		return nil, err
 	}
-	ast, issues := env.Compile(beforeStrategy.Before.Expression)
+	ast, issues := env.Compile(beforeStrategy.Before.GetExpression())
 	if issues.Err() != nil {
 		return nil, issues.Err()
 	}

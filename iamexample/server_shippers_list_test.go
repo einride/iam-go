@@ -47,8 +47,8 @@ func (ts *serverTestSuite) testListShippers(t *testing.T) {
 					},
 				)
 				assert.NilError(t, err)
-				actual = append(actual, response.Shippers...)
-				pageToken = response.NextPageToken
+				actual = append(actual, response.GetShippers()...)
+				pageToken = response.GetNextPageToken()
 				if pageToken == "" {
 					break
 				}

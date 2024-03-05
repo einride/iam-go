@@ -8,5 +8,5 @@ import (
 
 // ProjectID returns the token payload's Firebase project ID.
 func ProjectID(token *iamv1.IdentityToken) string {
-	return strings.TrimPrefix(token.Iss, Issuer+"/")
+	return strings.TrimPrefix(token.GetIss(), Issuer+"/")
 }

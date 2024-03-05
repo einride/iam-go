@@ -62,7 +62,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	spannerClient := ts.spanner.NewDatabaseFromDDLFiles(t, "schema.sql", "../iamspanner/schema.sql")
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
-		iamDescriptor.PredefinedRoles.Role,
+		iamDescriptor.PredefinedRoles.GetRole(),
 		iamcaller.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(_ context.Context, err error) {
@@ -155,7 +155,7 @@ func (fx *serverTestFixture) createShipper(t *testing.T, name string) {
 		ShipperId: id,
 	})
 	assert.NilError(t, err)
-	assert.Equal(t, input.DisplayName, got.DisplayName)
+	assert.Equal(t, input.GetDisplayName(), got.GetDisplayName())
 }
 
 func (fx *serverTestFixture) createSite(t *testing.T, name string) {
@@ -174,7 +174,7 @@ func (fx *serverTestFixture) createSite(t *testing.T, name string) {
 		SiteId: siteID,
 	})
 	assert.NilError(t, err)
-	assert.Equal(t, input.DisplayName, got.DisplayName)
+	assert.Equal(t, input.GetDisplayName(), got.GetDisplayName())
 }
 
 func withTestDeadline(ctx context.Context, t *testing.T) context.Context {

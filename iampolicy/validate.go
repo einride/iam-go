@@ -11,13 +11,13 @@ import (
 func Validate(policy *iampb.Policy) error {
 	var result validation.MessageValidator
 	for i, binding := range policy.GetBindings() {
-		if len(binding.Role) == 0 {
+		if len(binding.GetRole()) == 0 {
 			result.AddFieldViolation(fmt.Sprintf("bindings[%d].role", i), "missing required field")
 		}
-		if len(binding.Members) == 0 {
+		if len(binding.GetMembers()) == 0 {
 			result.AddFieldViolation(fmt.Sprintf("bindings[%d].members", i), "missing required field")
 		}
-		for j, member := range binding.Members {
+		for j, member := range binding.GetMembers() {
 			if len(member) == 0 {
 				result.AddFieldViolation(fmt.Sprintf("bindings[%d].members[%d]", i, j), "missing required field")
 			}

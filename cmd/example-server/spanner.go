@@ -69,5 +69,5 @@ func newSpannerDatabase(ctx context.Context, conn *grpc.ClientConn) (*spanner.Cl
 		return nil, err
 	}
 	log.Println("created", createdDatabase)
-	return spanner.NewClient(ctx, createdDatabase.Name, option.WithGRPCConn(conn))
+	return spanner.NewClient(ctx, createdDatabase.GetName(), option.WithGRPCConn(conn))
 }

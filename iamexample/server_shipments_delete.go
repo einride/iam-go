@@ -68,7 +68,7 @@ func (s *Server) deleteShipment(
 		}
 	}
 	result.UpdateTime = timestamppb.New(commitTime)
-	result.DeleteTime = result.UpdateTime
+	result.DeleteTime = result.GetUpdateTime()
 	return result, nil
 }
 
@@ -81,16 +81,16 @@ type deleteShipmentRequest struct {
 func (r *deleteShipmentRequest) parse(request *iamexamplev1.DeleteShipmentRequest) error {
 	var v validation.MessageValidator
 	// name = 1
-	if request.Name == "" {
+	if request.GetName() == "" {
 		v.AddFieldViolation("name", "required field")
 	} else if err := resourcename.Sscan(
-		request.Name,
+		request.GetName(),
 		"shippers/{shipper}/shipments/{shipment}",
 		&r.shipperID,
 		&r.shipmentID,
 	); err != nil {
 		v.AddFieldError("name", err)
 	}
-	r.name = request.Name
+	r.name = request.GetName()
 	return v.Err()
 }

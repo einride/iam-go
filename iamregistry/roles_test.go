@@ -20,7 +20,7 @@ func TestRoles_RangeRolesByPermission(t *testing.T) {
 		assert.NilError(t, err)
 		var found bool
 		roles.RangeRolesByPermission("test.foo.bar", func(role *adminpb.Role) bool {
-			assert.Equal(t, "roles/test.admin", role.Name)
+			assert.Equal(t, "roles/test.admin", role.GetName())
 			found = true
 			return true
 		})

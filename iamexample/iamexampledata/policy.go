@@ -16,7 +16,7 @@ const (
 // Einride shipper resource.
 func EinrideSetIamPolicyRequest() *iampb.SetIamPolicyRequest {
 	return &iampb.SetIamPolicyRequest{
-		Resource: Einride().Name,
+		Resource: Einride().GetName(),
 		Policy: &iampb.Policy{
 			Bindings: []*iampb.Binding{
 				{
@@ -32,7 +32,7 @@ func EinrideSetIamPolicyRequest() *iampb.SetIamPolicyRequest {
 // Einride Gothenburg Office site resource.
 func EinrideGothenburgOfficeSetIamPolicyRequest() *iampb.SetIamPolicyRequest {
 	return &iampb.SetIamPolicyRequest{
-		Resource: EinrideGothenburgOffice().Name,
+		Resource: EinrideGothenburgOffice().GetName(),
 		Policy: &iampb.Policy{
 			Bindings: []*iampb.Binding{
 				{
@@ -48,7 +48,7 @@ func EinrideGothenburgOfficeSetIamPolicyRequest() *iampb.SetIamPolicyRequest {
 // Einride Batcave site resource.
 func EinrideBatcaveSetIamPolicyRequest() *iampb.SetIamPolicyRequest {
 	return &iampb.SetIamPolicyRequest{
-		Resource: EinrideBatcave().Name,
+		Resource: EinrideBatcave().GetName(),
 		Policy: &iampb.Policy{
 			Bindings: []*iampb.Binding{
 				{

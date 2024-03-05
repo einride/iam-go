@@ -40,13 +40,13 @@ func (s *Server) createSite(
 	if err != nil {
 		switch code := status.Code(err); code {
 		case codes.AlreadyExists:
-			return nil, status.Errorf(code, "site %s already exists", request.site.Name)
+			return nil, status.Errorf(code, "site %s already exists", request.site.GetName())
 		default:
 			return nil, s.handleStorageError(ctx, err)
 		}
 	}
 	request.site.CreateTime = timestamppb.New(commitTime)
-	request.site.UpdateTime = request.site.CreateTime
+	request.site.UpdateTime = request.site.GetCreateTime()
 	return request.site, nil
 }
 
@@ -59,24 +59,24 @@ type createSiteRequest struct {
 func (r *createSiteRequest) parse(request *iamexamplev1.CreateSiteRequest) error {
 	var v validation.MessageValidator
 	// parent = 1
-	if request.Parent == "" {
+	if request.GetParent() == "" {
 		v.AddFieldViolation("parent", "required field")
-	} else if resourcename.ContainsWildcard(request.Parent) {
+	} else if resourcename.ContainsWildcard(request.GetParent()) {
 		v.AddFieldViolation("parent", "must not contain wildcards")
-	} else if err := resourcename.Sscan(request.Parent, "shippers/{shipper}", &r.shipperID); err != nil {
+	} else if err := resourcename.Sscan(request.GetParent(), "shippers/{shipper}", &r.shipperID); err != nil {
 		v.AddFieldViolation("parent", "invalid format")
 	}
 	// site_id = 3
-	if request.SiteId != "" {
-		if err := resourceid.ValidateUserSettable(request.SiteId); err != nil {
+	if request.GetSiteId() != "" {
+		if err := resourceid.ValidateUserSettable(request.GetSiteId()); err != nil {
 			v.AddFieldError("site_id", err)
 		}
-		r.siteID = request.SiteId
+		r.siteID = request.GetSiteId()
 	} else {
 		r.siteID = resourceid.NewSystemGeneratedBase32()
 	}
 	// site = 2
-	if request.Site == nil {
+	if request.GetSite() == nil {
 		v.AddFieldViolation("site", "required field")
 	} else {
 		// name = 1
@@ -92,21 +92,21 @@ func (r *createSiteRequest) parse(request *iamexamplev1.CreateSiteRequest) error
 		// delete_time = 4
 		request.Site.DeleteTime = nil
 		// display_name = 5
-		if len(request.Site.DisplayName) == 0 {
+		if len(request.GetSite().GetDisplayName()) == 0 {
 			v.AddFieldViolation("site.display_name", "required field")
-		} else if len(request.Site.DisplayName) >= 64 {
+		} else if len(request.GetSite().GetDisplayName()) >= 64 {
 			v.AddFieldViolation("site.display_name", "should be <= 63 characters")
 		}
 		// lat_lng = 6
-		if request.Site.LatLng != nil {
-			if !(-90 <= request.Site.LatLng.Latitude && request.Site.LatLng.Latitude <= 90) {
+		if request.GetSite().GetLatLng() != nil {
+			if !(-90 <= request.GetSite().GetLatLng().GetLatitude() && request.GetSite().GetLatLng().GetLatitude() <= 90) {
 				v.AddFieldViolation("site.lat_lng.latitude", "must be in the range [-90.0, +90.0]")
 			}
-			if !(-180 <= request.Site.LatLng.Longitude && request.Site.LatLng.Longitude <= 180) {
+			if !(-180 <= request.GetSite().GetLatLng().GetLongitude() && request.GetSite().GetLatLng().GetLongitude() <= 180) {
 				v.AddFieldViolation("site.lat_lng.longitude", "must be in the range [-180.0, +180.0]")
 			}
 		}
-		r.site = request.Site
+		r.site = request.GetSite()
 	}
 	return v.Err()
 }

@@ -41,7 +41,7 @@ func (s *IAMServer) ReadPolicyInTransaction(
 		if err := row.Column(2, &member); err != nil {
 			return err
 		}
-		if binding == nil || int(bindingIndex) >= len(policy.Bindings) {
+		if binding == nil || int(bindingIndex) >= len(policy.GetBindings()) {
 			binding = &iampb.Binding{Role: role}
 			policy.Bindings = append(policy.Bindings, binding)
 		}
@@ -108,5 +108,5 @@ func (s *IAMServer) ValidatePolicyFreshnessInTransaction(
 	if err != nil {
 		return false, fmt.Errorf("validate freshness: %w", err)
 	}
-	return bytes.Equal(existingPolicy.Etag, etag), nil
+	return bytes.Equal(existingPolicy.GetEtag(), etag), nil
 }

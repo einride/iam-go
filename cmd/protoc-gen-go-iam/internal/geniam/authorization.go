@@ -170,7 +170,7 @@ func (c authorizationCodeGenerator) generateLongRunningOperationMethod(
 	g.P("ctx ", contextContext, ",")
 	g.P("request *", request, ",")
 	g.P(") (*", response, ", error) {")
-	switch options.Strategy.(type) {
+	switch options.GetStrategy().(type) {
 	case *iamv1.LongRunningOperationsAuthorizationOptions_None:
 		authorize := g.QualifiedGoIdent(protogen.GoIdent{
 			GoImportPath: "go.einride.tech/iam/iamauthz",

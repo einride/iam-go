@@ -40,7 +40,11 @@ func (a *Authorization) UpdateShipment(
 	if err != nil {
 		return nil, err
 	}
-	if err := a.requireAny(ctx, permission, []string{shipment.OriginSite, shipment.DestinationSite}); err != nil {
+	if err := a.requireAny(
+		ctx,
+		permission,
+		[]string{shipment.GetOriginSite(), shipment.GetDestinationSite()},
+	); err != nil {
 		return nil, err
 	}
 	return a.Next.UpdateShipment(ctx, request)
@@ -52,8 +56,8 @@ func (a *Authorization) BatchGetShipments(
 ) (*iamexamplev1.BatchGetShipmentsResponse, error) {
 	iamauthz.Authorize(ctx)
 	const permission = "freight.shipments.get"
-	if request.Parent != "" {
-		if ok, err := a.test(ctx, permission, request.Parent); err != nil {
+	if request.GetParent() != "" {
+		if ok, err := a.test(ctx, permission, request.GetParent()); err != nil {
 			return nil, err
 		} else if ok {
 			return a.Next.BatchGetShipments(ctx, request)
@@ -63,11 +67,11 @@ func (a *Authorization) BatchGetShipments(
 	if err != nil {
 		return nil, err
 	}
-	resourcePermissions := make(map[string]string, 3*len(response.Shipments))
-	for _, shipment := range response.Shipments {
-		resourcePermissions[shipment.Name] = permission
-		resourcePermissions[shipment.OriginSite] = permission
-		resourcePermissions[shipment.DestinationSite] = permission
+	resourcePermissions := make(map[string]string, 3*len(response.GetShipments()))
+	for _, shipment := range response.GetShipments() {
+		resourcePermissions[shipment.GetName()] = permission
+		resourcePermissions[shipment.GetOriginSite()] = permission
+		resourcePermissions[shipment.GetDestinationSite()] = permission
 	}
 	caller, err := a.CallerResolver.ResolveCaller(ctx)
 	if err != nil {
@@ -77,9 +81,9 @@ func (a *Authorization) BatchGetShipments(
 	if err != nil {
 		return nil, err
 	}
-	for _, shipment := range response.Shipments {
-		if !(results[shipment.Name] || results[shipment.OriginSite] || results[shipment.DestinationSite]) {
-			return nil, status.Errorf(codes.PermissionDenied, "missing permission %s for %s", permission, shipment.Name)
+	for _, shipment := range response.GetShipments() {
+		if !(results[shipment.GetName()] || results[shipment.GetOriginSite()] || results[shipment.GetDestinationSite()]) {
+			return nil, status.Errorf(codes.PermissionDenied, "missing permission %s for %s", permission, shipment.GetName())
 		}
 	}
 	return response, nil

@@ -64,23 +64,23 @@ type batchGetShipmentsRequest struct {
 func (r *batchGetShipmentsRequest) parse(request *iamexamplev1.BatchGetShipmentsRequest) error {
 	var v validation.MessageValidator
 	// parent = 1
-	if request.Parent != "" {
-		if err := resourcename.Sscan(request.Parent, "shippers/{shipper}", &r.parent.ShipperId); err != nil {
+	if request.GetParent() != "" {
+		if err := resourcename.Sscan(request.GetParent(), "shippers/{shipper}", &r.parent.ShipperId); err != nil {
 			v.AddFieldError("parent", err)
 		}
 	}
 	// names = 2
-	if len(request.Names) == 0 {
+	if len(request.GetNames()) == 0 {
 		v.AddFieldViolation("names", "required field")
 	}
-	r.keys = make([]iamexampledb.ShipmentsKey, 0, len(request.Names))
-	r.names = request.Names
-	for i, name := range request.Names {
+	r.keys = make([]iamexampledb.ShipmentsKey, 0, len(request.GetNames()))
+	r.names = request.GetNames()
+	for i, name := range request.GetNames() {
 		if resourcename.ContainsWildcard(name) {
 			v.AddFieldViolation(fmt.Sprintf("names[%d]", i), "wildcard not supported")
 		}
-		if request.Parent != "" && !resourcename.HasParent(name, request.Parent) {
-			v.AddFieldViolation(fmt.Sprintf("names[%d]", i), "%s is not a child of parent %s", name, request.Parent)
+		if request.GetParent() != "" && !resourcename.HasParent(name, request.GetParent()) {
+			v.AddFieldViolation(fmt.Sprintf("names[%d]", i), "%s is not a child of parent %s", name, request.GetParent())
 		}
 		var key iamexampledb.ShipmentsKey
 		if err := resourcename.Sscan(
