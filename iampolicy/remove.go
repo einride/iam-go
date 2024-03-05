@@ -8,11 +8,11 @@ import (
 // If a binding of the role and member don't exist, no updates are made.
 // No validation on the role or member is performed.
 func RemoveBinding(policy *iampb.Policy, role, member string) {
-	for _, binding := range policy.Bindings {
-		if binding.Role == role {
-			binding.Members = removeMember(binding.Members, member)
-			if len(binding.Members) == 0 {
-				policy.Bindings = removeRole(policy.Bindings, role)
+	for _, binding := range policy.GetBindings() {
+		if binding.GetRole() == role {
+			binding.Members = removeMember(binding.GetMembers(), member)
+			if len(binding.GetMembers()) == 0 {
+				policy.Bindings = removeRole(policy.GetBindings(), role)
 			}
 			return
 		}
@@ -30,7 +30,7 @@ func removeMember(members []string, member string) []string {
 
 func removeRole(bindings []*iampb.Binding, role string) []*iampb.Binding {
 	for i, binding := range bindings {
-		if binding.Role == role {
+		if binding.GetRole() == role {
 			return append(bindings[:i], bindings[i+1:]...)
 		}
 	}

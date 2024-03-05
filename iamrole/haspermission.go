@@ -8,7 +8,7 @@ import (
 // HasPermission reports whether the provided role has the provided permission.
 // Always returns false for wildcard permissions.
 func HasPermission(role *adminpb.Role, permission string) bool {
-	for _, includedPermission := range role.IncludedPermissions {
+	for _, includedPermission := range role.GetIncludedPermissions() {
 		if iampermission.Match(includedPermission, permission) {
 			return true
 		}

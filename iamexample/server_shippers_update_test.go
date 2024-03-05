@@ -34,7 +34,7 @@ func (ts *serverTestSuite) testUpdateShipper(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, input.DisplayName, created.DisplayName)
+			assert.Equal(t, input.GetDisplayName(), created.GetDisplayName())
 			update := &iamexamplev1.Shipper{
 				Name:        shipper,
 				DisplayName: "Updated Test Shipper",
@@ -46,7 +46,7 @@ func (ts *serverTestSuite) testUpdateShipper(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, update.DisplayName, updated.DisplayName)
+			assert.Equal(t, update.GetDisplayName(), updated.GetDisplayName())
 		})
 	})
 

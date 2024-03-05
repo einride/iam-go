@@ -37,15 +37,15 @@ OperationLoop:
 	}
 	switch operationRequest.(type) {
 	case *longrunningpb.GetOperationRequest:
-		return match.Get, match.Get != ""
+		return match.GetGet(), match.GetGet() != ""
 	case *longrunningpb.ListOperationsRequest:
-		return match.List, match.List != ""
+		return match.GetList(), match.GetList() != ""
 	case *longrunningpb.CancelOperationRequest:
-		return match.Cancel, match.Cancel != ""
+		return match.GetCancel(), match.GetCancel() != ""
 	case *longrunningpb.DeleteOperationRequest:
-		return match.Delete, match.Delete != ""
+		return match.GetDelete(), match.GetDelete() != ""
 	case *longrunningpb.WaitOperationRequest:
-		return match.Wait, match.Wait != ""
+		return match.GetWait(), match.GetWait() != ""
 	default:
 		return "", false
 	}

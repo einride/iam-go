@@ -53,8 +53,8 @@ func (ts *serverTestSuite) testListSites(t *testing.T) {
 					},
 				)
 				assert.NilError(t, err)
-				actual = append(actual, response.Sites...)
-				pageToken = response.NextPageToken
+				actual = append(actual, response.GetSites()...)
+				pageToken = response.GetNextPageToken()
 				if pageToken == "" {
 					break
 				}

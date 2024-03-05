@@ -23,7 +23,7 @@ func NewRoles(roles ...*adminpb.Role) (*Roles, error) {
 		roles: make(map[string]*adminpb.Role, len(roles)),
 	}
 	for _, role := range roles {
-		result.roles[role.Name] = role
+		result.roles[role.GetName()] = role
 	}
 	return &result, nil
 }

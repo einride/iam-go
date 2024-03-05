@@ -42,14 +42,14 @@ func (r *getRoleRequest) parse(request *adminpb.GetRoleRequest) error {
 	var v validation.MessageValidator
 	// name = 1
 	switch {
-	case request.Name == "":
+	case request.GetName() == "":
 		v.AddFieldViolation("name", "required field")
-	case resourcename.ContainsWildcard(request.Name):
+	case resourcename.ContainsWildcard(request.GetName()):
 		v.AddFieldViolation("name", "must not contain wildcards")
-	case !resourcename.Match("roles/{role}", request.Name):
+	case !resourcename.Match("roles/{role}", request.GetName()):
 		v.AddFieldViolation("name", "invalid format")
 	default:
-		r.name = request.Name
+		r.name = request.GetName()
 	}
 	return v.Err()
 }

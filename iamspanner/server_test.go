@@ -576,7 +576,7 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		assert.Assert(t, cmp.Len(response.Permissions, 0))
+		assert.Assert(t, cmp.Len(response.GetPermissions(), 0))
 	})
 
 	t.Run("test all permissions", func(t *testing.T) {
@@ -620,7 +620,7 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, permissions, response.Permissions)
+		assert.DeepEqual(t, permissions, response.GetPermissions())
 	})
 
 	t.Run("test some permissions", func(t *testing.T) {
@@ -665,7 +665,7 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, response.Permissions)
+		assert.DeepEqual(t, expected, response.GetPermissions())
 	})
 
 	t.Run("test permissions different user", func(t *testing.T) {
@@ -709,7 +709,7 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		assert.Assert(t, cmp.Len(response.Permissions, 0))
+		assert.Assert(t, cmp.Len(response.GetPermissions(), 0))
 	})
 
 	t.Run("test permissions on parent", func(t *testing.T) {
@@ -754,7 +754,7 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, response.Permissions)
+		assert.DeepEqual(t, expected, response.GetPermissions())
 	})
 
 	t.Run("test permissions on root", func(t *testing.T) {
@@ -799,7 +799,7 @@ func TestServer(t *testing.T) {
 			},
 		)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected, response.Permissions)
+		assert.DeepEqual(t, expected, response.GetPermissions())
 	})
 
 	t.Run("get role", func(t *testing.T) {
@@ -846,7 +846,7 @@ func TestServer(t *testing.T) {
 			return true
 		})
 		sort.Slice(expected, func(i, j int) bool {
-			return expected[i].Name < expected[j].Name
+			return expected[i].GetName() < expected[j].GetName()
 		})
 		actual := make([]*adminpb.Role, 0, rolesRegistry.Count())
 		var nextPageToken string
@@ -860,8 +860,8 @@ func TestServer(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			actual = append(actual, response.Roles...)
-			nextPageToken = response.NextPageToken
+			actual = append(actual, response.GetRoles()...)
+			nextPageToken = response.GetNextPageToken()
 			if nextPageToken == "" {
 				break
 			}
@@ -895,7 +895,7 @@ func TestServer(t *testing.T) {
 			return policy, nil
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected.Bindings, actual.Bindings, protocmp.Transform())
+		assert.DeepEqual(t, expected.GetBindings(), actual.GetBindings(), protocmp.Transform())
 		expected2 := &iampb.Policy{
 			Bindings: []*iampb.Binding{
 				{
@@ -914,7 +914,7 @@ func TestServer(t *testing.T) {
 			return policy, nil
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, expected2.Bindings, actual2.Bindings, protocmp.Transform())
+		assert.DeepEqual(t, expected2.GetBindings(), actual2.GetBindings(), protocmp.Transform())
 	})
 }
 

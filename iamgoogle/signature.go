@@ -9,5 +9,5 @@ import (
 // IsSignatureRemoved checks if the ID token's signature has been removed by Google.
 // See: https://cloud.google.com/run/docs/troubleshooting#signature-removed
 func IsSignatureRemoved(identityToken *iamv1.IdentityToken) bool {
-	return strings.HasSuffix(identityToken.Raw, ".SIGNATURE_REMOVED_BY_GOOGLE")
+	return strings.HasSuffix(identityToken.GetRaw(), ".SIGNATURE_REMOVED_BY_GOOGLE")
 }

@@ -83,7 +83,7 @@ func insertIAMPolicyMutations(resource string, policy *iampb.Policy) []*spanner.
 			row := iamspannerdb.IamPolicyBindingsRow{
 				Resource:     resource,
 				BindingIndex: int64(i),
-				Role:         binding.Role,
+				Role:         binding.GetRole(),
 				MemberIndex:  int64(j),
 				Member:       member,
 			}

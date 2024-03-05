@@ -57,7 +57,7 @@ func (s *Server) updateShipper(
 	if err != nil {
 		switch code := status.Code(err); code {
 		case codes.NotFound:
-			return nil, status.Errorf(code, "no such shipper: %s", request.shipper.Name)
+			return nil, status.Errorf(code, "no such shipper: %s", request.shipper.GetName())
 		default:
 			return nil, s.handleStorageError(ctx, err)
 		}
@@ -86,14 +86,14 @@ func (r *updateShipperRequest) parse(request *iamexamplev1.UpdateShipperRequest)
 		return false
 	}
 	var v validation.MessageValidator
-	if request.Shipper == nil {
+	if request.GetShipper() == nil {
 		v.AddFieldViolation("shipper", "required field")
 	} else {
 		// name = 1
-		if len(request.Shipper.Name) == 0 {
+		if len(request.GetShipper().GetName()) == 0 {
 			v.AddFieldViolation("shipper.name", "required field")
 		} else if err := resourcename.Sscan(
-			request.Shipper.Name,
+			request.GetShipper().GetName(),
 			"shippers/{shipper}",
 			&r.shipperID,
 		); err != nil {
@@ -106,20 +106,20 @@ func (r *updateShipperRequest) parse(request *iamexamplev1.UpdateShipperRequest)
 		// delete_time = 4
 		request.Shipper.DeleteTime = nil
 		// display_name = 5
-		if has("display_name") || hasNoMask && len(request.Shipper.DisplayName) > 0 {
-			if len(request.Shipper.DisplayName) == 0 {
+		if has("display_name") || hasNoMask && len(request.GetShipper().GetDisplayName()) > 0 {
+			if len(request.GetShipper().GetDisplayName()) == 0 {
 				v.AddFieldViolation("shipper.display_name", "required field")
-			} else if len(request.Shipper.DisplayName) >= 64 {
+			} else if len(request.GetShipper().GetDisplayName()) >= 64 {
 				v.AddFieldViolation("shipper.display_name", "should be <= 63 characters")
 			}
 		}
-		r.shipper = request.Shipper
+		r.shipper = request.GetShipper()
 	}
 	// update_mask = 2
-	if err := fieldmask.Validate(request.UpdateMask, request.Shipper); err != nil {
+	if err := fieldmask.Validate(request.GetUpdateMask(), request.GetShipper()); err != nil {
 		v.AddFieldError("update_mask", err)
 	} else {
-		r.updateMask = request.UpdateMask
+		r.updateMask = request.GetUpdateMask()
 	}
 	return v.Err()
 }

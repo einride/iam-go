@@ -20,7 +20,7 @@ func resolveResource(
 			if resource := proto.GetExtension(
 				message.Options(), annotations.E_Resource,
 			).(*annotations.ResourceDescriptor); resource != nil {
-				if resource.Type == resourceType {
+				if resource.GetType() == resourceType {
 					result = resource
 					return false
 				}
@@ -36,7 +36,7 @@ func resolveResource(
 		for _, resource := range proto.GetExtension(
 			file.Options(), annotations.E_ResourceDefinition,
 		).([]*annotations.ResourceDescriptor) {
-			if resource.Type == resourceType {
+			if resource.GetType() == resourceType {
 				result = resource
 				return false
 			}

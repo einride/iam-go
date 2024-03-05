@@ -46,8 +46,8 @@ func (s *Server) listShipments(
 	}); err != nil {
 		return nil, s.handleStorageError(ctx, err)
 	}
-	if len(response.Shipments) > int(request.pageSize) {
-		response.Shipments = response.Shipments[:request.pageSize]
+	if len(response.GetShipments()) > int(request.pageSize) {
+		response.Shipments = response.GetShipments()[:request.pageSize]
 		response.NextPageToken = request.nextPageToken()
 	}
 	return &response, nil
@@ -67,21 +67,21 @@ func (r *listShipmentsRequest) parse(request *iamexamplev1.ListShipmentsRequest)
 		maxPageSize     = 1_000
 	)
 	switch {
-	case request.PageSize < 0:
+	case request.GetPageSize() < 0:
 		v.AddFieldViolation("page_size", "must be >= 0")
-	case request.PageSize == 0:
+	case request.GetPageSize() == 0:
 		r.pageSize = defaultPageSize
-	case request.PageSize > maxPageSize:
+	case request.GetPageSize() > maxPageSize:
 		r.pageSize = maxPageSize
 	default:
-		r.pageSize = request.PageSize
+		r.pageSize = request.GetPageSize()
 	}
 
-	if request.Parent == "" {
+	if request.GetParent() == "" {
 		v.AddFieldViolation("parent", "missing required field")
-	} else if resourcename.ContainsWildcard(request.Parent) {
+	} else if resourcename.ContainsWildcard(request.GetParent()) {
 		v.AddFieldViolation("parent", "wildcard not allowed")
-	} else if err := resourcename.Sscan(request.Parent, "shippers/{shipper}", &r.shipperID); err != nil {
+	} else if err := resourcename.Sscan(request.GetParent(), "shippers/{shipper}", &r.shipperID); err != nil {
 		v.AddFieldError("parent", err)
 	}
 	if pageToken, err := pagination.ParsePageToken(request); err != nil {

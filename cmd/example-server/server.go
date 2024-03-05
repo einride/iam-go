@@ -32,7 +32,7 @@ func newServer(spannerClient *spanner.Client) (*iamexample.Authorization, error)
 	}
 	iamServer, err := iamspanner.NewIAMServer(
 		spannerClient,
-		iamDescriptor.PredefinedRoles.Role,
+		iamDescriptor.PredefinedRoles.GetRole(),
 		iamcaller.FromContextResolver(),
 		iamspanner.ServerConfig{
 			ErrorHook: func(_ context.Context, err error) {
@@ -159,6 +159,6 @@ func (googleIdentityTokenCallerResolver) ResolveCaller(ctx context.Context) (*ia
 		}
 		iamcaller.Add(&result, authorizationKey, &metadata)
 	}
-	log.Printf("[IAM]\t%v %v", result.Members, result.Metadata)
+	log.Printf("[IAM]\t%v %v", result.GetMembers(), result.GetMetadata())
 	return &result, nil
 }

@@ -8,7 +8,7 @@ import (
 // EinrideGothenburgOffice returns an iamexamplev1.Site representing Einride's Gothenburg office.
 func EinrideGothenburgOffice() *iamexamplev1.Site {
 	return &iamexamplev1.Site{
-		Name:        Einride().Name + "/sites/gothenburg",
+		Name:        Einride().GetName() + "/sites/gothenburg",
 		DisplayName: "Einride Gothenburg Office",
 		LatLng: &latlng.LatLng{
 			Latitude:  57.70775726491335,
@@ -20,7 +20,7 @@ func EinrideGothenburgOffice() *iamexamplev1.Site {
 // EinrideStockholmOffice returns an iamexamplev1.Site representing Einride's Stockholm office.
 func EinrideStockholmOffice() *iamexamplev1.Site {
 	return &iamexamplev1.Site{
-		Name:        Einride().Name + "/sites/sthlm",
+		Name:        Einride().GetName() + "/sites/sthlm",
 		DisplayName: "Einride Gothenburg Office",
 		LatLng: &latlng.LatLng{
 			Latitude:  59.33749110496606,
@@ -32,7 +32,7 @@ func EinrideStockholmOffice() *iamexamplev1.Site {
 // EinrideBatcave returns an iamexamplev1.Site representing Einride's Batcave.
 func EinrideBatcave() *iamexamplev1.Site {
 	return &iamexamplev1.Site{
-		Name:        Einride().Name + "/sites/batcave",
+		Name:        Einride().GetName() + "/sites/batcave",
 		DisplayName: "Einride Batcave",
 		LatLng: &latlng.LatLng{
 			Latitude:  59.33749110496606,

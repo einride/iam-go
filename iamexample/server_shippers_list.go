@@ -43,8 +43,8 @@ func (s *Server) listShippers(
 	}); err != nil {
 		return nil, s.handleStorageError(ctx, err)
 	}
-	if len(response.Shippers) > int(request.pageSize) {
-		response.Shippers = response.Shippers[:request.pageSize]
+	if len(response.GetShippers()) > int(request.pageSize) {
+		response.Shippers = response.GetShippers()[:request.pageSize]
 		response.NextPageToken = request.nextPageToken()
 	}
 	return &response, nil
@@ -63,14 +63,14 @@ func (r *listShippersRequest) parse(request *iamexamplev1.ListShippersRequest) e
 		maxPageSize     = 1_000
 	)
 	switch {
-	case request.PageSize < 0:
+	case request.GetPageSize() < 0:
 		v.AddFieldViolation("page_size", "must be >= 0")
-	case request.PageSize == 0:
+	case request.GetPageSize() == 0:
 		r.pageSize = defaultPageSize
-	case request.PageSize > maxPageSize:
+	case request.GetPageSize() > maxPageSize:
 		r.pageSize = maxPageSize
 	default:
-		r.pageSize = request.PageSize
+		r.pageSize = request.GetPageSize()
 	}
 	if pageToken, err := pagination.ParsePageToken(request); err != nil {
 		v.AddFieldError("page_token", err)

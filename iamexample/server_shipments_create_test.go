@@ -51,7 +51,7 @@ func (ts *serverTestSuite) testCreateShipment(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.DeepEqual(t, input.LineItems, got.LineItems, protocmp.Transform())
+			assert.DeepEqual(t, input.GetLineItems(), got.GetLineItems(), protocmp.Transform())
 		})
 	})
 

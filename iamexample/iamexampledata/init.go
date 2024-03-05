@@ -31,7 +31,7 @@ func BootstrapRootAdmin(ctx context.Context, spannerClient *spanner.Client) erro
 func InitializeResources(ctx context.Context, server iamexamplev1.FreightServiceServer) error {
 	einride := Einride()
 	var shipperID string
-	if err := resourcename.Sscan(einride.Name, "shippers/{shipper}", &shipperID); err != nil {
+	if err := resourcename.Sscan(einride.GetName(), "shippers/{shipper}", &shipperID); err != nil {
 		return err
 	}
 	if _, err := server.CreateShipper(ctx, &iamexamplev1.CreateShipperRequest{
@@ -47,7 +47,7 @@ func InitializeResources(ctx context.Context, server iamexamplev1.FreightService
 	} {
 		var siteID string
 		if err := resourcename.Sscan(
-			site.Name,
+			site.GetName(),
 			"shippers/{shipper}/sites/{site}",
 			&shipperID,
 			&siteID,
@@ -55,7 +55,7 @@ func InitializeResources(ctx context.Context, server iamexamplev1.FreightService
 			return err
 		}
 		if _, err := server.CreateSite(ctx, &iamexamplev1.CreateSiteRequest{
-			Parent: einride.Name,
+			Parent: einride.GetName(),
 			Site:   site,
 			SiteId: siteID,
 		}); err != nil {

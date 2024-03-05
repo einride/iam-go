@@ -36,7 +36,7 @@ func convertShipmentProtoToRow(msg *iamexamplev1.Shipment) (*iamexampledb.Shipme
 	// origin_site = 5
 	var originSiteShipperID string
 	if err := resourcename.Sscan(
-		msg.OriginSite,
+		msg.GetOriginSite(),
 		"shippers/{shipper}/sites/{site}",
 		&originSiteShipperID,
 		&row.OriginSiteId,
@@ -46,7 +46,7 @@ func convertShipmentProtoToRow(msg *iamexamplev1.Shipment) (*iamexampledb.Shipme
 	// destination_site = 6
 	var destinationSiteShipperID string
 	if err := resourcename.Sscan(
-		msg.DestinationSite,
+		msg.GetDestinationSite(),
 		"shippers/{shipper}/sites/{site}",
 		&destinationSiteShipperID,
 		&row.DestinationSiteId,
@@ -54,33 +54,33 @@ func convertShipmentProtoToRow(msg *iamexamplev1.Shipment) (*iamexampledb.Shipme
 		return nil, fmt.Errorf("destination_site: %w", err)
 	}
 	// pickup_earliest_time = 7
-	row.PickupEarliestTime = msg.PickupEarliestTime.AsTime()
+	row.PickupEarliestTime = msg.GetPickupEarliestTime().AsTime()
 	// pickup_latest_time = 8
-	row.PickupLatestTime = msg.PickupLatestTime.AsTime()
+	row.PickupLatestTime = msg.GetPickupLatestTime().AsTime()
 	// delivery_earliest_time = 9
-	row.DeliveryEarliestTime = msg.DeliveryEarliestTime.AsTime()
+	row.DeliveryEarliestTime = msg.GetDeliveryEarliestTime().AsTime()
 	// delivery_latest_time = 10
-	row.DeliveryLatestTime = msg.DeliveryLatestTime.AsTime()
+	row.DeliveryLatestTime = msg.GetDeliveryLatestTime().AsTime()
 	// line_items = 11
-	row.LineItems = make([]*iamexampledb.LineItemsRow, 0, len(msg.LineItems))
-	for i, lineItem := range msg.LineItems {
+	row.LineItems = make([]*iamexampledb.LineItemsRow, 0, len(msg.GetLineItems()))
+	for i, lineItem := range msg.GetLineItems() {
 		var lineItemRow iamexampledb.LineItemsRow
 		lineItemRow.ShipperId = row.ShipperId
 		lineItemRow.ShipmentId = row.ShipmentId
 		lineItemRow.LineNumber = int64(i)
 		// title = 1
-		lineItemRow.Title = lineItem.Title
+		lineItemRow.Title = lineItem.GetTitle()
 		// quantity = 2
-		lineItemRow.Quantity = float64(lineItem.Quantity)
+		lineItemRow.Quantity = float64(lineItem.GetQuantity())
 		// weight_kg = 3
-		lineItemRow.WeightKg = float64(lineItem.WeightKg)
+		lineItemRow.WeightKg = float64(lineItem.GetWeightKg())
 		// volume_m3 = 4
-		lineItemRow.VolumeM3 = float64(lineItem.VolumeM3)
+		lineItemRow.VolumeM3 = float64(lineItem.GetVolumeM3())
 		row.LineItems = append(row.LineItems, &lineItemRow)
 	}
 	// annotations = 12
-	row.Annotations = make([]spanner.NullString, 0, len(msg.Annotations))
-	for key, value := range msg.Annotations {
+	row.Annotations = make([]spanner.NullString, 0, len(msg.GetAnnotations()))
+	for key, value := range msg.GetAnnotations() {
 		row.Annotations = append(row.Annotations, spanner.NullString{
 			StringVal: fmt.Sprintf("%s=%s", key, value),
 			Valid:     true,

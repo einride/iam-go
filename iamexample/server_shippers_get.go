@@ -56,15 +56,15 @@ type getShipperRequest struct {
 func (r *getShipperRequest) parse(request *iamexamplev1.GetShipperRequest) error {
 	var v validation.MessageValidator
 	// name = 1
-	if request.Name == "" {
+	if request.GetName() == "" {
 		v.AddFieldViolation("name", "required field")
 	} else if err := resourcename.Sscan(
-		request.Name,
+		request.GetName(),
 		"shippers/{shipper}",
 		&r.shipperID,
 	); err != nil {
 		v.AddFieldError("name", err)
 	}
-	r.name = request.Name
+	r.name = request.GetName()
 	return v.Err()
 }

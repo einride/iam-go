@@ -18,7 +18,7 @@ func ResolveMethodAuthorizationOptions(
 	startPackage protoreflect.FullName,
 ) (*iamv1.MethodAuthorizationOptions, error) {
 	result := proto.Clone(options).(*iamv1.MethodAuthorizationOptions)
-	if permissions, ok := result.Permissions.(*iamv1.MethodAuthorizationOptions_ResourcePermissions); ok {
+	if permissions, ok := result.GetPermissions().(*iamv1.MethodAuthorizationOptions_ResourcePermissions); ok {
 		for _, resourcePermission := range permissions.ResourcePermissions.GetResourcePermission() {
 			switch {
 			case resourcePermission.GetResource().GetType() == iamresource.Root:
@@ -34,14 +34,14 @@ func ResolveMethodAuthorizationOptions(
 						resourcePermission.GetResource().GetType(),
 					)
 				}
-				if len(resource.Pattern) == 0 {
+				if len(resource.GetPattern()) == 0 {
 					return nil, fmt.Errorf(
 						"resolve method authorization options in '%s': resource '%s' has no patterns",
 						resourcePermission.GetResource().GetType(),
 						startPackage,
 					)
 				}
-				resourcePermission.Resource.Pattern = append(resourcePermission.Resource.Pattern, resource.Pattern...)
+				resourcePermission.Resource.Pattern = append(resourcePermission.Resource.Pattern, resource.GetPattern()...)
 			}
 		}
 	}

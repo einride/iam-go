@@ -37,16 +37,16 @@ func (ts *serverTestSuite) testDeleteSite(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, input.DisplayName, created.DisplayName)
+			assert.Equal(t, input.GetDisplayName(), created.GetDisplayName())
 			deleted, err := fx.client.DeleteSite(
 				WithOutgoingMembers(ctx, member),
 				&iamexamplev1.DeleteSiteRequest{
-					Name: created.Name,
+					Name: created.GetName(),
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, created.Name, deleted.Name)
-			assert.Assert(t, time.Since(deleted.DeleteTime.AsTime()) < time.Second)
+			assert.Equal(t, created.GetName(), deleted.GetName())
+			assert.Assert(t, time.Since(deleted.GetDeleteTime().AsTime()) < time.Second)
 		})
 	})
 

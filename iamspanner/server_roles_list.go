@@ -32,7 +32,7 @@ func (s *IAMServer) listRoles(
 		return true
 	})
 	sort.Slice(roles, func(i, j int) bool {
-		return roles[i].Name < roles[j].Name
+		return roles[i].GetName() < roles[j].GetName()
 	})
 	response := adminpb.ListRolesResponse{
 		Roles: make([]*adminpb.Role, 0, request.pageSize),
@@ -72,19 +72,19 @@ func (r *listRolesRequest) parse(request *adminpb.ListRolesRequest) error {
 	var v validation.MessageValidator
 	r.request = request
 	// parent = 1
-	if request.Parent != "" {
+	if request.GetParent() != "" {
 		v.AddFieldViolation("parent", "unsupported field")
 	}
 	// page_size = 2
 	switch {
-	case request.PageSize < 0:
+	case request.GetPageSize() < 0:
 		v.AddFieldViolation("page_size", "must be >= 0")
-	case request.PageSize == 0:
+	case request.GetPageSize() == 0:
 		r.pageSize = defaultPageSize
-	case request.PageSize > maxPageSize:
+	case request.GetPageSize() > maxPageSize:
 		r.pageSize = maxPageSize
 	default:
-		r.pageSize = request.PageSize
+		r.pageSize = request.GetPageSize()
 	}
 	// page_token = 3
 	pageToken, err := pagination.ParsePageToken(request)
@@ -92,11 +92,11 @@ func (r *listRolesRequest) parse(request *adminpb.ListRolesRequest) error {
 		v.AddFieldViolation("page_token", "invalid format")
 	}
 	r.pageToken = pageToken
-	switch request.View {
+	switch request.GetView() {
 	case adminpb.RoleView_BASIC, adminpb.RoleView_FULL:
-		r.view = request.View
+		r.view = request.GetView()
 	default:
-		v.AddFieldViolation("view", "unsupported value: %d", request.View.Number())
+		v.AddFieldViolation("view", "unsupported value: %d", request.GetView().Number())
 	}
 	return v.Err()
 }

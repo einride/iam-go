@@ -11,7 +11,7 @@ func ResolveMethodPermission(
 	options *iamv1.MethodAuthorizationOptions,
 	resourceName string,
 ) (string, bool) {
-	switch permissions := options.Permissions.(type) {
+	switch permissions := options.GetPermissions().(type) {
 	case *iamv1.MethodAuthorizationOptions_Permission:
 		return permissions.Permission, true
 	case *iamv1.MethodAuthorizationOptions_ResourcePermissions:

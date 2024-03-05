@@ -60,7 +60,7 @@ func (s *Server) updateSite(
 	if err != nil {
 		switch code := status.Code(err); code {
 		case codes.NotFound:
-			return nil, status.Errorf(code, "no such site: %s", request.site.Name)
+			return nil, status.Errorf(code, "no such site: %s", request.site.GetName())
 		default:
 			return nil, s.handleStorageError(ctx, err)
 		}
@@ -91,15 +91,15 @@ func (r *updateSiteRequest) parse(request *iamexamplev1.UpdateSiteRequest) error
 	}
 	var v validation.MessageValidator
 	// site = 1
-	if request.Site == nil {
+	if request.GetSite() == nil {
 		v.AddFieldViolation("site", "required field")
 	} else {
-		r.site = request.Site
+		r.site = request.GetSite()
 		// name = 1
-		if len(request.Site.Name) == 0 {
+		if len(request.GetSite().GetName()) == 0 {
 			v.AddFieldViolation("site.name", "required field")
 		} else if err := resourcename.Sscan(
-			request.Site.Name,
+			request.GetSite().GetName(),
 			"shippers/{shipper}/sites/{site}",
 			&r.shipperID,
 			&r.siteID,
@@ -113,19 +113,19 @@ func (r *updateSiteRequest) parse(request *iamexamplev1.UpdateSiteRequest) error
 		// delete_time = 4
 		request.Site.DeleteTime = nil
 		// display_name = 5
-		if has("display_name") || hasNoMask && len(request.Site.DisplayName) > 0 {
-			if len(request.Site.DisplayName) == 0 {
+		if has("display_name") || hasNoMask && len(request.GetSite().GetDisplayName()) > 0 {
+			if len(request.GetSite().GetDisplayName()) == 0 {
 				v.AddFieldViolation("site.display_name", "required field")
-			} else if len(request.Site.DisplayName) >= 64 {
+			} else if len(request.GetSite().GetDisplayName()) >= 64 {
 				v.AddFieldViolation("site.display_name", "should be <= 63 characters")
 			}
 		}
 		// lat_lng = 6
-		if has("lat_lng") || hasNoMask && request.Site.LatLng != nil {
-			if !(-90 <= request.Site.LatLng.Latitude && request.Site.LatLng.Latitude <= 90) {
+		if has("lat_lng") || hasNoMask && request.GetSite().GetLatLng() != nil {
+			if !(-90 <= request.GetSite().GetLatLng().GetLatitude() && request.GetSite().GetLatLng().GetLatitude() <= 90) {
 				v.AddFieldViolation("site.lat_lng.latitude", "must be in the range [-90.0, +90.0]")
 			}
-			if !(-180 <= request.Site.LatLng.Longitude && request.Site.LatLng.Longitude <= 180) {
+			if !(-180 <= request.GetSite().GetLatLng().GetLongitude() && request.GetSite().GetLatLng().GetLongitude() <= 180) {
 				v.AddFieldViolation("site.lat_lng.longitude", "must be in the range [-180.0, +180.0]")
 			}
 		}

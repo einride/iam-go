@@ -24,8 +24,8 @@ func (ts *serverTestSuite) testLongRunningOperations(t *testing.T) {
 				&longrunningpb.ListOperationsRequest{Name: "shippers/1234"},
 			)
 			assert.NilError(t, err)
-			assert.Assert(t, len(response.Operations) == 0)
-			assert.Equal(t, "", response.NextPageToken)
+			assert.Assert(t, len(response.GetOperations()) == 0)
+			assert.Equal(t, "", response.GetNextPageToken())
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {

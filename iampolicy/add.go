@@ -10,9 +10,9 @@ import (
 func AddBinding(policy *iampb.Policy, role, member string) {
 	// Add binding to policy.
 	var added bool
-	for _, binding := range policy.Bindings {
-		if binding.Role == role {
-			for _, bindingMember := range binding.Members {
+	for _, binding := range policy.GetBindings() {
+		if binding.GetRole() == role {
+			for _, bindingMember := range binding.GetMembers() {
 				if bindingMember == member {
 					return // already have this policy binding
 				}

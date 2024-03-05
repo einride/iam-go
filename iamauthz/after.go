@@ -26,7 +26,7 @@ func NewAfterMethodAuthorization(
 	permissionTester iamcel.PermissionTester,
 	callerResolver iamcaller.Resolver,
 ) (*AfterMethodAuthorization, error) {
-	afterStrategy, ok := options.Strategy.(*iamv1.MethodAuthorizationOptions_After)
+	afterStrategy, ok := options.GetStrategy().(*iamv1.MethodAuthorizationOptions_After)
 	if !ok {
 		return nil, fmt.Errorf("strategy must be 'after'")
 	}
@@ -34,7 +34,7 @@ func NewAfterMethodAuthorization(
 	if err != nil {
 		return nil, err
 	}
-	ast, issues := env.Compile(afterStrategy.After.Expression)
+	ast, issues := env.Compile(afterStrategy.After.GetExpression())
 	if issues.Err() != nil {
 		return nil, issues.Err()
 	}

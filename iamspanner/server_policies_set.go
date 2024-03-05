@@ -53,8 +53,8 @@ func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
 			}
 		}
 
-		mutations := []*spanner.Mutation{deleteIAMPolicyMutation(request.Resource)}
-		mutations = append(mutations, insertIAMPolicyMutations(request.Resource, request.Policy)...)
+		mutations := []*spanner.Mutation{deleteIAMPolicyMutation(request.GetResource())}
+		mutations = append(mutations, insertIAMPolicyMutations(request.GetResource(), request.GetPolicy())...)
 		return tx.BufferWrite(mutations)
 	}); err != nil {
 		return nil, s.handleStorageError(ctx, err)
@@ -79,7 +79,7 @@ func (s *IAMServer) SetIamPolicyWithFunctionsInTransaction(
 
 func (s *IAMServer) validateSetIamPolicyRequest(request *iampb.SetIamPolicyRequest) error {
 	var result validation.MessageValidator
-	switch request.Resource {
+	switch request.GetResource() {
 	case iamresource.Root: // OK
 	case "":
 		result.AddFieldViolation("resource", "missing required field")
@@ -113,11 +113,11 @@ func (s *IAMServer) validateSetIamPolicyRequest(request *iampb.SetIamPolicyReque
 		}
 		roleSet[binding.GetRole()] = true
 
-		if len(binding.Members) == 0 {
+		if len(binding.GetMembers()) == 0 {
 			result.AddFieldViolation(fmt.Sprintf("policy.bindings[%d].members", i), "missing required field")
 		}
 		memberSet := map[string]bool{}
-		for j, member := range binding.Members {
+		for j, member := range binding.GetMembers() {
 			if err := s.validateMember(member); err != nil {
 				result.AddFieldError(fmt.Sprintf("policy.bindings[%d].members[%d]", i, j), err)
 			}

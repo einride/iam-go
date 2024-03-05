@@ -36,9 +36,9 @@ func (ts *serverTestSuite) testUpdateSite(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, input.DisplayName, got.DisplayName)
+			assert.Equal(t, input.GetDisplayName(), got.GetDisplayName())
 			update := &iamexamplev1.Site{
-				Name:        got.Name,
+				Name:        got.GetName(),
 				DisplayName: "Updated Test Site",
 			}
 			updated, err := fx.client.UpdateSite(
@@ -48,7 +48,7 @@ func (ts *serverTestSuite) testUpdateSite(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.Equal(t, update.DisplayName, updated.DisplayName)
+			assert.Equal(t, update.GetDisplayName(), updated.GetDisplayName())
 		})
 	})
 

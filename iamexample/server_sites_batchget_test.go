@@ -41,7 +41,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 				)
 				assert.NilError(t, err)
 				expected = append(expected, created)
-				names = append(names, created.Name)
+				names = append(names, created.GetName())
 			}
 			response, err := fx.client.BatchGetSites(
 				WithOutgoingMembers(ctx, member),
@@ -51,7 +51,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.DeepEqual(t, expected, response.Sites, protocmp.Transform())
+			assert.DeepEqual(t, expected, response.GetSites(), protocmp.Transform())
 		})
 
 		t.Run("permission on parent without requested parent", func(t *testing.T) {
@@ -78,7 +78,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 				)
 				assert.NilError(t, err)
 				expected = append(expected, created)
-				names = append(names, created.Name)
+				names = append(names, created.GetName())
 			}
 			response, err := fx.client.BatchGetSites(
 				WithOutgoingMembers(ctx, member),
@@ -87,7 +87,7 @@ func (ts *serverTestSuite) testBatchGetSites(t *testing.T) {
 				},
 			)
 			assert.NilError(t, err)
-			assert.DeepEqual(t, expected, response.Sites, protocmp.Transform())
+			assert.DeepEqual(t, expected, response.GetSites(), protocmp.Transform())
 		})
 	})
 

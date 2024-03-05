@@ -121,11 +121,11 @@ func (s *IAMServer) ReadBindingsByMembersAndPermissionsInTransaction(
 			s.roles.RangeRolesByPermission(permission, func(role *adminpb.Role) bool {
 				for _, existingKeySet := range memberRoleKeySets {
 					existingKey := existingKeySet.(spanner.KeyRange).Start
-					if member == existingKey[0] && role.Name == existingKey[1].(string) {
+					if member == existingKey[0] && role.GetName() == existingKey[1].(string) {
 						return true // already have this member and role
 					}
 				}
-				memberRoleKeySets = append(memberRoleKeySets, spanner.Key{member, role.Name}.AsPrefix())
+				memberRoleKeySets = append(memberRoleKeySets, spanner.Key{member, role.GetName()}.AsPrefix())
 				return true
 			})
 		}

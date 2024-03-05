@@ -19,12 +19,12 @@ func (s *IAMServer) GetIamPolicy(
 	}
 	tx := s.client.Single()
 	defer tx.Close()
-	return s.ReadPolicyInTransaction(ctx, tx, request.Resource)
+	return s.ReadPolicyInTransaction(ctx, tx, request.GetResource())
 }
 
 func validateGetIamPolicyRequest(request *iampb.GetIamPolicyRequest) error {
 	var result validation.MessageValidator
-	switch request.Resource {
+	switch request.GetResource() {
 	case iamresource.Root: // OK
 	case "":
 		result.AddFieldViolation("resource", "missing required field")

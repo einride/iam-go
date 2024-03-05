@@ -24,17 +24,17 @@ func (s *IAMServer) TestIamPermissions(
 	if err != nil {
 		return nil, err
 	}
-	permissions := make(map[string]struct{}, len(request.Permissions))
+	permissions := make(map[string]struct{}, len(request.GetPermissions()))
 	tx := s.client.Single()
 	defer tx.Close()
 	if err := s.ReadBindingsByResourcesAndMembersInTransaction(
 		ctx,
 		tx,
-		[]string{request.Resource},
-		caller.Members,
+		[]string{request.GetResource()},
+		caller.GetMembers(),
 		func(_ context.Context, _ string, role *adminpb.Role, _ string) error {
-			for _, permission := range request.Permissions {
-				if s.roles.RoleHasPermission(role.Name, permission) {
+			for _, permission := range request.GetPermissions() {
+				if s.roles.RoleHasPermission(role.GetName(), permission) {
 					permissions[permission] = struct{}{}
 				}
 			}
@@ -46,7 +46,7 @@ func (s *IAMServer) TestIamPermissions(
 	response := &iampb.TestIamPermissionsResponse{
 		Permissions: make([]string, 0, len(permissions)),
 	}
-	for _, permission := range request.Permissions {
+	for _, permission := range request.GetPermissions() {
 		if _, ok := permissions[permission]; ok {
 			response.Permissions = append(response.Permissions, permission)
 		}
@@ -56,7 +56,7 @@ func (s *IAMServer) TestIamPermissions(
 
 func validateTestIamPermissionsRequest(request *iampb.TestIamPermissionsRequest) error {
 	var result validation.MessageValidator
-	switch request.Resource {
+	switch request.GetResource() {
 	case iamresource.Root: // OK
 	case "":
 		result.AddFieldViolation("resource", "missing required field")
@@ -68,7 +68,7 @@ func validateTestIamPermissionsRequest(request *iampb.TestIamPermissionsRequest)
 			result.AddFieldViolation("resource", "must not contain wildcard")
 		}
 	}
-	for i, permission := range request.Permissions {
+	for i, permission := range request.GetPermissions() {
 		if err := iampermission.Validate(permission); err != nil {
 			result.AddFieldError(fmt.Sprintf("permissions[%d]", i), err)
 		}
