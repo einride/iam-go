@@ -5,13 +5,13 @@ go 1.18
 require (
 	cloud.google.com/go/iam v1.1.6
 	cloud.google.com/go/longrunning v0.5.5
-	cloud.google.com/go/spanner v1.57.0
+	cloud.google.com/go/spanner v1.58.0
 	github.com/google/cel-go v0.20.1
 	go.einride.tech/aip v0.66.0
 	go.einride.tech/spanner-aip v0.58.0
 	google.golang.org/api v0.169.0
-	google.golang.org/genproto v0.0.0-20240205150955-31a09d347014
-	google.golang.org/genproto/googleapis/api v0.0.0-20240205150955-31a09d347014
+	google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9
+	google.golang.org/genproto/googleapis/api v0.0.0-20240304161311-37d4d3c04a78
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304161311-37d4d3c04a78
 	google.golang.org/grpc v1.62.1
 	google.golang.org/protobuf v1.32.0
@@ -19,8 +19,8 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.112.0 // indirect
-	cloud.google.com/go/compute v1.23.4 // indirect
+	cloud.google.com/go v0.112.1 // indirect
+	cloud.google.com/go/compute v1.24.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
