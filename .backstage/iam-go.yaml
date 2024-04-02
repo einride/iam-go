@@ -9,4 +9,4 @@ spec:
   type: go-library
   system: backend-sdk
   lifecycle: production
-  owner: platform-enginering
+  owner: platform-engineering
