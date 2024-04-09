@@ -115,9 +115,7 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	t.Cleanup(func() {
 		grpcServer.GracefulStop()
 	})
-	ctx := withTestDeadline(context.Background(), t)
-	conn, err := grpc.DialContext(
-		ctx,
+	conn, err := grpc.NewClient(
 		lis.Addr().String(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
