@@ -22,8 +22,7 @@ func runMain(ctx context.Context) error {
 	address := flag.String("address", "localhost:8080", "listen to address")
 	spannerEmulatorHost := flag.String("spanner-emulator-host", "localhost:9010", "connect to emulator host")
 	log.Printf("connecting to Spanner emulator on address %s...", *spannerEmulatorHost)
-	conn, err := grpc.DialContext(
-		ctx,
+	conn, err := grpc.NewClient(
 		*spannerEmulatorHost,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
