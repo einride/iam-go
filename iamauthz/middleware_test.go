@@ -38,7 +38,6 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 		conn, err := grpc.NewClient(
 			lis.Addr().String(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithBlock(),
 		)
 		assert.NilError(t, err)
 		client := healthpb.NewHealthClient(conn)
@@ -70,7 +69,6 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 		conn, err := grpc.NewClient(
 			lis.Addr().String(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithBlock(),
 		)
 		assert.NilError(t, err)
 		client := healthpb.NewHealthClient(conn)

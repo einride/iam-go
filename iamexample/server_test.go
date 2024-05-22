@@ -118,7 +118,6 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 	conn, err := grpc.NewClient(
 		lis.Addr().String(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
 	)
 	assert.NilError(t, err)
 	serviceClient := iamexamplev1.NewFreightServiceClient(conn)

@@ -25,7 +25,6 @@ func runMain(ctx context.Context) error {
 	conn, err := grpc.NewClient(
 		*spannerEmulatorHost,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
 	)
 	if err != nil {
 		return err
