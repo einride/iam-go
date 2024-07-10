@@ -83,6 +83,7 @@ type FreightServiceClient interface {
 	// See: https://google.aip.dev/231 (Batch methods: Get).
 	BatchGetShipments(ctx context.Context, in *BatchGetShipmentsRequest, opts ...grpc.CallOption) (*BatchGetShipmentsResponse, error)
 	// Sets the access control policy on the specified shipper, site or shipment.
+	// (-- api-linter: core::0136::response-message-name=disabled --)
 	SetIamPolicy(ctx context.Context, in *iampb.SetIamPolicyRequest, opts ...grpc.CallOption) (*iampb.Policy, error)
 	// Gets the access control policy for a shipper, site or shipment resource.
 	//
@@ -380,6 +381,7 @@ type FreightServiceServer interface {
 	// See: https://google.aip.dev/231 (Batch methods: Get).
 	BatchGetShipments(context.Context, *BatchGetShipmentsRequest) (*BatchGetShipmentsResponse, error)
 	// Sets the access control policy on the specified shipper, site or shipment.
+	// (-- api-linter: core::0136::response-message-name=disabled --)
 	SetIamPolicy(context.Context, *iampb.SetIamPolicyRequest) (*iampb.Policy, error)
 	// Gets the access control policy for a shipper, site or shipment resource.
 	//

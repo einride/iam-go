@@ -47,7 +47,7 @@ service FreightService {
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.get"
-      before {
+      before: {
         expression: "test(caller, request.name)"
         description: "The caller must have permission to get the shipper."
       }
@@ -60,7 +60,7 @@ service FreightService {
     option (google.api.http) = {get: "/v1/shippers"};
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shippers.list"
-      before {
+      before: {
         expression: "test(caller, '/')"
         description: "The caller must have permission to list all shippers."
       }
@@ -236,7 +236,7 @@ service FreightService {
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.get"
-      after {
+      after: {
         expression: "test_any(caller, [request.name, response.origin_site, response.destination_site])"
         description:
           "The caller must have permission to get the shipment"
@@ -270,7 +270,7 @@ service FreightService {
     option (google.api.method_signature) = "parent,shipment,shipment_id";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.create"
-      before {
+      before: {
         expression: "test_any(caller, [request.parent, request.shipment.origin_site, request.shipment.destination_site])"
         description:
           "The caller must have permission to create shipments under the parent shipper"
@@ -303,7 +303,7 @@ service FreightService {
     option (google.api.method_signature) = "name";
     option (einride.iam.v1.method_authorization) = {
       permission: "freight.shipments.delete"
-      before {
+      before: {
         expression: "test(caller, request.name)"
         description: "The caller must have permission to delete the shipment."
       }
@@ -328,8 +328,8 @@ service FreightService {
   }
 
   option (einride.iam.v1.long_running_operations_authorization) = {
-    operation_permissions {
-      operation {type: "iam-example.einride.tech/ShipperOperation"}
+    operation_permissions: {
+      operation: {type: "iam-example.einride.tech/ShipperOperation"}
       list: "freight.shipperOperations.list"
       get: "freight.shipperOperations.get"
       cancel: "freight.shipperOperations.cancel"
@@ -340,13 +340,13 @@ service FreightService {
   };
 
   option (einride.iam.v1.predefined_roles) = {
-    role {
+    role: {
       name: "roles/freight.admin"
       title: "Freight Admin"
       description: "Full admin permissions to freight."
       included_permissions: "freight.*"
     }
-    role {
+    role: {
       name: "roles/freight.editor"
       title: "Freight Editor"
       description: "Edit permissions to freight."
@@ -363,7 +363,7 @@ service FreightService {
       included_permissions: "freight.shipments.update"
       included_permissions: "freight.shipments.delete"
     }
-    role {
+    role: {
       name: "roles/freight.viewer"
       title: "Freight Viewer"
       description: "View permissions to freight."
@@ -377,40 +377,41 @@ service FreightService {
   };
 
   // Sets the access control policy on the specified shipper, site or shipment.
+  // (-- api-linter: core::0136::response-message-name=disabled --)
   rpc SetIamPolicy(google.iam.v1.SetIamPolicyRequest) returns (google.iam.v1.Policy) {
     option (google.api.http) = {
       post: "/v1/{resource=shippers/*}:setIamPolicy"
       body: "*"
-      additional_bindings {
+      additional_bindings: {
         post: "/v1/{resource=shippers/*/sites/*}:setIamPolicy"
         body: "*"
       }
-      additional_bindings {
+      additional_bindings: {
         post: "/v1/{resource=shippers/*/shipments/*}:setIamPolicy"
         body: "*"
       }
     };
     option (google.api.method_signature) = "resource,policy";
     option (einride.iam.v1.method_authorization) = {
-      resource_permissions {
-        resource_permission {
-          resource {type: "/"}
+      resource_permissions: {
+        resource_permission: {
+          resource: {type: "/"}
           permission: "freight.root.setIamPolicy"
         }
-        resource_permission {
-          resource {type: "iam-example.einride.tech/Shipper"}
+        resource_permission: {
+          resource: {type: "iam-example.einride.tech/Shipper"}
           permission: "freight.shippers.setIamPolicy"
         }
-        resource_permission {
-          resource {type: "iam-example.einride.tech/Site"}
+        resource_permission: {
+          resource: {type: "iam-example.einride.tech/Site"}
           permission: "freight.sites.setIamPolicy"
         }
-        resource_permission {
-          resource {type: "iam-example.einride.tech/Shipment"}
+        resource_permission: {
+          resource: {type: "iam-example.einride.tech/Shipment"}
           permission: "freight.shipments.setIamPolicy"
         }
       }
-      before {
+      before: {
         expression: "test(caller, request.resource)"
         description: "The caller must have permission to get the resource's IAM policy."
       }
@@ -425,36 +426,36 @@ service FreightService {
     option (google.api.http) = {
       post: "/v1/{resource=shippers/*}:getIamPolicy"
       body: "*"
-      additional_bindings {
+      additional_bindings: {
         post: "/v1/{resource=shippers/*/sites/*}:getIamPolicy"
         body: "*"
       }
-      additional_bindings {
+      additional_bindings: {
         post: "/v1/{resource=shippers/*/shipments/*}:getIamPolicy"
         body: "*"
       }
     };
     option (google.api.method_signature) = "resource";
     option (einride.iam.v1.method_authorization) = {
-      resource_permissions {
-        resource_permission {
-          resource {type: "/"}
+      resource_permissions: {
+        resource_permission: {
+          resource: {type: "/"}
           permission: "freight.root.getIamPolicy"
         }
-        resource_permission {
-          resource {type: "iam-example.einride.tech/Shipper"}
+        resource_permission: {
+          resource: {type: "iam-example.einride.tech/Shipper"}
           permission: "freight.shippers.getIamPolicy"
         }
-        resource_permission {
-          resource {type: "iam-example.einride.tech/Site"}
+        resource_permission: {
+          resource: {type: "iam-example.einride.tech/Site"}
           permission: "freight.sites.getIamPolicy"
         }
-        resource_permission {
-          resource {type: "iam-example.einride.tech/Shipment"}
+        resource_permission: {
+          resource: {type: "iam-example.einride.tech/Shipment"}
           permission: "freight.shipments.getIamPolicy"
         }
       }
-      before {
+      before: {
         expression: "test(caller, request.resource)"
         description: "The caller must have permission to get the resource's IAM policy."
       }
@@ -471,11 +472,11 @@ service FreightService {
     option (google.api.http) = {
       post: "/v1/{resource=shippers/*}:testIamPermissions"
       body: "*"
-      additional_bindings {
+      additional_bindings: {
         post: "/v1/{resource=shippers/*/sites/*}:testIamPermissions"
         body: "*"
       }
-      additional_bindings {
+      additional_bindings: {
         post: "/v1/{resource=shippers/*/shipments/*}:testIamPermissions"
         body: "*"
       }
