@@ -5,7 +5,7 @@ package einride.iam.v1;
 // A JWT identity token.
 message IdentityToken {
   // The raw token value.
-  string raw = 1;
+  string raw = 1 [debug_redact = true];
   // The "iss" claim identifies the principal that issued the JWT.
   // The processing of this claim is generally application specific.
   // The "iss" value is a case-sensitive string containing a string or URI value.
