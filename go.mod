@@ -3,13 +3,13 @@ module go.einride.tech/iam
 go 1.22
 
 require (
-	cloud.google.com/go/iam v1.2.1
-	cloud.google.com/go/longrunning v0.6.1
+	cloud.google.com/go/iam v1.2.2
+	cloud.google.com/go/longrunning v0.6.2
 	cloud.google.com/go/spanner v1.70.0
 	github.com/google/cel-go v0.21.0
 	go.einride.tech/aip v0.68.0
 	go.einride.tech/spanner-aip v0.63.0
-	google.golang.org/api v0.201.0
+	google.golang.org/api v0.203.0
 	google.golang.org/genproto v0.0.0-20241015192408-796eee8c2d53
 	google.golang.org/genproto/googleapis/api v0.0.0-20241015192408-796eee8c2d53
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53
@@ -21,7 +21,7 @@ require (
 require (
 	cel.dev/expr v0.16.0 // indirect
 	cloud.google.com/go v0.116.0 // indirect
-	cloud.google.com/go/auth v0.9.8 // indirect
+	cloud.google.com/go/auth v0.9.9 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	cloud.google.com/go/monitoring v1.21.1 // indirect
