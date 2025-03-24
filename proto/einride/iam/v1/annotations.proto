@@ -22,6 +22,8 @@ extend google.protobuf.MethodOptions {
 // A list of predefined roles.
 message PredefinedRoles {
   // The predefined roles.
+  // Disable api linter rule since we want to be close to google.iam
+  // (-- api-linter: core::0215::foreign-type-reference=disabled --)
   repeated google.iam.admin.v1.Role role = 1;
 }
 

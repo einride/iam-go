@@ -31,6 +31,8 @@ type PredefinedRoles struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The predefined roles.
+	// Disable api linter rule since we want to be close to google.iam
+	// (-- api-linter: core::0215::foreign-type-reference=disabled --)
 	Role []*adminpb.Role `protobuf:"bytes,1,rep,name=role,proto3" json:"role,omitempty"`
 }
 
