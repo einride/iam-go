@@ -7,6 +7,7 @@ import (
 	"go.einride.tech/iam/cmd/protoc-gen-go-iam/internal/geniam"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoregistry"
+	"google.golang.org/protobuf/types/pluginpb"
 )
 
 const docURL = "https://pkg.go.dev/go.einride.tech/iam"
@@ -17,6 +18,7 @@ func main() {
 		os.Exit(0)
 	}
 	protogen.Options{}.Run(func(gen *protogen.Plugin) error {
+		gen.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 		var files protoregistry.Files
 		for _, file := range gen.Files {
 			if err := files.RegisterFile(file.Desc); err != nil {
