@@ -100,7 +100,9 @@ func (s *authorizedHealthServer) Watch(
 	return s.healthServer.Watch(request, server)
 }
 
-type healthServer struct{}
+type healthServer struct {
+	healthpb.UnimplementedHealthServer
+}
 
 func (s *healthServer) Check(
 	_ context.Context,
