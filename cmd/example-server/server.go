@@ -93,7 +93,8 @@ func runServer(
 		<-ctx.Done()
 		grpcServer.GracefulStop()
 	}()
-	lis, err := net.Listen("tcp", address)
+	var lc net.ListenConfig
+	lis, err := lc.Listen(ctx, "tcp", address)
 	if err != nil {
 		return err
 	}

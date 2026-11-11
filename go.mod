@@ -1,6 +1,6 @@
 module go.einride.tech/iam
 
-go 1.23.0
+go 1.26.11
 
 require (
 	cloud.google.com/go/iam v1.2.2

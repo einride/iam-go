@@ -91,7 +91,8 @@ func (ts *serverTestSuite) newTestFixture(t *testing.T) *serverTestFixture {
 		FreightServiceAuthorization: authorization,
 		CallerResolver:              iamcaller.FromContextResolver(),
 	}
-	lis, err := net.Listen("tcp", "localhost:0")
+	var lc net.ListenConfig
+	lis, err := lc.Listen(t.Context(), "tcp", "localhost:0")
 	assert.NilError(t, err)
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(

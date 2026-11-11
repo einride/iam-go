@@ -41,7 +41,10 @@ func ResolveMethodAuthorizationOptions(
 						startPackage,
 					)
 				}
-				resourcePermission.Resource.Pattern = append(resourcePermission.Resource.Pattern, resource.GetPattern()...)
+				resourcePermission.Resource.Pattern = append(
+					resourcePermission.Resource.Pattern,
+					resource.GetPattern()...,
+				)
 			}
 		}
 	}

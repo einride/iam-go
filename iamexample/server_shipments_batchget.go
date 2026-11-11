@@ -80,7 +80,12 @@ func (r *batchGetShipmentsRequest) parse(request *iamexamplev1.BatchGetShipments
 			v.AddFieldViolation(fmt.Sprintf("names[%d]", i), "wildcard not supported")
 		}
 		if request.GetParent() != "" && !resourcename.HasParent(name, request.GetParent()) {
-			v.AddFieldViolation(fmt.Sprintf("names[%d]", i), "%s is not a child of parent %s", name, request.GetParent())
+			v.AddFieldViolation(
+				fmt.Sprintf("names[%d]", i),
+				"%s is not a child of parent %s",
+				name,
+				request.GetParent(),
+			)
 		}
 		var key iamexampledb.ShipmentsKey
 		if err := resourcename.Sscan(

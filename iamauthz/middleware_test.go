@@ -16,7 +16,8 @@ import (
 
 func TestRequireUnaryAuthorization(t *testing.T) {
 	t.Run("authorized", func(t *testing.T) {
-		lis, err := net.Listen("tcp", "localhost:0")
+		var lc net.ListenConfig
+		lis, err := lc.Listen(t.Context(), "tcp", "localhost:0")
 		assert.NilError(t, err)
 		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(RequireAuthorizationUnaryInterceptor))
 		healthpb.RegisterHealthServer(grpcServer, &authorizedHealthServer{})
@@ -47,7 +48,8 @@ func TestRequireUnaryAuthorization(t *testing.T) {
 	})
 
 	t.Run("not authorized", func(t *testing.T) {
-		lis, err := net.Listen("tcp", "localhost:0")
+		var lc net.ListenConfig
+		lis, err := lc.Listen(t.Context(), "tcp", "localhost:0")
 		assert.NilError(t, err)
 		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(RequireAuthorizationUnaryInterceptor))
 		healthpb.RegisterHealthServer(grpcServer, &healthServer{})
