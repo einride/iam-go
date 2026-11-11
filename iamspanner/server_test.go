@@ -890,10 +890,14 @@ func TestServer(t *testing.T) {
 				},
 			},
 		}
-		actual, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iampb.Policy) (*iampb.Policy, error) {
-			iampolicy.AddBinding(policy, "roles/test.admin", "user:user1")
-			return policy, nil
-		})
+		actual, err := server.ReadWritePolicy(
+			ctx,
+			"resources/test1",
+			func(policy *iampb.Policy) (*iampb.Policy, error) {
+				iampolicy.AddBinding(policy, "roles/test.admin", "user:user1")
+				return policy, nil
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected.GetBindings(), actual.GetBindings(), protocmp.Transform())
 		expected2 := &iampb.Policy{
@@ -908,11 +912,15 @@ func TestServer(t *testing.T) {
 				},
 			},
 		}
-		actual2, err := server.ReadWritePolicy(ctx, "resources/test1", func(policy *iampb.Policy) (*iampb.Policy, error) {
-			assert.DeepEqual(t, actual, policy, protocmp.Transform())
-			iampolicy.AddBinding(policy, "roles/test.user", "user:user2")
-			return policy, nil
-		})
+		actual2, err := server.ReadWritePolicy(
+			ctx,
+			"resources/test1",
+			func(policy *iampb.Policy) (*iampb.Policy, error) {
+				assert.DeepEqual(t, actual, policy, protocmp.Transform())
+				iampolicy.AddBinding(policy, "roles/test.user", "user:user2")
+				return policy, nil
+			},
+		)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, expected2.GetBindings(), actual2.GetBindings(), protocmp.Transform())
 	})

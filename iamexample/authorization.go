@@ -82,8 +82,14 @@ func (a *Authorization) BatchGetShipments(
 		return nil, err
 	}
 	for _, shipment := range response.GetShipments() {
-		if !(results[shipment.GetName()] || results[shipment.GetOriginSite()] || results[shipment.GetDestinationSite()]) {
-			return nil, status.Errorf(codes.PermissionDenied, "missing permission %s for %s", permission, shipment.GetName())
+		if !results[shipment.GetName()] && !results[shipment.GetOriginSite()] &&
+			!results[shipment.GetDestinationSite()] {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				"missing permission %s for %s",
+				permission,
+				shipment.GetName(),
+			)
 		}
 	}
 	return response, nil
@@ -126,7 +132,11 @@ func (a *Authorization) requireAny(ctx context.Context, permission string, resou
 	if ok, err := a.testAny(ctx, permission, resources); err != nil {
 		return err
 	} else if !ok {
-		return status.Errorf(codes.PermissionDenied, "caller must have permission `%s` on any of the resources", permission)
+		return status.Errorf(
+			codes.PermissionDenied,
+			"caller must have permission `%s` on any of the resources",
+			permission,
+		)
 	}
 	return nil
 }

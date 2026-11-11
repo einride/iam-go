@@ -37,7 +37,11 @@ func NewMemberFunctionImplementation() *functions.Overload {
 		Binary: func(callerVal, kindVal ref.Val) ref.Val {
 			caller, ok := callerVal.Value().(*iamv1.Caller)
 			if !ok {
-				return types.NewErr("test: unexpected type of arg 1, expected %T but got %T", &iamv1.Caller{}, callerVal.Value())
+				return types.NewErr(
+					"test: unexpected type of arg 1, expected %T but got %T",
+					&iamv1.Caller{},
+					callerVal.Value(),
+				)
 			}
 
 			kind, ok := kindVal.Value().(string)

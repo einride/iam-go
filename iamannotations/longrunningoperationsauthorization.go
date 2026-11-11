@@ -26,7 +26,10 @@ func ResolveLongRunningOperationsAuthorizationOptions(
 				operationPermissions.GetOperation().GetType(),
 			)
 		}
-		operationPermissions.Operation.Pattern = append(operationPermissions.Operation.Pattern, operation.GetPattern()...)
+		operationPermissions.Operation.Pattern = append(
+			operationPermissions.Operation.Pattern,
+			operation.GetPattern()...,
+		)
 	}
 	return result, nil
 }
