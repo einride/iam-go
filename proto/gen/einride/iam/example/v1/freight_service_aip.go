@@ -62,6 +62,14 @@ func (n ShipperOperationResourceName) MarshalString() (string, error) {
 	return n.String(), nil
 }
 
+// MarshalText implements the encoding.TextMarshaler interface.
+func (n ShipperOperationResourceName) MarshalText() ([]byte, error) {
+	if err := n.Validate(); err != nil {
+		return nil, err
+	}
+	return []byte(n.String()), nil
+}
+
 func (n *ShipperOperationResourceName) UnmarshalString(name string) error {
 	err := resourcename.Sscan(
 		name,
@@ -73,6 +81,20 @@ func (n *ShipperOperationResourceName) UnmarshalString(name string) error {
 		return err
 	}
 	return n.Validate()
+}
+
+// UnmarshalText implements the encoding.TextUnmarshaler interface.
+func (n *ShipperOperationResourceName) UnmarshalText(text []byte) error {
+	return n.UnmarshalString(string(text))
+}
+
+func (n ShipperOperationResourceName) Type() string {
+	return "iam-example.einride.tech/ShipperOperation"
+}
+
+// Pattern returns the resource name pattern for ShipperOperationResourceName as a string.
+func (n ShipperOperationResourceName) Pattern() string {
+	return "shippers/{shipper}/operations/{operation}"
 }
 
 func (n ShipperOperationResourceName) ShipperResourceName() ShipperResourceName {
